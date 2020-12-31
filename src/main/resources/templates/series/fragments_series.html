@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+  <body>
+  
+  	<div th:fragment="newSeriesForm_model">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+			<h4>New Series</h4>
+		</div>
+		<form id="newseries_form" th:action="@{|/series/new|}" th:object="${newseries}" method="post">
+		<div class="modal-body">
+			<div class="row">
+				<div class="series-form col-xs-12 col-md-8">
+					<div class="form-group">
+						<label for="newseries_title">Title</label>
+						<input id="newseries_title" class="form-control" type='text' th:field="*{title}" size='50' required="required"/>
+					</div>
+					<div class="form-group">
+						<label for="newseries_titleey">Uri</label>
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon">
+								<span>/<span class="owner" 
+									th:text="${newpost.owner!=null?newpost.owner.username:#authentication.principal.username}">owner</span>/series/</span>
+							</span>
+							<input id="newseries_titleKey" class="form-control" type='text' th:field="*{titleKey}" size='50' required="required"/>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="newseries_description">Description</label>
+						<textarea id="newseries_description" class="form-control" th:field="*{description}" rows="6" required="required"/>
+					</div>
+					<div class="form-group">
+						<label>Main Genre:</label>
+						<select th:field="*{genre}" class="form-control">
+							<option th:each="option : ${genres}"
+					            	th:value="${option.id}"
+					            	th:text="${option.displayName}">
+					    	</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>Additional Genres:</label>
+						<select th:field="*{additionalGenres}" size="5" class="form-control">
+							<option th:each="option : ${genres}"
+					            	th:value="${option.id}"
+					            	th:text="${option.displayName}">
+					    	</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>Story Status:</label>
+						<select th:field="*{status}" class="form-control">
+							<option th:each="status : ${T(net.mixednutz.app.server.entity.post.series.Status).values()}"
+						            th:value="${status}"
+						            th:text="${status}">
+						    </option>
+						</select>
+					</div>
+				</div>
+				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newseries}, ${ {'Series':seriesCrosspostFeeds} }, true, false)">
+					series-options
+				</div>
+			</div>
+  		</div>
+		<div class="modal-footer">
+			<p>Note:  A Series is not visible until a Chapter is posted</p>
+			<button id="submit-btn" class="btn btn-success" type="submit" name="submit" value="Post Now">Post Now</button>
+			<button class="btn" type="button" data-dismiss="modal">Cancel</button>
+		</div>
+		</form>
+		
+	</div>
+	
+	<div th:fragment="series">
+		<!-- Series Post --> 
+		
+        <!-- Title -->
+        <h1 itemprop="name" th:text="${series.title}">Blog Post Title</h1>
+
+        <!-- Author -->
+        <p class="lead">
+            by <a th:if="${series.author!=null}" th:href='@{|/${series.author.username}|}' href="#" th:text="${series.author.username}">Author</a><span th:if="${series.author==null}">Former Member</span> 
+        </p>
+        
+        <hr/>
+
+        <!-- Date/Time --> 
+        <p>
+        	<span class="glyphicon glyphicon-time"></span> Posted on <time th:datetime="${#temporals.formatISO(series.dateCreated)}" th:text="${#temporals.format(series.dateCreated, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
+        	<span class="glyphicon glyphicon-eye-open"></span> <span>0</span> Views
+        	<span class="glyphicon glyphicon-heart"></span> <span>0</span> Favorites
+        </p>
+
+		<div>Genre: 
+			<a href="#" th:text="${series.genre.displayName}" class="btn btn-sm btn-default">genre.displayName</a>
+		</div>
+		
+		<!-- Tags -->
+  		<div include="common/modules_common :: tags (${series.uri})">tags</div>
+		<!-- Reactions -->
+		<div include="common/modules_common :: reactions (${series.reactions}, ${reactionScores}, ${series.uri}, null)">reactions</div>
+        
+  		
+		<hr sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${series.author.userId}" />
+		
+		<div sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${series.author.userId}">
+			
+			<!-- Add Chapter -->
+			<button data-toggle="modal" data-target="#addChapterModal" th:fragment="series_settings" ><i class="glyphicon glyphicon-plus"></i>&nbsp;Add Chapter</button>
+			<!-- Edit -->
+			<button data-toggle="modal" data-target="#editseriesModal" class="btn btn-default" type="button" ><i class="glyphicon glyphicon-pencil"></i>&nbsp;Edit Series</button>
+			<!-- Delete -->
+			<button data-toggle="modal" data-target="#deleteseriesModal" class="btn btn-danger" type="button" ><i class="glyphicon glyphicon-remove"></i>&nbsp;Delete Series</button>
+		</div>
+				
+        <hr/>
+
+        <!-- Preview Image -->
+        <!-- <img class="img-responsive" src="http://placehold.it/900x300" alt=""/> 
+
+        <hr/>-->
+
+        <!-- Post Content -->
+        <h2>Synopsis</h2>
+        <div th:text="${series.description}">description</div>
+                
+        <hr/>
+        
+        <div class="toc">Table of Contents</div>
+        				
+		<!-- Author Box -->
+		<div th:include="profile/fragments_profile :: authorBio (${profile}, ${series.author})">authorBox</div>
+
+        <!-- Blog Comments -->
+
+        <!-- Comments Form -->
+        <div class="well">
+            <h4>Leave a Review:</h4>
+            <form role="form" th:action="@{|${series.uri}/comment/new|}" th:object="${newComment}" method="post">
+                <div class="form-group">
+                    <textarea class="form-control" th:field="*{body}" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" name="submit">Submit Review</button>
+            </form>
+        </div>
+
+        <hr/>
+
+        <!-- Posted Comments -->
+		<div class="comments" include="common/modules_common :: post_comments (${series})">Comments</div>
+            
+	</div>
+	
+	<div th:fragment="series_settings">
+		<h2>Series Settings</h2>
+		
+		<div class="row">
+			<div class="col-md-6">
+				<div class="form-group">
+					<label for="genre_list">Genres:</label>
+					<select id="genre_list" class="form-control" size="5">
+						<option th:each="option : ${genres}"
+					            th:value="${option.id}"
+					            th:text="${option.displayName}">
+					    </option>
+					</select>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group">
+					<label for="genre_displayName">Genre Display Name</label>
+					<input id="genre_displayName" class="form-control" type='text'/>
+				</div>
+				<div>
+					<button id="genre_submit" class="btn btn-primary" type="button"><i class="glyphicon glyphicon-plus"></i>&nbsp;Add Genre</button>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6">
+				<div class="form-group">
+					<label>Ratings:</label>
+					<select class="form-control" size="5">
+					</select>
+				</div>
+			</div>
+			<div class="col-md-6">
+				form
+			</div>
+		</div>
+		
+	</div>
+	
+	<script th:fragment="series_settings_JS" th:inline="javascript">
+	/*<![CDATA[*/
+		var csrfToken = $("meta[name='_csrf']").attr("content");
+	  	var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+	  	$(document).ajaxSend(function(e,xhr,options){
+	  		xhr.setRequestHeader(csrfHeader, csrfToken);
+	  	});	
+		
+	var genreUri = /*[[@{|/internal/genre/|}]]*/ "/internal/genre/";
+	
+	function getTitleKey(str) {
+		return str
+			.toLowerCase()
+			.trim()
+			.replace(/[^\w\s]|_/g, "")
+			.replace(/\s+/g, '-');
+	};
+	
+	$('#genre_submit').on('click',function(){
+		data = {
+				'id':getTitleKey($('#genre_displayName').val()),
+				'displayName':$('#genre_displayName').val()}
+		$.ajax({
+			type: 'POST', 
+			url: getRelativePath(genreUri),
+			data: JSON.stringify(data),
+			contentType: 'application/json; charset=utf-8',
+			dataType: "json",
+			success: function(data){
+				console.log(data);
+				$('#genre_list').append(new Option(data.displayName, data.id))
+			}
+		});
+		//$('#genre_list').append(new Option($('#genre_displayName').val(), $('#genre_displayName').val()))
+	});
+	/*]]>*/
+	</script>
+  
+  </body>
+</html>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>net.mixednutz.app.series</groupId>
+	<artifactId>mixednutz-app-series</artifactId>
+	<version>2.0.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>mixednutz-app-series</name>
+	<description>Model classes for Series Entityies</description>
+
+	<!-- 
+		Using Spring Boot Starter to keep dependencies syncronized across projects
+	 -->
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.6.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.8</java.version>
+		
+		<mixednutz-api.version>2.0.0-SNAPSHOT</mixednutz-api.version>
+		<mixednutz-app.version>2.0.0-SNAPSHOT</mixednutz-app.version>
+		<spring-social.version>1.1.6.RELEASE</spring-social.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<excludedGroups>net.mixednutz.api.core.test.IntegrationTest</excludedGroups>
+				</configuration>
+			</plugin>
+	
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/*.java</include>
+					</includes>
+					<groups>net.mixednutz.api.core.test.IntegrationTest</groups>
+				</configuration>
+			</plugin>
+	
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<dependencies>
+	
+		<dependency>
+			<groupId>net.mixednutz</groupId>
+			<artifactId>mixednutz-java-api</artifactId>
+			<version>${mixednutz-api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.mixednutz.app.core</groupId>
+			<artifactId>mixednutz-app-core</artifactId>
+			<version>${mixednutz-app.version}</version>
+		</dependency>
+		
+		<!--  Spring -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+			<scope>provided</scope>
+		</dependency>
+	
+		<!-- Jackson Annotations for JSON serialization -->
+		<dependency>
+		    <groupId>com.fasterxml.jackson.datatype</groupId>
+		    <artifactId>jackson-datatype-jsr310</artifactId>
+		    <scope>provided</scope>
+		</dependency>
+		
+		<!-- Spring Web for REST client actions -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+		    <artifactId>spring-web</artifactId>
+		    <scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+	        <groupId>org.springframework.social</groupId>
+	        <artifactId>spring-social-web</artifactId>
+	        <version>${spring-social.version}</version>
+	        <scope>provided</scope>
+	    </dependency>
+		
+		<!-- Commons Codec for the Base64 authorization -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- Testing -->
+	  	<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+	</dependencies>
+	
+
+</project>

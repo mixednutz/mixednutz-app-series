@@ -14,59 +14,61 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import net.mixednutz.api.core.model.ApiList;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
 import net.mixednutz.app.server.entity.User;
-import net.mixednutz.app.server.entity.post.series.Genre;
-import net.mixednutz.app.server.repository.GenreRepository;
+import net.mixednutz.app.server.entity.post.series.Rating;
+import net.mixednutz.app.server.repository.RatingRepository;
 
 @Controller
-@RequestMapping({"/internal/genre"})
-public class ApiGenreController {
+@RequestMapping({"/internal/rating"})
+public class ApiRatingController {
 	
 	@Autowired
-	private GenreRepository genreRepository;
+	private RatingRepository ratingRepository;
 	
 	@RequestMapping(value="", method = RequestMethod.GET)
-	public @ResponseBody GenreList getGenres() {
-		GenreList list = new GenreList();
-		for (Genre genre: genreRepository.findAll()) {
-			list.add(genre);
+	public @ResponseBody RatingList getRatings() {
+		RatingList list = new RatingList();
+		for (Rating rating: ratingRepository.findAll()) {
+			list.add(rating);
 		}
 		return list;
 	}
 	
 	@RequestMapping(value="", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
-	public @ResponseBody Genre addGenres(
-			@RequestBody Genre genre, 
+	public @ResponseBody Rating addRating(
+			@RequestBody Rating rating, 
 			@AuthenticationPrincipal final User currentUser) {
-		return genreRepository.save(genre);
+		return ratingRepository.save(rating);
 	}
 	
 	@RequestMapping(value="/{id}", method = RequestMethod.PUT)
-	public @ResponseBody Genre editgenre(
+	public @ResponseBody Rating editRating(
 			@PathVariable String id,
-			@RequestBody Genre genre, 
+			@RequestBody Rating rating, 
 			@AuthenticationPrincipal final User currentUser) {
-		Genre existing = genreRepository.findById(id)
+		Rating existing = ratingRepository.findById(id)
 			.orElseThrow(()->{
 				return new ResourceNotFoundException();
 			});
 		
 		existing.setId(existing.getId());
-		existing.setSortOrder(genre.getSortOrder());
-		existing.setDisplayName(genre.getDisplayName());
-		existing.setDescription(genre.getDescription());
-		return genreRepository.save(existing);
+		existing.setSortOrder(rating.getSortOrder());
+		existing.setDisplayName(rating.getDisplayName());
+		existing.setDescription(rating.getDescription());
+		existing.setRequiresAgeVerification(rating.isRequiresAgeVerification());
+		existing.setMinimumAge(rating.getMinimumAge());
+		return ratingRepository.save(existing);
 	}
 	
-	public static class GenreList extends ApiList<Genre> {
+	public static class RatingList extends ApiList<Rating> {
 
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 2314764021162994219L;
 
-		public GenreList() {
-			super("genres");
+		public RatingList() {
+			super("ratings");
 		}
 		
 	}

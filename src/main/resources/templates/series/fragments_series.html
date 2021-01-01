@@ -34,6 +34,15 @@
 						<textarea id="newseries_description" class="form-control" th:field="*{description}" rows="6" required="required"/>
 					</div>
 					<div class="form-group">
+						<label>Maturity Rating:</label>
+						<select th:field="*{rating}" class="form-control">
+							<option th:each="option : ${ratings}"
+					            	th:value="${option.id}"
+					            	th:text="${option.displayName}">
+					    	</option>
+						</select>
+					</div>
+					<div class="form-group">
 						<label>Main Genre:</label>
 						<select th:field="*{genre}" class="form-control">
 							<option th:each="option : ${genres}"
@@ -95,6 +104,9 @@
         	<span class="glyphicon glyphicon-heart"></span> <span>0</span> Favorites
         </p>
 
+		<div>Rated: 
+			<span th:text="${series.rating.displayName}">rating.displayName</a>
+		</div>
 		<div>Genre: 
 			<a href="#" th:text="${series.genre.displayName}" class="btn btn-sm btn-default">genre.displayName</a>
 		</div>
@@ -110,11 +122,11 @@
 		<div sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${series.author.userId}">
 			
 			<!-- Add Chapter -->
-			<button data-toggle="modal" data-target="#addChapterModal" th:fragment="series_settings" ><i class="glyphicon glyphicon-plus"></i>&nbsp;Add Chapter</button>
+			<button data-toggle="modal" data-target="#addChapterModal" class="btn btn-default" type="button"><i class="glyphicon glyphicon-plus"></i>&nbsp;Add Chapter</button>
 			<!-- Edit -->
-			<button data-toggle="modal" data-target="#editseriesModal" class="btn btn-default" type="button" ><i class="glyphicon glyphicon-pencil"></i>&nbsp;Edit Series</button>
+			<button data-toggle="modal" data-target="#editseriesModal" class="btn btn-default" type="button"><i class="glyphicon glyphicon-pencil"></i>&nbsp;Edit Series</button>
 			<!-- Delete -->
-			<button data-toggle="modal" data-target="#deleteseriesModal" class="btn btn-danger" type="button" ><i class="glyphicon glyphicon-remove"></i>&nbsp;Delete Series</button>
+			<button data-toggle="modal" data-target="#deleteseriesModal" class="btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i>&nbsp;Delete Series</button>
 		</div>
 				
         <hr/>
@@ -171,25 +183,48 @@
 				</div>
 			</div>
 			<div class="col-md-6">
+				<input id="genre_id" type='hidden'/>
 				<div class="form-group">
 					<label for="genre_displayName">Genre Display Name</label>
 					<input id="genre_displayName" class="form-control" type='text'/>
 				</div>
 				<div>
-					<button id="genre_submit" class="btn btn-primary" type="button"><i class="glyphicon glyphicon-plus"></i>&nbsp;Add Genre</button>
+					<button id="genre_submit" class="btn btn-default" type="button"><i class="glyphicon glyphicon-plus"></i>&nbsp;Add Genre</button>
+					<button id="genre_update" class="btn btn-default" type="button"><i class="glyphicon glyphicon-pencil"></i>&nbsp;Save Genre</button>
 				</div>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-md-6">
 				<div class="form-group">
-					<label>Ratings:</label>
-					<select class="form-control" size="5">
+					<label>Maturity Ratings:</label>
+					<select id="rating_list" class="form-control" size="5">
+						<option th:each="option : ${ratings}"
+					            th:value="${option.id}"
+					            th:text="${option.displayName}"
+					            th:attr="data-requiresAgeVerification=${option.requiresAgeVerification},data-minimumAge=${option.minimumAge}">
+					    </option>
 					</select>
 				</div>
 			</div>
 			<div class="col-md-6">
-				form
+				<input id="rating_id" type='hidden'/>
+				<div class="form-group">
+					<label for="rating_displayName">Maturity Rating Display Name</label>
+					<input id="rating_displayName" class="form-control" type='text'/>
+				</div>
+				<div class="form-check">
+					<input id="rating_requiresAgeVerification" class="form-check-input" type="checkbox" value="true"/>
+					<label for="rating_requiresAgeVerification" class="form-check-label">Require Age Verification</label>
+				</div>
+				<div class="form-group">
+					<label for="rating_minimumAge">Minimum Age</label>
+					<input id="rating_minimumAge" class="form-control" type="number"/>
+				</div>
+				<div>
+					<button id="rating_submit" class="btn btn-default" type="button"><i class="glyphicon glyphicon-plus"></i>&nbsp;Add Rating</button>
+					<button id="rating_update" class="btn btn-default" type="button"><i class="glyphicon glyphicon-pencil"></i>&nbsp;Save Rating</button>
+				</div>
 			</div>
 		</div>
 		
@@ -203,7 +238,8 @@
 	  		xhr.setRequestHeader(csrfHeader, csrfToken);
 	  	});	
 		
-	var genreUri = /*[[@{|/internal/genre/|}]]*/ "/internal/genre/";
+	var genreUri = /*[[@{|/internal/genre|}]]*/ "/internal/genre";
+	var ratingUri = /*[[@{|/internal/rating|}]]*/ "/internal/rating/";
 	
 	function getTitleKey(str) {
 		return str
@@ -212,6 +248,9 @@
 			.replace(/[^\w\s]|_/g, "")
 			.replace(/\s+/g, '-');
 	};
+	
+	$('#genre_update').hide();
+	$('#rating_update').hide();
 	
 	$('#genre_submit').on('click',function(){
 		data = {
@@ -225,10 +264,99 @@
 			dataType: "json",
 			success: function(data){
 				console.log(data);
-				$('#genre_list').append(new Option(data.displayName, data.id))
+				$('#genre_displayName').val('');
+				$('#genre_list').append(
+						$('<option>')
+							.val(data.id)
+							.text(data.displayName));
 			}
 		});
-		//$('#genre_list').append(new Option($('#genre_displayName').val(), $('#genre_displayName').val()))
+	});
+	$('#genre_update').on('click',function(){
+		data = {
+				'id':getTitleKey($('#genre_displayName').val()),
+				'displayName':$('#genre_displayName').val()}
+		$.ajax({
+			type: 'PUT', 
+			url: getRelativePath(genreUri+'/'+$('#genre_id').val()),
+			data: JSON.stringify(data),
+			contentType: 'application/json; charset=utf-8',
+			dataType: "json",
+			success: function(data){
+				console.log(data);
+				var option = $('#genre_list option[value="' + data.id + '"]');
+				option.text(data.displayName)
+			}
+		});
+	});
+	$('#genre_list').on('change',function(){
+		console.log($(this).val());
+		$('#genre_id').val($(this).val());
+		$('#genre_displayName').val($(this).find(":selected").text());
+		$('#genre_submit').hide()
+		$('#genre_update').show();
+	});
+	
+	$('#rating_submit').on('click',function(){
+			data = {
+					'id' : getTitleKey($('#rating_displayName').val()),
+					'displayName' : $('#rating_displayName').val(),
+					'requiresAgeVerification' : $('#rating_requiresAgeVerification').prop('checked'),
+					'minimumAge' : $('#rating_requiresAgeVerification').prop('checked')
+						? $('#rating_minimumAge').val() : null
+					}
+			$.ajax({
+				type: 'POST', 
+				url: getRelativePath(ratingUri),
+				data: JSON.stringify(data),
+				contentType: 'application/json; charset=utf-8',
+				dataType: "json",
+				success: function(data){
+					console.log(data);
+					$('#rating_displayName').val('');
+					$('#rating_requiresAgeVerification').prop('checked',false);
+					$('#rating_minimumAge').val('');
+					$('#rating_list').append(
+							$('<option>')
+								.val(data.id)
+								.text(data.displayName)
+								.attr('data-requiresAgeVerification',data.requiresAgeVerification)
+								.attr('data-minimumAge',data.minimumAge));
+				}
+			});
+	});
+	$('#rating_update').on('click',function(){
+		data = {
+				'id' : getTitleKey($('#rating_displayName').val()),
+				'displayName' : $('#rating_displayName').val(),
+				'requiresAgeVerification' : $('#rating_requiresAgeVerification').prop('checked'),
+				'minimumAge' : $('#rating_requiresAgeVerification').prop('checked')
+					? $('#rating_minimumAge').val() : null
+				}
+		$.ajax({
+			type: 'PUT', 
+			url: getRelativePath(ratingUri+'/'+$('#rating_id').val()),
+			data: JSON.stringify(data),
+			contentType: 'application/json; charset=utf-8',
+			dataType: "json",
+			success: function(data){
+				console.log(data);
+				var option = $('#rating_list option[value="' + data.id + '"]');
+				option
+					.text(data.displayName)
+					.attr('data-requiresAgeVerification',data.requiresAgeVerification)
+					.attr('data-minimumAge',data.minimumAge);
+			}
+		});
+	});
+	$('#rating_list').on('change',function(){
+		var selectedOption = $(this).find(":selected")
+		$('#rating_id').val($(this).val());
+		$('#rating_displayName').val(selectedOption.text());
+		$('#rating_requiresAgeVerification').prop('checked',selectedOption.attr('data-requiresAgeVerification')=='true');
+		$('#rating_minimumAge').val(selectedOption.attr('data-minimumAge'));
+		$('#rating_submit').hide()
+		$('#rating_update').show();
 	});
 	/*]]>*/
 	</script>

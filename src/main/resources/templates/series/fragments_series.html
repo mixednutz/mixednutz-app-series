@@ -53,7 +53,7 @@
 					</div>
 					<div class="form-group">
 						<label>Additional Genres:</label>
-						<select th:field="*{additionalGenres}" size="5" class="form-control">
+						<select th:field="*{additionalGenres}" size="5" class="form-control" multiple="multiple">
 							<option th:each="option : ${genres}"
 					            	th:value="${option.id}"
 					            	th:text="${option.displayName}">
@@ -176,6 +176,9 @@
 		</div>
 		<div>Genre: 
 			<a href="#" th:text="${series.genre.displayName}" class="btn btn-sm btn-default">genre.displayName</a>
+			<div class="btn-group" role="group">
+				<a href="#" th:each="additional : ${series.additionalGenres}" th:text="${additional.displayName}" class="btn btn-sm btn-default">additionalGenre.displayName</a>
+			</div>
 		</div>
 		
 		

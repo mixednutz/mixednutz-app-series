@@ -29,6 +29,7 @@ public class ChapterController extends BaseChapterController {
 			Authentication auth, Model model) {
 		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
 		getChapter(chapter, auth,model);
+		model.addAttribute("views", chapter.getViews().size());
 		return "series/chapter/view";
 	}
 	

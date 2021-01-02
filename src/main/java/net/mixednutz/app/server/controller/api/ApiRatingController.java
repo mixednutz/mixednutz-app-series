@@ -1,5 +1,7 @@
 package net.mixednutz.app.server.controller.api;
 
+import javax.annotation.security.RolesAllowed;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,6 +35,7 @@ public class ApiRatingController {
 		return list;
 	}
 	
+	@RolesAllowed("ROLE_ADMIN")
 	@RequestMapping(value="", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
 	public @ResponseBody Rating addRating(
@@ -41,6 +44,7 @@ public class ApiRatingController {
 		return ratingRepository.save(rating);
 	}
 	
+	@RolesAllowed("ROLE_ADMIN")
 	@RequestMapping(value="/{id}", method = RequestMethod.PUT)
 	public @ResponseBody Rating editRating(
 			@PathVariable String id,

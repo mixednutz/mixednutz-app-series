@@ -29,7 +29,7 @@ public class ApiGenreController {
 	@RequestMapping(value="", method = RequestMethod.GET)
 	public @ResponseBody GenreList getGenres() {
 		GenreList list = new GenreList();
-		for (Genre genre: genreRepository.findAll()) {
+		for (Genre genre: genreRepository.findByOrderByDisplayNameAsc()) {
 			list.add(genre);
 		}
 		return list;
@@ -56,7 +56,6 @@ public class ApiGenreController {
 			});
 		
 		existing.setId(existing.getId());
-		existing.setSortOrder(genre.getSortOrder());
 		existing.setDisplayName(genre.getDisplayName());
 		existing.setDescription(genre.getDescription());
 		return genreRepository.save(existing);

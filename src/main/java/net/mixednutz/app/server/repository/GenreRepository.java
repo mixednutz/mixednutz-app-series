@@ -8,4 +8,6 @@ import net.mixednutz.app.server.entity.post.series.Genre;
 @Repository
 public interface GenreRepository extends CrudRepository<Genre, String> {
 
+	Iterable<Genre> findByOrderByDisplayNameAsc();
+	
 }

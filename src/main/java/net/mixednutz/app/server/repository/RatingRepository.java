@@ -8,4 +8,6 @@ import net.mixednutz.app.server.entity.post.series.Rating;
 @Repository
 public interface RatingRepository extends CrudRepository<Rating, String> {
 
+	Iterable<Rating> findByOrderBySortOrderAsc();
+	
 }

@@ -29,7 +29,7 @@ public class ApiRatingController {
 	@RequestMapping(value="", method = RequestMethod.GET)
 	public @ResponseBody RatingList getRatings() {
 		RatingList list = new RatingList();
-		for (Rating rating: ratingRepository.findAll()) {
+		for (Rating rating: ratingRepository.findByOrderBySortOrderAsc()) {
 			list.add(rating);
 		}
 		return list;

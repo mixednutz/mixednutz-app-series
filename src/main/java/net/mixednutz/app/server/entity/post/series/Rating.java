@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Rating {
 	
 	private String id;
-	private Integer sortOrder;
+	private int sortOrder=0;
 	private String displayName;
 	private String description;
 	
@@ -41,10 +41,10 @@ public class Rating {
 	public void setId(String id) {
 		this.id = id;
 	}
-	public Integer getSortOrder() {
+	public int getSortOrder() {
 		return sortOrder;
 	}
-	public void setSortOrder(Integer sortOrder) {
+	public void setSortOrder(int sortOrder) {
 		this.sortOrder = sortOrder;
 	}
 	public String getDisplayName() {

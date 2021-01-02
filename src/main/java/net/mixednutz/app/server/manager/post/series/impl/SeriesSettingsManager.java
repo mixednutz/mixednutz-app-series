@@ -26,11 +26,11 @@ public class SeriesSettingsManager implements ComponentSettings {
 	
 
 	public Iterable<Genre> genres() {
-		return genreRepository.findAll();
+		return genreRepository.findByOrderByDisplayNameAsc();
 	}
 	
 	public Iterable<Rating> ratings() {
-		return ratingRepository.findAll();
+		return ratingRepository.findByOrderBySortOrderAsc();
 	}
 
 	@Override

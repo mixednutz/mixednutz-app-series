@@ -35,7 +35,7 @@
 					</div>
 					<div class="form-group">
 						<label>Maturity Rating:</label>
-						<select th:field="*{rating}" class="form-control">
+						<select th:field="*{rating}" class="form-control" required="required">
 							<option th:each="option : ${ratings}"
 					            	th:value="${option.id}"
 					            	th:text="${option.displayName}">
@@ -44,7 +44,7 @@
 					</div>
 					<div class="form-group">
 						<label>Main Genre:</label>
-						<select th:field="*{genre}" class="form-control">
+						<select th:field="*{genre}" class="form-control" required="required">
 							<option th:each="option : ${genres}"
 					            	th:value="${option.id}"
 					            	th:text="${option.displayName}">
@@ -62,7 +62,7 @@
 					</div>
 					<div class="form-group">
 						<label>Story Status:</label>
-						<select th:field="*{status}" class="form-control">
+						<select th:field="*{status}" class="form-control" required="required">
 							<option th:each="status : ${T(net.mixednutz.app.server.entity.post.series.Status).values()}"
 						            th:value="${status}"
 						            th:text="${status}">
@@ -248,7 +248,7 @@
 			<div class="col-md-6">
 				<input id="genre_id" type='hidden'/>
 				<div class="form-group">
-					<label for="genre_displayName">Genre Display Name</label>
+					<label for="genre_displayName">Genre Display Name:</label>
 					<input id="genre_displayName" class="form-control" type='text'/>
 				</div>
 				<div>
@@ -275,6 +275,10 @@
 				<div class="form-group">
 					<label for="rating_displayName">Maturity Rating Display Name</label>
 					<input id="rating_displayName" class="form-control" type='text'/>
+				</div>
+				<div class="form-group">
+					<label for="rating_sortOrder">Sort ID:</label>
+					<input id="rating_sortOrder" class="form-control" type='number' value='0'/>
 				</div>
 				<div class="form-check">
 					<input id="rating_requiresAgeVerification" class="form-check-input" type="checkbox" value="true"/>
@@ -364,6 +368,7 @@
 			data = {
 					'id' : getTitleKey($('#rating_displayName').val()),
 					'displayName' : $('#rating_displayName').val(),
+					'sortOrder' : $('#rating_sortOrder').val(),
 					'requiresAgeVerification' : $('#rating_requiresAgeVerification').prop('checked'),
 					'minimumAge' : $('#rating_requiresAgeVerification').prop('checked')
 						? $('#rating_minimumAge').val() : null
@@ -377,12 +382,14 @@
 				success: function(data){
 					console.log(data);
 					$('#rating_displayName').val('');
+					$('#rating_sortOrder').val('0');
 					$('#rating_requiresAgeVerification').prop('checked',false);
 					$('#rating_minimumAge').val('');
 					$('#rating_list').append(
 							$('<option>')
 								.val(data.id)
 								.text(data.displayName)
+								.attr('data-sortOrder',data.sortOrder)
 								.attr('data-requiresAgeVerification',data.requiresAgeVerification)
 								.attr('data-minimumAge',data.minimumAge));
 				}
@@ -392,6 +399,7 @@
 		data = {
 				'id' : getTitleKey($('#rating_displayName').val()),
 				'displayName' : $('#rating_displayName').val(),
+				'sortOrder' : $('#rating_sortOrder').val(),
 				'requiresAgeVerification' : $('#rating_requiresAgeVerification').prop('checked'),
 				'minimumAge' : $('#rating_requiresAgeVerification').prop('checked')
 					? $('#rating_minimumAge').val() : null
@@ -407,6 +415,7 @@
 				var option = $('#rating_list option[value="' + data.id + '"]');
 				option
 					.text(data.displayName)
+					.attr('data-sortOrder',data.sortOrder)
 					.attr('data-requiresAgeVerification',data.requiresAgeVerification)
 					.attr('data-minimumAge',data.minimumAge);
 			}
@@ -416,6 +425,7 @@
 		var selectedOption = $(this).find(":selected")
 		$('#rating_id').val($(this).val());
 		$('#rating_displayName').val(selectedOption.text());
+		$('#rating_sortOrder').val(selectedOption.attr('data-sortOrder'));
 		$('#rating_requiresAgeVerification').prop('checked',selectedOption.attr('data-requiresAgeVerification')=='true');
 		$('#rating_minimumAge').val(selectedOption.attr('data-minimumAge'));
 		$('#rating_submit').hide()

@@ -24,7 +24,7 @@
 						<div class="input-group input-group-sm">
 							<span class="input-group-addon">
 								<span>/<span class="owner" 
-									th:text="${newpost.owner!=null?newpost.owner.username:#authentication.principal.username}">owner</span>/series/</span>
+									th:text="${newseries.owner!=null?newseries.owner.username:#authentication.principal.username}">owner</span>/series/ID/</span>
 							</span>
 							<input id="newseries_titleKey" class="form-control" type='text' th:field="*{titleKey}" size='50' required="required"/>
 						</div>
@@ -84,6 +84,73 @@
 		
 	</div>
 	
+	<div th:fragment="newChapterForm_model">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+			<h4>New Chapter</h4>
+		</div>
+		<form id="newchapter_form" th:action="@{|/series/${series.id}/chapter/new|}" th:object="${newchapter}" method="post">
+		<div class="modal-body">
+			<div class="row">
+				<div class="chapter-form col-xs-12 col-md-8">
+					<div class="form-group">
+						<label for="newchapter_title">Title</label>
+						<input id="newchapter_title" class="form-control" type='text' th:field="*{title}" size='50' required="required"/>
+					</div>
+					<div class="form-group">
+						<label for="newchapter_titleKey">Uri</label>
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon">
+								<span>/<span class="owner" 
+									th:text="${newchapter.owner!=null?newchapter.owner.username:#authentication.principal.username}">owner</span>/series/<span class="seriesId" 
+									th:text="${newchapter.series.id}">seriesId</span>/<span class="seriesTitleKey" 
+									th:text="${newchapter.series.titleKey}">seriesTitleKey</span>/ID/</span>
+							</span>
+							<input id="newchapter_titleKey" class="form-control" type='text' th:field="*{titleKey}" size='50' required="required"/>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label for="body">Body</label>
+						<div class="btn-toolbar" data-role="editor-toolbar"
+						        data-target="#editor">
+						  	<div class="btn-group">
+								<a class="btn btn-default" data-edit="bold" title="Bold (Ctrl/Cmd+B)"><i class="fa fa-bold"></i></a>
+								<a class="btn btn-default" data-edit="italic" title="Italic (Ctrl/Cmd+I)"><i class="fa fa-italic"></i></a>
+								<a class="btn btn-default" data-edit="strikethrough" title="Strikethrough"><i class="fa fa-strikethrough"></i></a>
+								<a class="btn btn-default" data-edit="underline" title="Underline (Ctrl/Cmd+U)"><i class="fa fa-underline"></i></a>
+							</div>
+							
+							<div class="btn-group">
+								<a class="btn btn-default" data-edit="undo" title="Undo (Ctrl/Cmd+Z)"><i class="fa fa-undo"></i></a>
+								<a class="btn btn-default" data-edit="redo" title="Redo (Ctrl/Cmd+Y)"><i class="fa fa-repeat"></i></a>
+								<a class="btn btn-default" data-edit="html" title="Clear Formatting"><i class='glyphicon glyphicon-pencil'></i></a>
+							</div>
+						</div> 
+						<input type="hidden" id="series_body" th:field="*{body}"/>
+						<div id="editor" class="form-control" data-placeholder="Start your journal..."></div>
+					</div>
+				</div>
+				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newchapter}, ${ {'Chapter':chapterCrosspostFeeds} }, true, false)">
+					chapter-options
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button id="submit-btn" type="submit" name="submit" value="Post Now">Post Now</button>
+  			
+			<button class="btn btn-success" type="button" name="submit" value="Post Now"
+				onclick="$('#series_body').val($('#editor').cleanHtml(true));$('#submit-btn').click();">Post Now</button>
+  			<button class="btn" type="button" data-dismiss="modal">Cancel</button>
+		</div>
+		</form>
+		
+	</div>
+	<script th:fragment="newChapterForm_JS" >
+	$('#editor').wysiwyg();
+	$('#submit-btn').hide();
+	</script>
+	
 	<div th:fragment="series">
 		<!-- Series Post --> 
 		
@@ -111,11 +178,7 @@
 			<a href="#" th:text="${series.genre.displayName}" class="btn btn-sm btn-default">genre.displayName</a>
 		</div>
 		
-		<!-- Tags -->
-  		<div include="common/modules_common :: tags (${series.uri})">tags</div>
-		<!-- Reactions -->
-		<div include="common/modules_common :: reactions (${series.reactions}, ${reactionScores}, ${series.uri}, null)">reactions</div>
-        
+		
   		
 		<hr sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${series.author.userId}" />
 		

@@ -1,6 +1,6 @@
 package net.mixednutz.app.server.controller;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,21 +17,23 @@ import net.mixednutz.app.server.entity.VisibilityType;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.Series;
-import net.mixednutz.app.server.entity.post.series.SeriesFactory;
-import net.mixednutz.app.server.entity.post.series.SeriesTag;
-import net.mixednutz.app.server.manager.TagManager;
-import net.mixednutz.app.server.manager.post.series.SeriesManager;
+import net.mixednutz.app.server.format.HtmlFilter;
+import net.mixednutz.app.server.manager.post.series.ChapterManager;
+import net.mixednutz.app.server.repository.ChapterRepository;
 import net.mixednutz.app.server.repository.SeriesRepository;
 import net.mixednutz.app.server.repository.UserProfileRepository;
 import net.mixednutz.app.server.repository.UserRepository;
 
-public class BaseSeriesController {
+public class BaseChapterController {
+
+	@Autowired
+	private ChapterRepository chapterRepository;
+	
+	@Autowired
+	private ChapterManager chapterManager;
 	
 	@Autowired
 	private SeriesRepository seriesRepository;
-	
-	@Autowired
-	private SeriesManager seriesManager;
 	
 	@Autowired
 	private UserProfileRepository profileRepository;
@@ -40,16 +42,14 @@ public class BaseSeriesController {
 	private UserRepository userRepository;
 	
 	@Autowired
-	protected TagManager tagManager;
-	
-	@Autowired
-	protected SeriesFactory seriesFactory;
+	private List<HtmlFilter> htmlFilters;
 	
 	@Autowired
 	protected ChapterFactory chapterFactory;
 	
-	
-	protected Series get(String username, Long id, String titleKey) {
+	protected Chapter get(String username, 
+			Long seriesId, String seriesTitleKey, 
+			Long id, String titleKey) {
 		User profileUser = userRepository.findByUsername(username)
 				.orElseThrow(new Supplier<UserNotFoundException>(){
 					@Override
@@ -57,103 +57,109 @@ public class BaseSeriesController {
 						throw new UserNotFoundException("User "+username+" not found");
 					}});
 		
-		Series series = seriesRepository
+		Chapter chapter = chapterRepository
 			.findByOwnerAndId(profileUser, id)
+			.orElseThrow(new Supplier<ResourceNotFoundException>() {
+				@Override
+				public ResourceNotFoundException get() {
+					throw new ResourceNotFoundException("Chapter not found");
+				}
+			});
+		if (!chapter.getSeries().getId().equals(seriesId)) {
+			//If the Series ID is wrong, throw 404
+			throw new ResourceNotFoundException("Chapter not found");
+		}
+		if (!chapter.getTitleKey().equals(titleKey) ||
+				!chapter.getSeries().getTitleKey().equals(seriesTitleKey)) {
+			//If either of the title keys are changed, send a 301
+			throw new ResourceMovedPermanentlyException("Chapter moved",
+					chapter.getUri());
+		}
+		return chapter;
+	}
+	
+	protected String getChapter(final Chapter chapter, Authentication auth, Model model) {		
+		
+		//TODO Add check to see if this a Draft/Unpublished
+		if (auth==null &&
+				!VisibilityType.WORLD.equals(chapter.getVisibility().getVisibilityType())) {
+			throw new AuthenticationCredentialsNotFoundException("This is not a public chapter.");
+		} else if (auth!=null) {
+			//TODO
+		}
+		
+		model.addAttribute("chapter", chapter);
+		User user = auth!=null?(User) auth.getPrincipal():null;
+		
+		//HTML Filter
+		String filteredHtml = chapter.getBody();
+		for (HtmlFilter htmlFilter: htmlFilters) {
+			filteredHtml = htmlFilter.filter(filteredHtml);
+		}
+		chapter.setFilteredBody(filteredHtml);
+			
+		if (user!=null) {
+			chapterManager.incrementViewCount(chapter, user);
+//			notificationManager.markAsRead(user, journal);
+		} 
+		
+		if (chapter.getOwner()!=null) {
+			model.addAttribute("profile", profileRepository.findById(chapter.getOwner().getUserId()).orElse(null));
+		}
+//		model.addAttribute("authors", accountManager.loadCommentAuthorsById(journal));
+		
+		//Side bar stuff
+		//TODO Show previous and next chapter
+		
+		//New Comment Form
+		chapterFactory.newCommentForm(model);
+						
+		return "series/chapter/view";
+	}
+	
+	protected Series loadSeries(Long id) {
+		return seriesRepository.findById(id)
 			.orElseThrow(new Supplier<ResourceNotFoundException>() {
 				@Override
 				public ResourceNotFoundException get() {
 					throw new ResourceNotFoundException("Series not found");
 				}
 			});
-		if (!series.getTitleKey().equals(titleKey)) {
-			throw new ResourceMovedPermanentlyException("Series moved",
-					series.getUri());
-		}
-		return series;
 	}
 	
-	protected String getSeries(final Series series, Authentication auth, Model model) {		
-		if (auth==null &&
-				!VisibilityType.WORLD.equals(series.getVisibility().getVisibilityType())) {
-			throw new AuthenticationCredentialsNotFoundException("This is not a public journal.");
-		} else if (auth!=null) {
-			//TODO
-		}
-		
-		model.addAttribute("series", series);
-		User user = auth!=null?(User) auth.getPrincipal():null;
-		
-		//HTML Filter
-		//TODO htmlfilter not implemented here yet
-			
-		if (user!=null) {
-			seriesManager.incrementViewCount(series, user);
-//			notificationManager.markAsRead(user, journal);
-		} 
-		
-		model.addAttribute("tagScores", tagManager.getTagScores(series.getTags(), series.getAuthor(), user));
-		if (series.getOwner()!=null) {
-			model.addAttribute("profile", profileRepository.findById(series.getOwner().getUserId()).orElse(null));
-		}
-//		model.addAttribute("authors", accountManager.loadCommentAuthorsById(journal));
-		
-		//Side bar stuff
-		model.addAttribute("recentPosts", seriesManager.getUserSeries(
-				series.getOwner(), user, 5));
-		if (!series.getTags().isEmpty()) {
-			model.addAttribute("tagPosts", seriesManager.getSeriesForTag(user, 
-					tagManager.getTagsArray(series.getTags()), series.getId()));
-		}
-		
-		//New Comment Form
-		seriesFactory.newCommentForm(model);
-		//New Chapter Form
-		Chapter chapter = chapterFactory.newPostForm(model, user);
-		chapter.setSeries(series);
-		
-		//Tags String
-		model.addAttribute("tagsString", tagManager.getTagsString(series.getTags()));
-						
-		return "series/view";
-	}
-	
-	protected Series save(Series series, 
+	protected Chapter save(Chapter chapter, 
+			Series series,
 //			Integer friendGroupId, 
 			Long groupId, 
 			Integer[] externalFeedId, String tagsString, boolean emailFriendGroup, User user) {
 		if (user==null) {
 			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
 		}
-		
-		series.setAuthor(user);
-		series.setAuthorId(user.getUserId());
-		series.setTags(new HashSet<>());
-		if (series.getTitle()==null || series.getTitle().trim().length()==0) {
-			series.setTitle("(No Title)");
+		chapter.setSeries(series);
+		chapter.setAuthor(user);
+		chapter.setAuthorId(user.getUserId());
+		if (chapter.getTitle()==null || chapter.getTitle().trim().length()==0) {
+			chapter.setTitle("(No Title)");
 		}
-		String[] tagArray = tagManager.splitTags(tagsString);
-		for (String tagString : tagArray) {
-			series.getTags().add(new SeriesTag(series, tagString));
-		}
-		
+				
 		if (groupId!=null) {
-			series.setOwnerId(groupId);
-			series.setOwner(userRepository.findById(groupId)
+			chapter.setOwnerId(groupId);
+			chapter.setOwner(userRepository.findById(groupId)
 					.orElseThrow(new Supplier<UserNotFoundException>(){
 						@Override
 						public UserNotFoundException get() {
 							throw new UserNotFoundException("User or Group with ID "+groupId+" not found");
 						}}));
 		} else {
-			series.setOwner(user);
-			series.setOwnerId(user.getUserId());
+			chapter.setOwner(user);
+			chapter.setOwnerId(user.getUserId());
 		}
 		
 //		journal.parseVisibility(user, friendGroupId, groupId);
 		
-		series = seriesRepository.save(series);
+		chapter = chapterRepository.save(chapter);
 		
-		return series;
+		return chapter;
 	}
 	
 	@ExceptionHandler(ResourceMovedPermanentlyException.class)
@@ -161,4 +167,5 @@ public class BaseSeriesController {
 	    return "redirect:"+e.getRedirectUri();
 	}
 
+	
 }

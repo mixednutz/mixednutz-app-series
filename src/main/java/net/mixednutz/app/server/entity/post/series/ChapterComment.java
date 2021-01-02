@@ -23,7 +23,7 @@ public class ChapterComment extends AbstractPostComment {
 	
 	private Chapter chapter;
 
-	public ChapterComment(String type) {
+	public ChapterComment() {
 		super(CHAPTER_COMMENT_TYPE);
 	}
 

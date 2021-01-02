@@ -9,22 +9,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta http-equiv="Content-Language" content="en" />
         
-	<title th:text="@{|${series.title} : #{site.title}|}">MixedNutz.net</title>
-	<meta property="og:title" th:content="@{|${series.title} : #{site.title}|}" content="MixedNutz.net"/>
-	<meta name="twitter:title" th:content="@{|${series.title} : #{site.title}|}" content="MixedNutz.net"/>
+	<title th:text="@{|${chapter.series.title} - ${chapter.title} : #{site.title}|}">MixedNutz.net</title>
+	<meta property="og:title" th:content="@{|${chapter.series.title} - ${chapter.title} : #{site.title}|}" content="MixedNutz.net"/>
+	<meta name="twitter:title" th:content="@{|${chapter.series.title} - ${chapter.title} : #{site.title}|}" content="MixedNutz.net"/>
 	
-	<meta name="author" th:if="${series.author!=null}" th:content="${series.author.username}"/>
+	<meta name="author" th:if="${chapter.author!=null}" th:content="${chapter.author.username}"/>
 	<!-- link rel="author" href="https://plus.google.com/[YOUR PERSONAL G+ PROFILE HERE]"/-->
 	<meta th:if="${profile!=null and profile.twitterAccount!=null}" property="twitter:creator" th:content="@{|@${profile.twitterAccount.username}}" content="@username" />
 	
-	<meta name="description" th:content="${series.description}"/>
-    <meta property="og:description" th:content="${series.description}"/>
-    <meta name="twitter:description" th:content="${series.description}"/>
+	<meta name="description" th:content="${chapter.series.description}"/>
+    <meta property="og:description" th:content="${chapter.series.description}"/>
+    <meta name="twitter:description" th:content="${chapter.series.description}"/>
     
-    <meta property="og:type" content="blog"/>
+    <meta property="og:type" content="book"/>
     
-    <meta property="og:url" th:content="@{|${formatter.formatAbsoluteUrl(series.uri)}|}"/>
-    <meta name="twitter:url" th:content="@{|${formatter.formatAbsoluteUrl(series.uri)}|}"/>
+    <meta property="og:url" th:content="@{|${formatter.formatAbsoluteUrl(chapter.uri)}|}"/>
+    <meta name="twitter:url" th:content="@{|${formatter.formatAbsoluteUrl(chapter.uri)}|}"/>
     
 	<!-- Bootstrap Core CSS -->
 	<link th:href="@{|/webjars/bootstrap/css/bootstrap.min.css|}" rel="stylesheet"/>
@@ -36,7 +36,6 @@
 	<link th:href="@{|/webjars/github-com-skywalkapps-bootstrap-notifications/1.0.3/dist/stylesheets/bootstrap-notifications.min.css|}" rel="stylesheet" type="text/css" />
 	
 	<!-- Mixednutz CSS -->
-	<link th:href="@{|/css/forms.css|}" href="../css/forms.css" rel="stylesheet" type="text/css" />
 	<link th:href="@{|/css/default_theme.css|}" href="../css/default_theme.css" rel="stylesheet" type="text/css" />
 	
 	<!-- Custom Fonts -->
@@ -44,9 +43,9 @@
 	
 	<!-- oEmbed -->
 	<link rel="alternate" type="application/json+oembed" 
-		th:with="seriesUrl=@{|${formatter.formatAbsoluteUrl(series.uri)}|}"
+		th:with="seriesUrl=@{|${formatter.formatAbsoluteUrl(chapter.uri)}|}"
 		th:href="|${formatter.formatAbsoluteUrl('/oembed?url=' + seriesUrl)}|"
-  		th:title="@{|${series.title} : #{site.title}|}"/>
+  		th:title="@{|{chapter.series.title} - ${chapter.title} : #{site.title}|}"/>
 </head>
 <body>
 
@@ -55,18 +54,18 @@
 	
 	<div class="container">
 	
-		<!-- Edit series Form -->
-		<div id="editseriesModal" class="modal container fade" tabindex="-1" role="dialog">
+		<!-- Edit chapter Form -->
+		<div id="editchapterModal" class="modal container fade" tabindex="-1" role="dialog">
 			<div>
-				<div class="modal-content" include="series/modules_series :: editseriesForm_model">
+				<div class="modal-content" include="chapter/modules_chapter :: editchapterForm_model">
 				</div>
 			</div>
 		</div>
 		
-		<!-- Delete series Form -->
-		<div id="deleteseriesModal" class="modal fade" tabindex="-1" role="dialog" data-focus-on="input:first">
+		<!-- Delete chapter Form -->
+		<div id="deletechapterModal" class="modal fade" tabindex="-1" role="dialog" data-focus-on="input:first">
 			<div>
-				<div class="modal-content" include="series/modules_series :: deleteseriesForm_model">
+				<div class="modal-content" include="chapter/modules_chapter :: deletechapterForm_model">
 				</div>
 			</div>
 		</div>
@@ -79,11 +78,10 @@
 			</div>
 		</div>
 		
-		
-		<!-- New Series Form -->
-		<div id="addChapterModal" class="modal container fade" tabindex="-1" role="dialog">
+		<!-- React Modal -->
+		<div id="reactModal" class="modal fade" tabindex="-1" role="dialog">
 			<div>
-				<div class="modal-content" th:include="series/chapter/fragments_chapter :: newChapterForm_model">
+				<div class="modal-content" include="common/modules_common :: newReaction_modal">
 				</div>
 			</div>
 		</div>
@@ -91,8 +89,8 @@
         <div class="row">
 
             <!-- Blog Post Content Column -->
-            <div class="col-lg-8" th:include="series/fragments_series :: series">
-			series Template Here
+            <div class="col-lg-8" th:include="series/chapter/fragments_chapter :: chapter">
+			chapter Template Here
             </div>
 
             <!-- Blog Sidebar Widgets Column -->
@@ -100,15 +98,15 @@
             
             	<!-- Recent Posts Well -->
 				<div class="well">
-                    <h4>More seriess from <a th:if="${series.author!=null}" th:href='@{|/${series.author.username}|}' href="#" th:text="${series.author.username}">username</a><span th:if="${series.author==null}">this former user</span></h4>
-                    <div thinclude="series/fragments_series :: recentPosts (${recentPosts})">recentPosts</div>
+                    <h4>More chapters from <a th:if="${chapter.author!=null}" th:href='@{|/${chapter.author.username}|}' href="#" th:text="${chapter.author.username}">username</a><span th:if="${chapter.author==null}">this former user</span></h4>
+                    <div thinclude="series/chapter/fragments_chapter :: recentPosts (${recentPosts})">recentPosts</div>
                 </div>
                                 
                 <div class="well" th:if="${!#lists.isEmpty(tagPosts)}">
-                	<h4>More seriess from tags</h4>
+                	<h4>More chapters from tags</h4>
                 	<div th:each="tagEntry: ${tagPosts}">
                     	<h5 th:text="${tagEntry.key}">tag</h5>
-                    	<div th:include="series/fragments_series :: recentPosts (${tagEntry.value})">recentPosts</div>
+                    	<div th:include="series/chapter/fragments_chapter :: recentPosts (${tagEntry.value})">recentPosts</div>
                     </div>
                 </div>
                 
@@ -152,11 +150,10 @@
     <!-- My JavaScript 
     ================================================== -->
     <script include="common/modules_common :: post_options_JS" th:inline="javascript"></script>
-    <script include="series/modules_series :: editseriesForm_JS" th:inline="javascript"></script>
+    <script include="chapter/modules_chapter :: editchapterForm_JS" th:inline="javascript"></script>
     <script include="common/modules_common :: tags_JS" th:inline="javascript"></script>
     <script include="common/modules_common :: reactions_JS" th:inline="javascript"></script>
-    <script th:include="series/chapter/fragments_chapter :: newChapterForm_JS"></script>
-    <script type="text/javascript" th:src="@{|/js/series.js|}" src="../js/series.js"></script>
+    
 	
 	<!-- Google Analytics JavaScript 
  	================================================== -->

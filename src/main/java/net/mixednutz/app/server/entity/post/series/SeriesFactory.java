@@ -20,7 +20,7 @@ public class SeriesFactory implements NewPostFactory<Series>, NewCommentFactory<
 	@Override
 	public Series newPostForm(Model model, User owner) {
 		final Series series = new Series();
-		model.addAttribute("newseries", series);
+		model.addAttribute(MODEL_ATTRIBUTE, series);
 		series.setOwnerId(owner!=null?owner.getUserId():null);
 		
 		//Reference data:

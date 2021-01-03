@@ -31,7 +31,7 @@ public abstract class AbstractChapter<C extends AbstractPostComment>
 		this.titleKey = titleKey;
 	}
 	@Lob
-	@Column(name="body")
+	@Column(name="body", length=Integer.MAX_VALUE)
 //	@Column(name="body", columnDefinition="LONGTEXT")
 	public String getBody() {
 		return body;

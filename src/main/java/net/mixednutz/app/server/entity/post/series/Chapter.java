@@ -72,6 +72,7 @@ public class Chapter extends AbstractChapter<ChapterComment> {
 		this.views = views;
 	}
 
+	@Transient
 	public String getFilteredBody() {
 		return filteredBody;
 	}

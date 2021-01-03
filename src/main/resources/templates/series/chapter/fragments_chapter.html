@@ -17,7 +17,7 @@
 				<div class="chapter-form col-xs-12 col-md-8">
 					<div class="form-group">
 						<label for="newchapter_title">Title</label>
-						<input id="newchapter_title" class="form-control" type='text' th:field="*{title}" size='50' required="required"/>
+						<input id="newchapter_title" class="form-control generatesTitleKey" type='text' th:field="*{title}" size='50' required="required"/>
 					</div>
 					<div class="form-group">
 						<label for="newchapter_titleKey">Uri</label>
@@ -28,7 +28,7 @@
 									th:text="${newchapter.series.id}">seriesId</span>/<span class="seriesTitleKey" 
 									th:text="${newchapter.series.titleKey}">seriesTitleKey</span>/ID/</span>
 							</span>
-							<input id="newchapter_titleKey" class="form-control" type='text' th:field="*{titleKey}" size='50' required="required"/>
+							<input id="newchapter_titleKey" class="form-control generatedTitleKey" type='text' th:field="*{titleKey}" size='50' required="required"/>
 						</div>
 					</div>
 					

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.function.Supplier;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
@@ -113,7 +114,7 @@ public class BaseSeriesController {
 		
 		//Tags String
 		model.addAttribute("tagsString", tagManager.getTagsString(series.getTags()));
-						
+								
 		return "series/view";
 	}
 	
@@ -154,6 +155,55 @@ public class BaseSeriesController {
 		series = seriesRepository.save(series);
 		
 		return series;
+	}
+	
+	protected void update(Series form, Long id, 
+//			Integer friendGroupId, 
+			Integer groupId, String tagsString, 
+			User user) {
+		if (user==null) {
+			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
+		}
+		Series entity = seriesRepository.findById(id).orElseThrow(()->{
+			return new ResourceNotFoundException("");
+		});
+		if (!entity.getAuthor().equals(user)) {
+			throw new AccessDeniedException("Series #"+id+" - That's not yours to edit!");
+		}
+		
+		entity.setTitle(form.getTitle());
+		if (form.getTitle()==null || form.getTitle().trim().length()==0) {
+			entity.setTitle("(No Title)");
+		}
+		entity.setTitleKey(form.getTitleKey());
+		entity.setDescription(form.getDescription());
+		entity.setPublishDate(form.getPublishDate());
+		entity.setGenre(form.getGenre());
+		entity.getAdditionalGenres().clear();
+		entity.getAdditionalGenres().addAll(form.getAdditionalGenres());
+		entity.setRating(form.getRating());
+		entity.setStatus(form.getStatus());
+		
+//		journal.parseVisibility(user, friendGroupId, groupId);
+		
+		String[] tagArray = tagManager.splitTags(tagsString);
+		mergeTags(tagArray, entity);
+		
+		seriesRepository.save(entity);
+	}
+	
+	/**
+	 * Adds and Deletes tags from the thread
+	 * 
+	 * @param tagArray
+	 * @param thread
+	 */
+	protected void mergeTags(String[] tagArray, final Series series) {
+		tagManager.mergeTags(tagArray, series.getTags(), new TagManager.NewTagCallback<SeriesTag>(){
+			@Override
+			public SeriesTag createTag(String tagString) {
+				return new SeriesTag(series, tagString);
+			}});
 	}
 	
 	@ExceptionHandler(ResourceMovedPermanentlyException.class)

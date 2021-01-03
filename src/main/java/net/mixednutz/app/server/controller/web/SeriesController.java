@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
 
 import net.mixednutz.app.server.controller.BaseSeriesController;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesFactory;
 
+@SessionAttributes(value={"series"})
 @Controller
 public class SeriesController extends BaseSeriesController {
 
@@ -25,7 +27,10 @@ public class SeriesController extends BaseSeriesController {
 			Authentication auth, Model model) {
 		Series series = get(username, id, titleKey);
 		getSeries(series, auth,model);
+		
 		model.addAttribute("views", series.getViews().size());
+		seriesFactory.addNewPostReferenceData(model);
+		
 		return "series/view";
 	}
 	
@@ -42,5 +47,18 @@ public class SeriesController extends BaseSeriesController {
 
 		return "redirect:"+series.getUri();
 	}	
+	
+	@RequestMapping(value="/series/{id}/edit", method = RequestMethod.POST, params="submit")
+	public String updateModal(@ModelAttribute("series") Series series, 
+			@PathVariable Long id, 
+//			@RequestParam("fgroup_id") Integer friendGroupId, 
+			@RequestParam("group_id") Integer groupId,
+			@RequestParam(value="tagsString", defaultValue="") String tagsString,
+			@AuthenticationPrincipal User user, Model model, Errors errors) {
+		
+		update(series, id, groupId, tagsString, user);
+		
+		return "redirect:"+series.getUri();
+	}
 	
 }

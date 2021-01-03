@@ -17,7 +17,7 @@
 				<div class="series-form col-xs-12 col-md-8">
 					<div class="form-group">
 						<label for="newseries_title">Title</label>
-						<input id="newseries_title" class="form-control" type='text' th:field="*{title}" size='50' required="required"/>
+						<input id="newseries_title" class="form-control generatesTitleKey" type='text' th:field="*{title}" size='50' required="required"/>
 					</div>
 					<div class="form-group">
 						<label for="newseries_titleey">Uri</label>
@@ -26,7 +26,7 @@
 								<span>/<span class="owner" 
 									th:text="${newseries.owner!=null?newseries.owner.username:#authentication.principal.username}">owner</span>/series/ID/</span>
 							</span>
-							<input id="newseries_titleKey" class="form-control" type='text' th:field="*{titleKey}" size='50' required="required"/>
+							<input id="newseries_titleKey" class="form-control generatedTitleKey" type='text' th:field="*{titleKey}" size='50' required="required"/>
 						</div>
 					</div>
 					<div class="form-group">
@@ -84,6 +84,84 @@
 		
 	</div>
 	
+	
+	<div th:fragment="editSeriesForm_model">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+			<h4>Edit Series</h4>
+		</div>
+		<form id="editseries_form" th:action="@{|/series/${series.id}/edit|}" th:object="${series}" method="post">
+		<div class="modal-body">
+			<div class="row">
+				<div class="series-form col-xs-12 col-md-8">
+					<div class="form-group">
+						<label for="editseries_title">Title</label>
+						<input id="editseries_title" class="form-control generatesTitleKey" type='text' th:field="*{title}" size='50' required="required"/>
+					</div>
+					<div class="form-group">
+						<label for="editseries_titleey">Uri</label>
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon">
+								<span>/<span class="owner" 
+									th:text="${series.owner!=null?series.owner.username:#authentication.principal.username}">owner</span>/series/<span th:text="${series.id}"></span>/</span>
+							</span>
+							<input id="editseries_titleKey" class="form-control generatedTitleKey" type='text' th:field="*{titleKey}" size='50' required="required"/>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="editseries_description">Description</label>
+						<textarea id="editseries_description" class="form-control" th:field="*{description}" rows="6" required="required"/>
+					</div>
+					<div class="form-group">
+						<label>Maturity Rating:</label>
+						<select th:field="*{rating}" class="form-control" required="required">
+							<option th:each="option : ${ratings}"
+					            	th:value="${option.id}"
+					            	th:text="${option.displayName}">
+					    	</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>Main Genre:</label>
+						<select th:field="*{genre}" class="form-control" required="required">
+							<option th:each="option : ${genres}"
+					            	th:value="${option.id}"
+					            	th:text="${option.displayName}">
+					    	</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>Additional Genres:</label>
+						<select th:field="*{additionalGenres}" size="5" class="form-control" multiple="multiple">
+							<option th:each="option : ${genres}"
+					            	th:value="${option.id}"
+					            	th:text="${option.displayName}">
+					    	</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>Story Status:</label>
+						<select th:field="*{status}" class="form-control" required="required">
+							<option th:each="status : ${T(net.mixednutz.app.server.entity.post.series.Status).values()}"
+						            th:value="${status}"
+						            th:text="${status}">
+						    </option>
+						</select>
+					</div>
+				</div>
+				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${series}, ${ {:} }, true, true)">
+					journal-options
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<p>Note:  A Series is not visible until a Chapter is posted</p>
+			<button id="update-btn" class="btn btn-success" type="submit" name="submit" value="Post Now">Post Now</button>
+			<button class="btn" type="button" data-dismiss="modal">Cancel</button>
+		</div>
+		</form>
+		
+	</div>
 	
 	<div th:fragment="series">
 		<!-- Series Post --> 

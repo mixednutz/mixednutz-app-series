@@ -24,9 +24,13 @@ public class SeriesFactory implements NewPostFactory<Series>, NewCommentFactory<
 		series.setOwnerId(owner!=null?owner.getUserId():null);
 		
 		//Reference data:
+		addNewPostReferenceData(model);
+		return series;
+	}
+	
+	public void addNewPostReferenceData(Model model) {
 		model.addAttribute("genres",seriesSettingsManager.genres());
 		model.addAttribute("ratings",seriesSettingsManager.ratings());
-		return series;
 	}
 	
 	public SeriesReview newCommentForm(Model model) {

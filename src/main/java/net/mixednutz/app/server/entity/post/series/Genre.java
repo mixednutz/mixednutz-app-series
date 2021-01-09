@@ -2,9 +2,11 @@ package net.mixednutz.app.server.entity.post.series;
 
 
 import java.time.ZonedDateTime;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 
@@ -19,6 +21,8 @@ public class Genre {
 	
 	private ZonedDateTime dateCreated;
 	private ZonedDateTime dateModified;
+	
+	private Set<Series> additionalSeries;
 
 	@PrePersist
 	void createdAt() {
@@ -63,6 +67,28 @@ public class Genre {
 	}
 	public void setDateModified(ZonedDateTime dateModified) {
 		this.dateModified = dateModified;
+	}
+
+	@ManyToMany(mappedBy="additionalGenres")
+	public Set<Series> getAdditionalSeries() {
+		return additionalSeries;
+	}
+
+	public void setAdditionalSeries(Set<Series> additionalSeries) {
+		this.additionalSeries = additionalSeries;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Genre) {
+			return id.equals(((Genre)obj).id);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return id.hashCode();
 	}
 		
 }

@@ -9,6 +9,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -72,7 +73,8 @@ public class Series extends AbstractSeries<SeriesReview>
 		return genre;
 	}
 
-	@ManyToMany(targetEntity=Genre.class)
+	@ManyToMany(targetEntity=Genre.class, fetch=FetchType.EAGER, 
+			cascade={CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinTable(name="Series_Genre")
 	public Set<Genre> getAdditionalGenres() {
 		return additionalGenres;

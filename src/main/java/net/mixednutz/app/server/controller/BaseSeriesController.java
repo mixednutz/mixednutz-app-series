@@ -3,6 +3,8 @@ package net.mixednutz.app.server.controller;
 import java.util.HashSet;
 import java.util.function.Supplier;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -157,6 +159,7 @@ public class BaseSeriesController {
 		return series;
 	}
 	
+	@Transactional
 	protected void update(Series form, Long id, 
 //			Integer friendGroupId, 
 			Integer groupId, String tagsString, 

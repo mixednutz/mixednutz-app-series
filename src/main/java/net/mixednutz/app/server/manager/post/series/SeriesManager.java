@@ -7,9 +7,11 @@ import net.mixednutz.api.model.ITimelineElement;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesReview;
+import net.mixednutz.app.server.manager.TimelineElementManager;
 import net.mixednutz.app.server.manager.post.PostManager;
 
-public interface SeriesManager extends PostManager<Series, SeriesReview> {
+public interface SeriesManager extends PostManager<Series, SeriesReview>,
+	TimelineElementManager {
 	
 	/**
 	 * Returns public Series from any user.

@@ -59,10 +59,10 @@
 			</div>
 		</div>
 		<div class="modal-footer">
-			<button id="submit-btn" type="submit" name="submit" value="Post Now">Post Now</button>
+			<button id="chapter-submit-btn" type="submit" name="submit" value="Post Now">Post Now</button>
   			
 			<button class="btn btn-success" type="button" name="submit" value="Post Now"
-				onclick="$('#series_body').val($('#editor').cleanHtml(true));$('#submit-btn').click();">Post Now</button>
+				onclick="$('#series_body').val($('#editor').cleanHtml(true));$('#chapter-submit-btn').click();">Post Now</button>
   			<button class="btn" type="button" data-dismiss="modal">Cancel</button>
 		</div>
 		</form>
@@ -90,7 +90,6 @@
         <p>
         	<span class="glyphicon glyphicon-time"></span> Posted on <time th:datetime="${#temporals.formatISO(chapter.dateCreated)}" th:text="${#temporals.format(chapter.dateCreated, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
         	<span class="glyphicon glyphicon-eye-open"></span> <span>0</span> Views
-        	<span class="glyphicon glyphicon-heart"></span> <span>0</span> Favorites
         </p>
         
         <!-- Reactions -->

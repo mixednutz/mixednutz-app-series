@@ -29,7 +29,7 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 
 	@Override
 	public boolean canConvert(Class<?> entityClazz) {
-		return Series.class.isInstance(entityClazz);
+		return Series.class.isAssignableFrom(entityClazz);
 	}
 
 }

@@ -40,6 +40,16 @@ public class SeriesSettingsManager implements ComponentSettings {
 		settings.put("ratings", ratings());
 		return settings;
 	}
+	
+	@Override
+	public boolean includeTimelineTemplateHtmlFragment() {
+		return true;
+	}
+
+	@Override
+	public String includeTimelineTemplateHtmlFragmentName() {
+		return "series/fragments_series :: timeline_template_series";
+	}
 
 	@Override
 	public boolean includeHtmlFragment() {

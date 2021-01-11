@@ -292,7 +292,21 @@
                 
         <hr/>
         
-        <div class="toc">Table of Contents</div>
+        <h2>Table of Contents</h2>
+        <div class="toclass="list-group"c">
+        	<div th:each="chapter : ${series.chapters}" class="list-group">
+        		<div class="list-group-item">
+        		<!-- Chapter Title -->
+        		<a th:href="@{|${chapter.uri}|}" th:text="${chapter.title}">chapter.title</a>
+        		<!-- Word Count -->
+        		<span></span>
+        		<!-- Publish Date -->
+        		<time class="pull-right" th:datetime="${#temporals.formatISO(chapter.dateCreated)}" th:text="${#temporals.format(chapter.dateCreated, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
+        		</div>
+        	</div>
+        </div>
+        
+        <hr/>
         				
 		<!-- Author Box -->
 		<div th:include="profile/fragments_profile :: authorBio (${profile}, ${series.author})">authorBox</div>

@@ -1,5 +1,6 @@
 package net.mixednutz.app.server.controller.web;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -14,12 +15,17 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import net.mixednutz.app.server.controller.BaseSeriesController;
 import net.mixednutz.app.server.entity.User;
+import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesFactory;
+import net.mixednutz.app.server.manager.post.series.ChapterManager;
 
 @SessionAttributes(value={"series"})
 @Controller
 public class SeriesController extends BaseSeriesController {
+	
+	@Autowired
+	private ChapterManager chapterManager;
 
 	@RequestMapping(value="/{username}/series/{id}/{titleKey}", method = {RequestMethod.GET,RequestMethod.HEAD})
 	public String getJournal(@PathVariable String username, 
@@ -31,6 +37,15 @@ public class SeriesController extends BaseSeriesController {
 		model.addAttribute("views", series.getViews().size());
 		seriesFactory.addNewPostReferenceData(model);
 		
+		//Chapter word count:
+		long totalWords = 0;
+		for (Chapter chapter: series.getChapters()) {
+			long wc = chapterManager.wordCount(chapter);
+			totalWords += wc;
+			chapter.setWordCount(wc);
+		}
+		model.addAttribute("wordCount", totalWords);
+				
 		return "series/view";
 	}
 	

@@ -30,6 +30,7 @@ public class Chapter extends AbstractChapter<ChapterComment> {
 	private Set<ChapterReaction> reactions;
 	private Set<ChapterView> views;
 	private String filteredBody;
+	private Long wordCount;
 	
 	@OneToMany(mappedBy="chapter", cascade={CascadeType.REMOVE})
 	@OrderBy("dateCreated asc")
@@ -79,6 +80,15 @@ public class Chapter extends AbstractChapter<ChapterComment> {
 
 	public void setFilteredBody(String filteredBody) {
 		this.filteredBody = filteredBody;
+	}
+
+	@Transient
+	public Long getWordCount() {
+		return wordCount;
+	}
+
+	public void setWordCount(Long wordCount) {
+		this.wordCount = wordCount;
 	}
 
 	@Transient

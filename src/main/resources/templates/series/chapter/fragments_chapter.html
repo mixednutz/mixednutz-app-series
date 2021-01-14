@@ -93,7 +93,7 @@
         </p>
         
         <!-- Reactions -->
-		<div include="common/modules_common :: reactions (${chapter.reactions}, ${reactionScores}, ${chapter.uri}, null)">reactions</div>
+		<div th:include="common/fragments_reactions :: reactions (${chapter.reactions}, ${reactionScores}, ${chapter.uri}, null)">reactions</div>
         
         <hr/>
         <div>

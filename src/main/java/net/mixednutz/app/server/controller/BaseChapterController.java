@@ -97,6 +97,9 @@ public class BaseChapterController {
 			filteredHtml = htmlFilter.filter(filteredHtml);
 		}
 		chapter.setFilteredBody(filteredHtml);
+		
+		//Word Count
+		chapter.setWordCount(chapterManager.wordCount(chapter));
 			
 		if (user!=null) {
 			chapterManager.incrementViewCount(chapter, user);

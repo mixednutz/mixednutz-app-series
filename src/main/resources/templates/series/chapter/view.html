@@ -81,7 +81,7 @@
 		<!-- React Modal -->
 		<div id="reactModal" class="modal fade" tabindex="-1" role="dialog">
 			<div>
-				<div class="modal-content" include="common/modules_common :: newReaction_modal">
+				<div class="modal-content" th:include="common/fragments_reactions :: newReaction_modal">
 				</div>
 			</div>
 		</div>
@@ -152,7 +152,7 @@
     <script include="common/modules_common :: post_options_JS" th:inline="javascript"></script>
     <script include="chapter/modules_chapter :: editchapterForm_JS" th:inline="javascript"></script>
     <script include="common/modules_common :: tags_JS" th:inline="javascript"></script>
-    <script include="common/modules_common :: reactions_JS" th:inline="javascript"></script>
+    <script th:include="common/fragments_reactions :: reactions_JS" th:inline="javascript"></script>
     
 	
 	<!-- Google Analytics JavaScript 

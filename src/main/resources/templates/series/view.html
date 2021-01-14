@@ -154,7 +154,7 @@
     <script include="common/modules_common :: post_options_JS" th:inline="javascript"></script>
     <script include="series/modules_series :: editseriesForm_JS" th:inline="javascript"></script>
     <script include="common/modules_common :: tags_JS" th:inline="javascript"></script>
-    <script include="common/modules_common :: reactions_JS" th:inline="javascript"></script>
+    <script th:include="common/fragments_reactions :: reactions_JS" th:inline="javascript"></script>
     <script th:include="series/chapter/fragments_chapter :: newChapterForm_JS"></script>
     <script type="text/javascript" th:src="@{|/js/series.js|}" src="../js/series.js"></script>
 	

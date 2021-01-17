@@ -1,5 +1,7 @@
 package net.mixednutz.app.server.controller.web;
 
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -30,6 +32,21 @@ public class ChapterController extends BaseChapterController {
 		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
 		getChapter(chapter, auth,model);
 		model.addAttribute("views", chapter.getViews().size());
+		
+		// Check for previous/next chapter
+		List<Chapter> chapters = chapter.getSeries().getChapters();
+		int index = chapters.indexOf(chapter);
+		model.addAttribute("hasPrev", index>0);
+		if (index>0) {
+			model.addAttribute("prevUri",chapters.get(index-1).getUri());
+		}
+		if (index+1<chapters.size()) {
+			model.addAttribute("hasNext", true);
+			model.addAttribute("nextUri",chapters.get(index+1).getUri());
+		} else {
+			model.addAttribute("hasNext", false);
+		}
+		
 		return "series/chapter/view";
 	}
 	

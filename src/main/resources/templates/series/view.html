@@ -82,7 +82,7 @@
 		
 		<!-- New Series Form -->
 		<div id="addChapterModal" class="modal container fade" tabindex="-1" role="dialog">
-			<div>
+			<div sec:authorize="isAuthenticated()">
 				<div class="modal-content" th:include="series/chapter/fragments_chapter :: newChapterForm_model">
 				</div>
 			</div>

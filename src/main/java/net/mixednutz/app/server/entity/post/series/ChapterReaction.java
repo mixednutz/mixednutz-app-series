@@ -10,12 +10,16 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.AbstractReaction;
 
 @Entity
 @DiscriminatorValue(ChapterReaction.TYPE)
+@JsonTypeName(ChapterReaction.TYPE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChapterReaction extends AbstractReaction {
 
 	public static final String TYPE = "Series_Chapter";

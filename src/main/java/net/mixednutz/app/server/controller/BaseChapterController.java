@@ -18,8 +18,11 @@ import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.format.HtmlFilter;
+import net.mixednutz.app.server.manager.ReactionManager;
 import net.mixednutz.app.server.manager.post.series.ChapterManager;
 import net.mixednutz.app.server.repository.ChapterRepository;
+import net.mixednutz.app.server.repository.EmojiRepository;
+import net.mixednutz.app.server.repository.ReactionRepository;
 import net.mixednutz.app.server.repository.SeriesRepository;
 import net.mixednutz.app.server.repository.UserProfileRepository;
 import net.mixednutz.app.server.repository.UserRepository;
@@ -27,11 +30,11 @@ import net.mixednutz.app.server.repository.UserRepository;
 public class BaseChapterController {
 
 	@Autowired
-	private ChapterRepository chapterRepository;
+	protected ChapterRepository chapterRepository;
 	
 	@Autowired
-	private ChapterManager chapterManager;
-	
+	protected ChapterManager chapterManager;
+		
 	@Autowired
 	private SeriesRepository seriesRepository;
 	
@@ -45,7 +48,16 @@ public class BaseChapterController {
 	private List<HtmlFilter> htmlFilters;
 	
 	@Autowired
+	protected ReactionManager reactionManager;
+	
+	@Autowired
+	protected ReactionRepository reactionRepository;
+	
+	@Autowired
 	protected ChapterFactory chapterFactory;
+	
+	@Autowired
+	protected EmojiRepository emojiRepository;
 	
 	protected Chapter get(String username, 
 			Long seriesId, String seriesTitleKey, 
@@ -106,6 +118,8 @@ public class BaseChapterController {
 //			notificationManager.markAsRead(user, journal);
 		} 
 		
+		model.addAttribute("reactionScores", reactionManager.getReactionScores(chapter.getReactions(), chapter.getAuthor(), user));
+		
 		if (chapter.getOwner()!=null) {
 			model.addAttribute("profile", profileRepository.findById(chapter.getOwner().getUserId()).orElse(null));
 		}
@@ -129,7 +143,7 @@ public class BaseChapterController {
 				}
 			});
 	}
-	
+		
 	protected Chapter save(Chapter chapter, 
 			Series series,
 //			Integer friendGroupId, 

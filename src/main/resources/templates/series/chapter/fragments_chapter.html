@@ -26,7 +26,7 @@
 								<span>/<span class="owner" 
 									th:text="${newchapter.owner!=null?newchapter.owner.username:#authentication.principal.username}">owner</span>/series/<span class="seriesId" 
 									th:text="${newchapter.series.id}">seriesId</span>/<span class="seriesTitleKey" 
-									th:text="${newchapter.series.titleKey}">seriesTitleKey</span>/ID/</span>
+									th:text="${newchapter.series.titleKey}">seriesTitleKey</span>/chapter/ID/</span>
 							</span>
 							<input id="newchapter_titleKey" class="form-control generatedTitleKey" type='text' th:field="*{titleKey}" size='50' required="required"/>
 						</div>
@@ -50,7 +50,7 @@
 							</div>
 						</div> 
 						<input type="hidden" id="series_body" th:field="*{body}"/>
-						<div id="editor" class="form-control" data-placeholder="Start your journal..."></div>
+						<div id="editor" class="form-control" data-placeholder="Start your story..."></div>
 					</div>
 				</div>
 				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newchapter}, ${ {'Chapter':chapterCrosspostFeeds} }, true, false)">
@@ -71,6 +71,78 @@
 	<script th:fragment="newChapterForm_JS" >
 	$('#editor').wysiwyg();
 	$('#submit-btn').hide();
+	</script>
+	
+	<div th:fragment="editChapterForm_model">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+			<h4>Edit Chapter</h4>
+		</div>
+		<form id="editchapter_form" th:action="@{|/series/${chapter.series.id}/chapter/${chapter.id}/edit|}" th:object="${chapter}" method="post">
+		<div class="modal-body">
+			<div class="row">
+				<div class="chapter-form col-xs-12 col-md-8">
+					<div class="form-group">
+						<label for="editchapter_title">Title</label>
+						<input id="editchapter_title" class="form-control generatesTitleKey" type='text' th:field="*{title}" size='50' required="required"/>
+					</div>
+					<div class="form-group">
+						<label for="editchapter_titleey">Uri</label>
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon">
+								<span>/<span class="owner" 
+									th:text="${chapter.owner!=null?chapter.owner.username:#authentication.principal.username}">owner</span>/series/<span class="seriesId" 
+									th:text="${chapter.series.id}">seriesId</span>/<span class="seriesTitleKey" 
+									th:text="${chapter.series.titleKey}">seriesTitleKey</span>/chapter/<span th:text="${chapter.id}">Id</span>/</span>
+							</span>
+							<input id="editchapter_titleKey" class="form-control generatedTitleKey" type='text' th:field="*{titleKey}" size='50' required="required"/>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label for="body">Body</label>
+						<div class="btn-toolbar" data-role="editor-toolbar"
+						        data-target="#editor">
+						  	<div class="btn-group">
+								<a class="btn btn-default" data-edit="bold" title="Bold (Ctrl/Cmd+B)"><i class="fa fa-bold"></i></a>
+								<a class="btn btn-default" data-edit="italic" title="Italic (Ctrl/Cmd+I)"><i class="fa fa-italic"></i></a>
+								<a class="btn btn-default" data-edit="strikethrough" title="Strikethrough"><i class="fa fa-strikethrough"></i></a>
+								<a class="btn btn-default" data-edit="underline" title="Underline (Ctrl/Cmd+U)"><i class="fa fa-underline"></i></a>
+							</div>
+							
+							<div class="btn-group">
+								<a class="btn btn-default" data-edit="undo" title="Undo (Ctrl/Cmd+Z)"><i class="fa fa-undo"></i></a>
+								<a class="btn btn-default" data-edit="redo" title="Redo (Ctrl/Cmd+Y)"><i class="fa fa-repeat"></i></a>
+								<a class="btn btn-default" data-edit="html" title="Clear Formatting"><i class='glyphicon glyphicon-pencil'></i></a>
+							</div>
+						</div> 
+						<input type="hidden" id="chapter_body" th:field="*{body}"/>
+						<div id="editor" class="form-control" data-placeholder="Start your story..."></div>
+					</div>
+					
+				</div>
+				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${chapter}, ${ {:} }, true, true)">
+					journal-options
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button id="chapter-update-btn" type="submit" name="submit" value="Post Now">Update Now</button>
+  			
+			<button class="btn btn-success" type="button" name="submit" value="Post Now"
+				onclick="$('#chapter_body').val($('#editor').cleanHtml(true));$('#chapter-update-btn').click();">Update Now</button>
+			<button class="btn" type="button" data-dismiss="modal">Cancel</button>
+		</div>
+		</form>
+		
+	</div>
+	<script th:fragment="editChapterForm_JS" th:inline="javascript">
+	/*<![CDATA[*/
+	var body = /*[[${chapter.body}]]*/ "";
+	$('#editor').html(body);
+	$('#editor').wysiwyg();
+	$('#chapter-update-btn').hide();
+	/*]]>*/
 	</script>
 	
 	<div th:fragment="chapter">
@@ -95,6 +167,16 @@
         
         <!-- Reactions -->
 		<div th:include="common/fragments_reactions :: reactions (${chapter.reactions}, ${reactionScores}, ${chapter.uri}, null)">reactions</div>
+        
+        <hr sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${chapter.author.userId}" />
+		
+		<div sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${chapter.author.userId}">
+			
+			<!-- Edit -->
+			<button data-toggle="modal" data-target="#editchapterModal" class="btn btn-default" type="button"><i class="glyphicon glyphicon-pencil"></i>&nbsp;Edit Chapter</button>
+			<!-- Delete -->
+			<button data-toggle="modal" data-target="#deleteseriesModal" class="btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i>&nbsp;Delete Chapter</button>
+		</div>
         
         <hr/>
         <div>
@@ -139,6 +221,7 @@
 		<div class="comments" include="common/modules_common :: post_comments (${chapter})">Comments</div>
             
 	</div>
+	
 	
 	
   

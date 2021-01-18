@@ -1,6 +1,7 @@
 package net.mixednutz.app.server.controller.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesFactory;
+import net.mixednutz.app.server.entity.post.series.SeriesReview;
 import net.mixednutz.app.server.manager.post.series.ChapterManager;
 
 @SessionAttributes(value={"series"})
@@ -26,6 +28,10 @@ public class SeriesController extends BaseSeriesController {
 	
 	@Autowired
 	private ChapterManager chapterManager;
+	
+	//------------
+	// View Mappings
+	//------------
 
 	@RequestMapping(value="/{username}/series/{id}/{titleKey}", method = {RequestMethod.GET,RequestMethod.HEAD})
 	public String getJournal(@PathVariable String username, 
@@ -49,6 +55,11 @@ public class SeriesController extends BaseSeriesController {
 		return "series/view";
 	}
 	
+	//------------
+	// Insert Mappings
+	//------------
+	
+	
 	@RequestMapping(value="/series/new", method = RequestMethod.POST, params="submit")
 	public String saveNew(@ModelAttribute(SeriesFactory.MODEL_ATTRIBUTE) Series series, 
 //			@RequestParam("fgroup_id") Integer friendGroupId, 
@@ -63,6 +74,11 @@ public class SeriesController extends BaseSeriesController {
 		return "redirect:"+series.getUri();
 	}	
 	
+	
+	//------------
+	// Update Mappings
+	//------------
+	
 	@RequestMapping(value="/series/{id}/edit", method = RequestMethod.POST, params="submit")
 	public String updateModal(@ModelAttribute("series") Series series, 
 			@PathVariable Long id, 
@@ -76,4 +92,23 @@ public class SeriesController extends BaseSeriesController {
 		return "redirect:"+series.getUri();
 	}
 	
+	//------------
+	// Comments Mappings
+	//------------
+	
+	@RequestMapping(value="/{username}/series/{seriesId}/{titleKey}/comment/new", method = RequestMethod.POST, params="submit")
+	public String comment(@ModelAttribute(SeriesFactory.MODEL_ATTRIBUTE_COMMENT) SeriesReview review, 
+			@PathVariable String username, 
+			@PathVariable Long seriesId, @PathVariable String titleKey,
+			@RequestParam(value="externalFeedId", required=false) Integer externalFeedId,
+			@AuthenticationPrincipal User user, Model model, Errors errors) {
+		if (user==null) {
+			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
+		}
+		
+		Series series = get(username, seriesId, titleKey);
+		review = saveComment(review, series);
+				
+		return "redirect:"+review.getUri();
+	}
 }

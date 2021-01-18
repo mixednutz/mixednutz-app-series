@@ -16,11 +16,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import net.mixednutz.app.server.controller.BaseChapterController;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
+import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.Series;
-import net.mixednutz.app.server.entity.post.series.SeriesFactory;
 
 @Controller
 public class ChapterController extends BaseChapterController {
+
+
+	//------------
+	// View Mappings
+	//------------
 
 	@RequestMapping(
 			value="/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}", 
@@ -49,9 +54,13 @@ public class ChapterController extends BaseChapterController {
 		
 		return "series/chapter/view";
 	}
-	
+
+	//------------
+	// Insert Mappings
+	//------------
+		
 	@RequestMapping(value="/series/{seriesId}/chapter/new", method = RequestMethod.POST, params="submit")
-	public String saveNew(@ModelAttribute(SeriesFactory.MODEL_ATTRIBUTE) Chapter chapter, 
+	public String saveNew(@ModelAttribute(ChapterFactory.MODEL_ATTRIBUTE) Chapter chapter, 
 			@PathVariable Long seriesId,
 //			@RequestParam("fgroup_id") Integer friendGroupId, 
 			@RequestParam("group_id") Long groupId,
@@ -65,5 +74,27 @@ public class ChapterController extends BaseChapterController {
 
 		return "redirect:"+chapter.getUri();
 	}	
+	
+	//------------
+	// Update Mappings
+	//------------
+		
+	@RequestMapping(value="/series/{seriesId}/chapter/{id}/edit", method = RequestMethod.POST, params="submit")
+	public String updateModal(@ModelAttribute("chapter") Chapter chapter, 
+			@PathVariable Long seriesId, @PathVariable Long id, 
+//			@RequestParam("fgroup_id") Integer friendGroupId, 
+			@RequestParam("group_id") Integer groupId,
+			@RequestParam(value="tagsString", defaultValue="") String tagsString,
+			@AuthenticationPrincipal User user, Model model, Errors errors) {
+		
+		Chapter savedChapter = update(chapter, seriesId, id, groupId, tagsString, user);
+		
+		return "redirect:"+savedChapter.getUri();
+	}
+	
+
+	//------------
+	// Comments Mappings
+	//------------
 	
 }

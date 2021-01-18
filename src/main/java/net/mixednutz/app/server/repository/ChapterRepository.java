@@ -18,4 +18,6 @@ public interface ChapterRepository extends PostRepository<Chapter, ChapterCommen
 			String titleKey
 			);
 	
+	Optional<Chapter> findByIdAndSeriesId(Long id, Long seriesId);
+	
 }

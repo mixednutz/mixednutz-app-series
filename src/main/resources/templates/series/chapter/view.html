@@ -36,6 +36,7 @@
 	<link th:href="@{|/webjars/github-com-skywalkapps-bootstrap-notifications/1.0.3/dist/stylesheets/bootstrap-notifications.min.css|}" rel="stylesheet" type="text/css" />
 	
 	<!-- Mixednutz CSS -->
+	<link th:href="@{|/css/forms.css|}" href="../css/forms.css" rel="stylesheet" type="text/css" />
 	<link th:href="@{|/css/default_theme.css|}" href="../css/default_theme.css" rel="stylesheet" type="text/css" />
 	
 	<!-- Custom Fonts -->
@@ -60,7 +61,7 @@
 		<!-- Edit chapter Form -->
 		<div id="editchapterModal" class="modal container fade" tabindex="-1" role="dialog">
 			<div>
-				<div class="modal-content" include="chapter/modules_chapter :: editchapterForm_model">
+				<div class="modal-content" th:include="series/chapter/fragments_chapter :: editChapterForm_model">
 				</div>
 			</div>
 		</div>
@@ -153,9 +154,10 @@
     <!-- My JavaScript 
     ================================================== -->
     <script include="common/modules_common :: post_options_JS" th:inline="javascript"></script>
-    <script include="chapter/modules_chapter :: editchapterForm_JS" th:inline="javascript"></script>
+    <script th:include="series/chapter/fragments_chapter :: editChapterForm_JS" th:inline="javascript"></script>
     <script include="common/modules_common :: tags_JS" th:inline="javascript"></script>
     <script th:include="common/fragments_reactions :: reactions_JS" th:inline="javascript"></script>
+    <script type="text/javascript" th:src="@{|/js/series.js|}" src="../js/series.js"></script>
     
 	
 	<!-- Google Analytics JavaScript 

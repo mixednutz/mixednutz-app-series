@@ -21,10 +21,12 @@ import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesFactory;
+import net.mixednutz.app.server.entity.post.series.SeriesReview;
 import net.mixednutz.app.server.entity.post.series.SeriesTag;
 import net.mixednutz.app.server.manager.TagManager;
 import net.mixednutz.app.server.manager.post.series.SeriesManager;
 import net.mixednutz.app.server.repository.SeriesRepository;
+import net.mixednutz.app.server.repository.SeriesReviewRepository;
 import net.mixednutz.app.server.repository.UserProfileRepository;
 import net.mixednutz.app.server.repository.UserRepository;
 
@@ -35,6 +37,12 @@ public class BaseSeriesController {
 	
 	@Autowired
 	private SeriesManager seriesManager;
+	
+	@Autowired
+	protected SeriesReviewRepository seriesReviewRepository;
+	
+//	@Autowired
+//	protected SeriesReviewManager commentManager;
 	
 	@Autowired
 	private UserProfileRepository profileRepository;
@@ -73,6 +81,16 @@ public class BaseSeriesController {
 					series.getUri());
 		}
 		return series;
+	}
+	
+	protected Series get(Long id) {
+		return seriesRepository.findById(id)
+			.orElseThrow(new Supplier<ResourceNotFoundException>() {
+				@Override
+				public ResourceNotFoundException get() {
+					throw new ResourceNotFoundException("Series not found");
+				}
+			});
 	}
 	
 	protected String getSeries(final Series series, Authentication auth, Model model) {		
@@ -207,6 +225,15 @@ public class BaseSeriesController {
 			public SeriesTag createTag(String tagString) {
 				return new SeriesTag(series, tagString);
 			}});
+	}
+	
+	protected SeriesReview saveComment(SeriesReview form, Series series) {
+		form.setSeries(series);
+		
+		SeriesReview review = seriesReviewRepository.save(form);
+//		notificationManager.notifyNewComment(journal, comment);
+		
+		return review;
 	}
 	
 	@ExceptionHandler(ResourceMovedPermanentlyException.class)

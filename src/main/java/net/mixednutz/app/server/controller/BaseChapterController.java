@@ -3,7 +3,10 @@ package net.mixednutz.app.server.controller;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
@@ -177,6 +180,34 @@ public class BaseChapterController {
 		chapter = chapterRepository.save(chapter);
 		
 		return chapter;
+	}
+	
+	@Transactional
+	protected Chapter update(Chapter form, Long seriesId, Long id, 
+//			Integer friendGroupId, 
+			Integer groupId, String tagsString, 
+			User user) {
+		if (user==null) {
+			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
+		}
+		Chapter entity = chapterRepository.findByIdAndSeriesId(id, seriesId).orElseThrow(()->{
+			return new ResourceNotFoundException("");
+		});
+		if (!entity.getAuthor().equals(user)) {
+			throw new AccessDeniedException("Series #"+id+" - That's not yours to edit!");
+		}
+		
+		entity.setTitle(form.getTitle());
+		if (form.getTitle()==null || form.getTitle().trim().length()==0) {
+			entity.setTitle("(No Title)");
+		}
+		entity.setTitleKey(form.getTitleKey());
+		entity.setDescription(form.getDescription());
+		entity.setBody(form.getBody());
+		
+//		journal.parseVisibility(user, friendGroupId, groupId);
+				
+		return chapterRepository.save(entity);
 	}
 	
 	@ExceptionHandler(ResourceMovedPermanentlyException.class)

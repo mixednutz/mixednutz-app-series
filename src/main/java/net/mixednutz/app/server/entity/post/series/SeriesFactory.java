@@ -13,6 +13,7 @@ import net.mixednutz.app.server.manager.post.series.impl.SeriesSettingsManager;
 public class SeriesFactory implements NewPostFactory<Series>, NewCommentFactory<SeriesReview> {
 
 	public static final String MODEL_ATTRIBUTE = "newseries";
+	public static final String MODEL_ATTRIBUTE_COMMENT = "newComment";
 	
 	@Autowired
 	private SeriesSettingsManager seriesSettingsManager;
@@ -35,7 +36,7 @@ public class SeriesFactory implements NewPostFactory<Series>, NewCommentFactory<
 	
 	public SeriesReview newCommentForm(Model model) {
 		final SeriesReview seriesReview = new SeriesReview();
-		model.addAttribute("newComment", seriesReview);
+		model.addAttribute(MODEL_ATTRIBUTE_COMMENT, seriesReview);
 		return seriesReview;
 	}
 

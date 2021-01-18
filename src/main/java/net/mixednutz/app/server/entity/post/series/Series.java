@@ -21,12 +21,15 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import net.mixednutz.app.server.entity.CommentsAware;
 import net.mixednutz.app.server.entity.post.GroupedPosts;
 
 @Entity
 @Table(name="Series")
 public class Series extends AbstractSeries<SeriesReview> 
-	implements GroupedPosts<Chapter, ChapterComment> {
+	implements GroupedPosts<Chapter, ChapterComment>, CommentsAware<SeriesReview> {
 	
 	private ZonedDateTime publishDate; //date to be published
 	private List<SeriesReview> reviews;
@@ -49,6 +52,12 @@ public class Series extends AbstractSeries<SeriesReview>
 	@OrderBy("dateCreated asc")
 	public List<SeriesReview> getReviews() {
 		return reviews;
+	}
+	
+	@JsonIgnore
+	@Transient
+	public List<SeriesReview> getComments() {
+		return getReviews();
 	}
 	
 	@Fetch(FetchMode.SELECT)

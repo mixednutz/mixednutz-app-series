@@ -110,7 +110,7 @@ public class ChapterController extends BaseChapterController {
 		}
 		
 		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
-		comment = saveComment(comment, chapter);
+		comment = saveComment(comment, chapter, user);
 				
 		return "redirect:"+comment.getUri();
 	}

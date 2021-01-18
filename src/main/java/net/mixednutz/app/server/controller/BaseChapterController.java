@@ -131,7 +131,7 @@ public class BaseChapterController {
 		if (chapter.getOwner()!=null) {
 			model.addAttribute("profile", profileRepository.findById(chapter.getOwner().getUserId()).orElse(null));
 		}
-//		model.addAttribute("authors", accountManager.loadCommentAuthorsById(journal));
+		model.addAttribute("authors", chapterManager.loadCommentAuthors(chapter.getComments()));
 		
 		//Side bar stuff
 		//TODO Show previous and next chapter
@@ -215,8 +215,9 @@ public class BaseChapterController {
 		return chapterRepository.save(entity);
 	}
 	
-	protected ChapterComment saveComment(ChapterComment form, Chapter chapter) {
+	protected ChapterComment saveComment(ChapterComment form, Chapter chapter, User user) {
 		form.setChapter(chapter);
+		form.setAuthor(user);
 		
 		ChapterComment comment = chapterCommentRepository.save(form);
 //		notificationManager.notifyNewComment(journal, comment);

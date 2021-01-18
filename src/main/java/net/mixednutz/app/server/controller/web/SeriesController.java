@@ -107,7 +107,7 @@ public class SeriesController extends BaseSeriesController {
 		}
 		
 		Series series = get(username, seriesId, titleKey);
-		review = saveComment(review, series);
+		review = saveComment(review, series, user);
 				
 		return "redirect:"+review.getUri();
 	}

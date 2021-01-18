@@ -116,7 +116,7 @@ public class BaseSeriesController {
 		if (series.getOwner()!=null) {
 			model.addAttribute("profile", profileRepository.findById(series.getOwner().getUserId()).orElse(null));
 		}
-//		model.addAttribute("authors", accountManager.loadCommentAuthorsById(journal));
+		model.addAttribute("authors", seriesManager.loadCommentAuthors(series.getComments()));
 		
 		//Side bar stuff
 		model.addAttribute("recentPosts", seriesManager.getUserSeries(
@@ -138,6 +138,7 @@ public class BaseSeriesController {
 		return "series/view";
 	}
 	
+
 	protected Series save(Series series, 
 //			Integer friendGroupId, 
 			Long groupId, 
@@ -227,8 +228,9 @@ public class BaseSeriesController {
 			}});
 	}
 	
-	protected SeriesReview saveComment(SeriesReview form, Series series) {
+	protected SeriesReview saveComment(SeriesReview form, Series series, User user) {
 		form.setSeries(series);
+		form.setAuthor(user);
 		
 		SeriesReview review = seriesReviewRepository.save(form);
 //		notificationManager.notifyNewComment(journal, comment);

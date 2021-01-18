@@ -256,13 +256,16 @@
         	<!--<span class="glyphicon glyphicon-heart"></span> <span>0</span> Favorites -->
         </p>
 
+		<div>Reviews: 
+			<a href="#comments" th:text="${#lists.size(series.reviews)}">lists.size(series.reviews)</a>
+		</div>
 		<div>Rated: 
-			<span th:text="${series.rating.displayName}">rating.displayName</a>
+			<span th:text="${series.rating.displayName}">series.rating.displayName</a>
 		</div>
 		<div>Genre: 
-			<a href="#" th:text="${series.genre.displayName}" class="btn btn-sm btn-default">genre.displayName</a>
+			<a href="#" th:text="${series.genre.displayName}" class="btn btn-sm btn-default">series.genre.displayName</a>
 			<div class="btn-group" role="group">
-				<a href="#" th:each="additional : ${series.additionalGenres}" th:text="${additional.displayName}" class="btn btn-sm btn-default">additionalGenre.displayName</a>
+				<a href="#" th:each="additional : ${series.additionalGenres}" th:text="${additional.displayName}" class="btn btn-sm btn-default">series.additionalGenre.displayName</a>
 			</div>
 		</div>
 		
@@ -301,7 +304,7 @@
         		<!-- Chapter Title -->
         		<a th:href="@{|${chapter.uri}|}" th:text="${chapter.title}">chapter.title</a>, 
         		<!-- Comments -->
-        		<small><span th:text="${#lists.size(chapter.comments)}"></span> comments</small> 
+        		<small><a th:href="@{|${chapter.uri}#comments|}" ><span th:text="${#lists.size(chapter.comments)}"></span> comments</a></small> 
         		<!-- Word Count -->
         		<small>(<span th:text="${chapter.wordCount}">wordCount</span> words)</small>
         		<!-- Publish Date -->
@@ -331,7 +334,7 @@
         <hr/>
 
         <!-- Posted Comments -->
-		<div class="comments" th:include="common/fragments_comments :: post_comments (${series})">Comments</div>
+		<div id="comments" class="comments" th:include="common/fragments_comments :: post_comments (${series})">Comments</div>
             
 	</div>
 	

@@ -18,11 +18,13 @@ import net.mixednutz.app.server.controller.exception.UserNotFoundException;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.VisibilityType;
 import net.mixednutz.app.server.entity.post.series.Chapter;
+import net.mixednutz.app.server.entity.post.series.ChapterComment;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.format.HtmlFilter;
 import net.mixednutz.app.server.manager.ReactionManager;
 import net.mixednutz.app.server.manager.post.series.ChapterManager;
+import net.mixednutz.app.server.repository.ChapterCommentRepository;
 import net.mixednutz.app.server.repository.ChapterRepository;
 import net.mixednutz.app.server.repository.EmojiRepository;
 import net.mixednutz.app.server.repository.ReactionRepository;
@@ -37,6 +39,9 @@ public class BaseChapterController {
 	
 	@Autowired
 	protected ChapterManager chapterManager;
+	
+	@Autowired
+	protected ChapterCommentRepository chapterCommentRepository;
 		
 	@Autowired
 	private SeriesRepository seriesRepository;
@@ -208,6 +213,15 @@ public class BaseChapterController {
 //		journal.parseVisibility(user, friendGroupId, groupId);
 				
 		return chapterRepository.save(entity);
+	}
+	
+	protected ChapterComment saveComment(ChapterComment form, Chapter chapter) {
+		form.setChapter(chapter);
+		
+		ChapterComment comment = chapterCommentRepository.save(form);
+//		notificationManager.notifyNewComment(journal, comment);
+		
+		return comment;
 	}
 	
 	@ExceptionHandler(ResourceMovedPermanentlyException.class)

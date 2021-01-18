@@ -2,6 +2,7 @@ package net.mixednutz.app.server.controller.web;
 
 import java.util.List;
 
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import net.mixednutz.app.server.controller.BaseChapterController;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
+import net.mixednutz.app.server.entity.post.series.ChapterComment;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.Series;
 
@@ -92,9 +94,24 @@ public class ChapterController extends BaseChapterController {
 		return "redirect:"+savedChapter.getUri();
 	}
 	
-
 	//------------
 	// Comments Mappings
 	//------------
 	
+	@RequestMapping(value="/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}/comment/new", method = RequestMethod.POST, params="submit")
+	public String comment(@ModelAttribute(ChapterFactory.MODEL_ATTRIBUTE_COMMENT) ChapterComment comment, 
+			@PathVariable String username, 
+			@PathVariable Long seriesId, @PathVariable String seriesTitleKey,
+			@PathVariable Long id, @PathVariable String titleKey, 
+			@RequestParam(value="externalFeedId", required=false) Integer externalFeedId,
+			@AuthenticationPrincipal User user, Model model, Errors errors) {
+		if (user==null) {
+			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
+		}
+		
+		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
+		comment = saveComment(comment, chapter);
+				
+		return "redirect:"+comment.getUri();
+	}
 }

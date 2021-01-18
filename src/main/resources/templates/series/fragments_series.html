@@ -299,7 +299,9 @@
         	<div th:each="chapter : ${series.chapters}" class="list-group-item">
         		<div>
         		<!-- Chapter Title -->
-        		<a th:href="@{|${chapter.uri}|}" th:text="${chapter.title}">chapter.title</a>
+        		<a th:href="@{|${chapter.uri}|}" th:text="${chapter.title}">chapter.title</a>, 
+        		<!-- Comments -->
+        		<small><span th:text="${#lists.size(chapter.comments)}"></span> comments</small> 
         		<!-- Word Count -->
         		<small>(<span th:text="${chapter.wordCount}">wordCount</span> words)</small>
         		<!-- Publish Date -->

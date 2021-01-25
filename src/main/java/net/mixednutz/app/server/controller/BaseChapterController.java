@@ -1,5 +1,8 @@
 package net.mixednutz.app.server.controller;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -138,6 +141,14 @@ public class BaseChapterController {
 		
 		//New Comment Form
 		chapterFactory.newCommentForm(model);
+		
+		//Tags String
+//		model.addAttribute("tagsString", tagManager.getTagsString(journal.getTags()));
+		
+		// Publish Date
+		if (chapter.getPublishDate()!=null) {
+			model.addAttribute("localPublishDate", chapter.getPublishDate().toLocalDateTime());
+		}		
 						
 		return "series/chapter/view";
 	}
@@ -156,7 +167,9 @@ public class BaseChapterController {
 			Series series,
 //			Integer friendGroupId, 
 			Long groupId, 
-			Integer[] externalFeedId, String tagsString, boolean emailFriendGroup, User user) {
+			Integer[] externalFeedId, String tagsString, boolean emailFriendGroup, 
+			LocalDateTime localPublishDate,
+			User user) {
 		if (user==null) {
 			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
 		}
@@ -166,7 +179,9 @@ public class BaseChapterController {
 		if (chapter.getTitle()==null || chapter.getTitle().trim().length()==0) {
 			chapter.setTitle("(No Title)");
 		}
-				
+		if (localPublishDate!=null) {
+			chapter.setPublishDate(ZonedDateTime.of(localPublishDate, ZoneId.systemDefault()));
+		}
 		if (groupId!=null) {
 			chapter.setOwnerId(groupId);
 			chapter.setOwner(userRepository.findById(groupId)
@@ -191,6 +206,7 @@ public class BaseChapterController {
 	protected Chapter update(Chapter form, Long seriesId, Long id, 
 //			Integer friendGroupId, 
 			Integer groupId, String tagsString, 
+			LocalDateTime localPublishDate,
 			User user) {
 		if (user==null) {
 			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
@@ -205,6 +221,9 @@ public class BaseChapterController {
 		entity.setTitle(form.getTitle());
 		if (form.getTitle()==null || form.getTitle().trim().length()==0) {
 			entity.setTitle("(No Title)");
+		}
+		if (localPublishDate!=null) {
+			entity.setPublishDate(ZonedDateTime.of(localPublishDate, ZoneId.systemDefault()));
 		}
 		entity.setTitleKey(form.getTitleKey());
 		entity.setDescription(form.getDescription());

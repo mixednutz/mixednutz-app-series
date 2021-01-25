@@ -153,7 +153,7 @@
     
     <!-- My JavaScript 
     ================================================== -->
-    <script include="common/modules_common :: post_options_JS" th:inline="javascript"></script>
+	<script th:replace="common/fragments_forms :: post_options_JS" th:inline="javascript"></script>
     <script th:include="series/chapter/fragments_chapter :: editChapterForm_JS" th:inline="javascript"></script>
     <script include="common/modules_common :: tags_JS" th:inline="javascript"></script>
     <script th:include="common/fragments_reactions :: reactions_JS" th:inline="javascript"></script>

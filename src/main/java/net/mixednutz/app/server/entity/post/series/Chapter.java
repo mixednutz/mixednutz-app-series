@@ -1,10 +1,11 @@
 package net.mixednutz.app.server.entity.post.series;
 
-
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -30,11 +31,22 @@ public class Chapter extends AbstractChapter<ChapterComment> implements
 	
 	private Series series;
 	
+	private ZonedDateTime publishDate; //date to be published
 	private List<ChapterComment> comments;
 	private Set<ChapterReaction> reactions;
 	private Set<ChapterView> views;
+	
 	private String filteredBody;
 	private Long wordCount;
+		
+	@Column(name="publish_date")
+	public ZonedDateTime getPublishDate() {
+		return publishDate;
+	}
+	
+	public void setPublishDate(ZonedDateTime publishDate) {
+		this.publishDate = publishDate;
+	}
 	
 	@OneToMany(mappedBy="chapter", cascade={CascadeType.REMOVE})
 	@OrderBy("dateCreated asc")

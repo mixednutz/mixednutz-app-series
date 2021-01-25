@@ -1,7 +1,10 @@
 package net.mixednutz.app.server.controller.web;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -69,10 +72,11 @@ public class ChapterController extends BaseChapterController {
 			@RequestParam(value="externalFeedId", required=false) Integer[] externalFeedId,
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
 			@RequestParam(value="email_fgroup", defaultValue="false") boolean emailFriendGroup,
+			@DateTimeFormat(iso=ISO.DATE_TIME) @RequestParam(value="localPublishDate", required=false) LocalDateTime localPublishDate,
 			@AuthenticationPrincipal User user, Model model, Errors errors) {
 		Series series = loadSeries(seriesId);
 		chapter = save(chapter, series, groupId, externalFeedId, 
-				tagsString, emailFriendGroup, user);
+				tagsString, emailFriendGroup, localPublishDate, user);
 
 		return "redirect:"+chapter.getUri();
 	}	
@@ -87,9 +91,10 @@ public class ChapterController extends BaseChapterController {
 //			@RequestParam("fgroup_id") Integer friendGroupId, 
 			@RequestParam("group_id") Integer groupId,
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
+			@DateTimeFormat(iso=ISO.DATE_TIME) @RequestParam(value="localPublishDate", required=false) LocalDateTime localPublishDate,
 			@AuthenticationPrincipal User user, Model model, Errors errors) {
 		
-		Chapter savedChapter = update(chapter, seriesId, id, groupId, tagsString, user);
+		Chapter savedChapter = update(chapter, seriesId, id, groupId, tagsString, localPublishDate, user);
 		
 		return "redirect:"+savedChapter.getUri();
 	}

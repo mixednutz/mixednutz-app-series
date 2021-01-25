@@ -199,7 +199,6 @@ public class BaseSeriesController {
 		}
 		entity.setTitleKey(form.getTitleKey());
 		entity.setDescription(form.getDescription());
-		entity.setPublishDate(form.getPublishDate());
 		entity.setGenre(form.getGenre());
 		entity.getAdditionalGenres().clear();
 		entity.getAdditionalGenres().addAll(form.getAdditionalGenres());

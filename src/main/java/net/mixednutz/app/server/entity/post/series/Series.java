@@ -1,12 +1,10 @@
 package net.mixednutz.app.server.entity.post.series;
 
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
@@ -31,7 +29,6 @@ import net.mixednutz.app.server.entity.post.GroupedPosts;
 public class Series extends AbstractSeries<SeriesReview> 
 	implements GroupedPosts<Chapter, ChapterComment>, CommentsAware<SeriesReview> {
 	
-	private ZonedDateTime publishDate; //date to be published
 	private List<SeriesReview> reviews;
 	private Set<SeriesTag> tags;
 	private Set<SeriesView> views;
@@ -43,11 +40,6 @@ public class Series extends AbstractSeries<SeriesReview>
 	private Rating rating;
 	private Status status = Status.IN_PROGRESS;
 		
-	@Column(name="publish_date")
-	public ZonedDateTime getPublishDate() {
-		return publishDate;
-	}
-	
 	@OneToMany(mappedBy="series", cascade={CascadeType.REMOVE})
 	@OrderBy("dateCreated asc")
 	public List<SeriesReview> getReviews() {
@@ -116,10 +108,6 @@ public class Series extends AbstractSeries<SeriesReview>
 
 	public void setChapters(List<Chapter> chapters) {
 		this.chapters = chapters;
-	}
-
-	public void setPublishDate(ZonedDateTime publishDate) {
-		this.publishDate = publishDate;
 	}
 
 	public void setReviews(List<SeriesReview> reviews) {

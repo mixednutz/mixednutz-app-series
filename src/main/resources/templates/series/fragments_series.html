@@ -142,7 +142,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newseries}, ${ {'Series':seriesCrosspostFeeds} }, true, false)">
+				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newseries}, ${ {'Series':seriesCrosspostFeeds} }, true, false, false)">
 					series-options
 				</div>
 			</div>
@@ -221,7 +221,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${series}, ${ {:} }, true, true)">
+				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${series}, ${ {:} }, true, false, true)">
 					journal-options
 				</div>
 			</div>

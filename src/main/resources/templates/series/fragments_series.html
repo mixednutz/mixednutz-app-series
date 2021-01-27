@@ -308,7 +308,8 @@
         		<!-- Word Count -->
         		<small>(<span th:text="${chapter.wordCount}">wordCount</span> words)</small>
         		<!-- Publish Date -->
-        		<time class="pull-right" th:datetime="${#temporals.formatISO(chapter.dateCreated)}" th:text="${#temporals.format(chapter.dateCreated, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
+        		<time class="pull-right" th:if="${chapter.datePublished!=null}" th:datetime="${#temporals.formatISO(chapter.datePublished)}" th:text="${#temporals.format(chapter.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
+        		<time class="pull-right" th:if="${chapter.datePublished==null and chapter.scheduled!=null}" th:datetime="${#temporals.formatISO(chapter.scheduled.publishDate)}" th:text="${#temporals.format(chapter.scheduled.publishDate, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
         		</div>
         	</div>
         </div>

@@ -23,6 +23,7 @@ import net.mixednutz.app.server.entity.VisibilityType;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterComment;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
+import net.mixednutz.app.server.entity.post.series.ScheduledChapter;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.format.HtmlFilter;
 import net.mixednutz.app.server.manager.ReactionManager;
@@ -146,8 +147,9 @@ public class BaseChapterController {
 //		model.addAttribute("tagsString", tagManager.getTagsString(journal.getTags()));
 		
 		// Publish Date
-		if (chapter.getPublishDate()!=null) {
-			model.addAttribute("localPublishDate", chapter.getPublishDate().toLocalDateTime());
+		if (chapter.getScheduled()!=null) {
+			model.addAttribute("localPublishDate", 
+					chapter.getScheduled().getPublishDate().toLocalDateTime());
 		}		
 						
 		return "series/chapter/view";
@@ -180,7 +182,13 @@ public class BaseChapterController {
 			chapter.setTitle("(No Title)");
 		}
 		if (localPublishDate!=null) {
-			chapter.setPublishDate(ZonedDateTime.of(localPublishDate, ZoneId.systemDefault()));
+			chapter.setScheduled(new ScheduledChapter());
+			chapter.getScheduled()
+				.setPublishDate(ZonedDateTime.of(localPublishDate, ZoneId.systemDefault()));
+			chapter.getScheduled().setExternalFeedId(externalFeedId);
+			chapter.getScheduled().setEmailFriendGroup(emailFriendGroup);
+		} else {
+			chapter.setDatePublished(ZonedDateTime.now());
 		}
 		if (groupId!=null) {
 			chapter.setOwnerId(groupId);
@@ -223,8 +231,12 @@ public class BaseChapterController {
 			entity.setTitle("(No Title)");
 		}
 		if (localPublishDate!=null) {
-			entity.setPublishDate(ZonedDateTime.of(localPublishDate, ZoneId.systemDefault()));
-		}
+			if (entity.getScheduled()==null) {
+				entity.setScheduled(new ScheduledChapter());
+			}
+			entity.getScheduled()
+				.setPublishDate(ZonedDateTime.of(localPublishDate, ZoneId.systemDefault()));
+		} 
 		entity.setTitleKey(form.getTitleKey());
 		entity.setDescription(form.getDescription());
 		entity.setBody(form.getBody());

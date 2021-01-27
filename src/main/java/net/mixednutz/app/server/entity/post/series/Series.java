@@ -13,6 +13,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -39,7 +40,20 @@ public class Series extends AbstractSeries<SeriesReview>
 	private Set<Genre> additionalGenres;
 	private Rating rating;
 	private Status status = Status.IN_PROGRESS;
-		
+	
+	@Override
+	public void onPersist() {
+		super.onPersist();
+		setDatePublished(getDateCreated());
+	}
+	
+	@PreUpdate
+	public void onUpdate() {
+		if (getDatePublished()==null) {
+			setDatePublished(getDateCreated());
+		}
+	}
+
 	@OneToMany(mappedBy="series", cascade={CascadeType.REMOVE})
 	@OrderBy("dateCreated asc")
 	public List<SeriesReview> getReviews() {

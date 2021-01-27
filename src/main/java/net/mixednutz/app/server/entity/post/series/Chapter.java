@@ -1,17 +1,16 @@
 package net.mixednutz.app.server.entity.post.series;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -31,7 +30,8 @@ public class Chapter extends AbstractChapter<ChapterComment> implements
 	
 	private Series series;
 	
-	private ZonedDateTime publishDate; //date to be published
+	private ScheduledChapter scheduled;
+
 	private List<ChapterComment> comments;
 	private Set<ChapterReaction> reactions;
 	private Set<ChapterView> views;
@@ -39,15 +39,16 @@ public class Chapter extends AbstractChapter<ChapterComment> implements
 	private String filteredBody;
 	private Long wordCount;
 		
-	@Column(name="publish_date")
-	public ZonedDateTime getPublishDate() {
-		return publishDate;
+	@OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="scheduled_id")
+	public ScheduledChapter getScheduled() {
+		return scheduled;
 	}
-	
-	public void setPublishDate(ZonedDateTime publishDate) {
-		this.publishDate = publishDate;
+
+	public void setScheduled(ScheduledChapter scheduled) {
+		this.scheduled = scheduled;
 	}
-	
+
 	@OneToMany(mappedBy="chapter", cascade={CascadeType.REMOVE})
 	@OrderBy("dateCreated asc")
 	public List<ChapterComment> getComments() {

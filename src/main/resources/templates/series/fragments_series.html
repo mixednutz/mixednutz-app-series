@@ -250,7 +250,7 @@
 
         <!-- Date/Time --> 
         <p>
-        	<span class="glyphicon glyphicon-time"></span> Posted on <time th:datetime="${#temporals.formatISO(series.dateCreated)}" th:text="${#temporals.format(series.dateCreated, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
+        	<span class="glyphicon glyphicon-time"></span> Posted on <time th:datetime="${#temporals.formatISO(series.datePublished)}" th:text="${#temporals.format(series.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
         	<span class="glyphicon glyphicon-eye-open"></span> <span th:text="${views}">0</span> Views
         	<span class="glyphicon glyphicon-stats"></span> Word Count: <span th:text="${wordCount}">0</span>
         	<!--<span class="glyphicon glyphicon-heart"></span> <span>0</span> Favorites -->
@@ -298,7 +298,7 @@
         <hr/>
         
         <h2>Table of Contents</h2>
-        <div class="toc list-group">
+        <div class="toc list-group" sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${series.author.userId}">
         	<div th:each="chapter : ${series.chapters}" class="list-group-item">
         		<div>
         		<!-- Chapter Title -->
@@ -308,8 +308,22 @@
         		<!-- Word Count -->
         		<small>(<span th:text="${chapter.wordCount}">wordCount</span> words)</small>
         		<!-- Publish Date -->
+        		<span class="pull-right" th:if="${chapter.datePublished!=null}"><span class="published">Published</span> - <time th:datetime="${#temporals.formatISO(chapter.datePublished)}" th:text="${#temporals.format(chapter.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time></span>
+        		<span class="pull-right" th:if="${chapter.datePublished==null and chapter.scheduled!=null}"><span class="scheduled">Scheduled</span> - <time th:datetime="${#temporals.formatISO(chapter.scheduled.publishDate)}" th:text="${#temporals.format(chapter.scheduled.publishDate, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time></span>
+        		</div>
+        	</div>
+        </div>
+        <div class="toc list-group" sec:authorize="!isAuthenticated()" >
+        	<div th:each="chapter : ${series.chapters}" th:if="${chapter.datePublished!=null}" class="list-group-item">
+        		<div>
+        		<!-- Chapter Title -->
+        		<a th:href="@{|${chapter.uri}|}" th:text="${chapter.title}">chapter.title</a>, 
+        		<!-- Comments -->
+        		<small><a th:href="@{|${chapter.uri}#comments|}" ><span th:text="${#lists.size(chapter.comments)}"></span> comments</a></small> 
+        		<!-- Word Count -->
+        		<small>(<span th:text="${chapter.wordCount}">wordCount</span> words)</small>
+        		<!-- Publish Date -->
         		<time class="pull-right" th:if="${chapter.datePublished!=null}" th:datetime="${#temporals.formatISO(chapter.datePublished)}" th:text="${#temporals.format(chapter.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
-        		<time class="pull-right" th:if="${chapter.datePublished==null and chapter.scheduled!=null}" th:datetime="${#temporals.formatISO(chapter.scheduled.publishDate)}" th:text="${#temporals.format(chapter.scheduled.publishDate, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
         		</div>
         	</div>
         </div>

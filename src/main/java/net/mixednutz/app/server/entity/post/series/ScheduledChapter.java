@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
 import net.mixednutz.app.server.entity.post.AbstractScheduledPost;
+import net.mixednutz.app.server.entity.post.Post;
 
 @Entity
 @DiscriminatorValue(ScheduledChapter.SCHEDULED_POST_TYPE)
@@ -25,6 +26,11 @@ public class ScheduledChapter extends AbstractScheduledPost {
 
 	public void setChapter(Chapter chapter) {
 		this.chapter = chapter;
+	}
+
+	@Override
+	public Post<?> post() {
+		return chapter;
 	}
 
 }

@@ -89,6 +89,7 @@ public class BaseChapterController {
 					throw new ResourceNotFoundException("Chapter not found");
 				}
 			});
+				
 		if (!chapter.getSeries().getId().equals(seriesId)) {
 			//If the Series ID is wrong, throw 404
 			throw new ResourceNotFoundException("Chapter not found");
@@ -112,8 +113,13 @@ public class BaseChapterController {
 			//TODO
 		}
 		
-		model.addAttribute("chapter", chapter);
 		User user = auth!=null?(User) auth.getPrincipal():null;
+		
+		if (!chapter.getAuthor().equals(user) && chapter.getDatePublished()==null) {
+			throw new ResourceNotFoundException("Chapter not found");
+		}
+		
+		model.addAttribute("chapter", chapter);
 		
 		//HTML Filter
 		String filteredHtml = chapter.getBody();

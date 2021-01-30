@@ -28,7 +28,15 @@
 		<mixednutz-api.version>2.0.0-SNAPSHOT</mixednutz-api.version>
 		<mixednutz-app.version>2.0.0-SNAPSHOT</mixednutz-app.version>
 		<spring-social.version>1.1.6.RELEASE</spring-social.version>
+		<epublib.version>3.1</epublib.version>
 	</properties>
+	
+	<repositories>
+	    <repository>
+	        <id>psiegman-repo</id>
+	        <url>https://github.com/psiegman/mvn-repo/raw/master/releases</url>
+	    </repository>
+	</repositories>
 
 	<build>
 		<plugins>
@@ -83,6 +91,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -95,9 +109,26 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
    			<groupId>org.springframework.boot</groupId>
     		<artifactId>spring-boot-starter-test</artifactId>
     		<scope>test</scope>
+    		<exclusions>
+    			<exclusion>
+    				<groupId>org.slf4j</groupId>
+    				<artifactId>slf4j-api</artifactId>
+    			</exclusion>
+    		</exclusions>
 		</dependency>
 	
 		<!-- Jackson Annotations for JSON serialization -->
@@ -126,6 +157,23 @@
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		
+		<!-- epublib -->
+		<dependency>
+		    <groupId>nl.siegmann.epublib</groupId>
+		    <artifactId>epublib-core</artifactId>
+		    <version>${epublib.version}</version>
+		    <exclusions>
+		    	<exclusion>
+		    		<groupId>org.slf4j</groupId>
+		    		<artifactId>slf4j-api</artifactId>
+		    	</exclusion>
+		    	<exclusion>
+		    		<groupId>org.slf4j</groupId>
+		    		<artifactId>slf4j-simple</artifactId>
+		    	</exclusion>
+		    </exclusions>
 		</dependency>
 		
 		<!-- Testing -->

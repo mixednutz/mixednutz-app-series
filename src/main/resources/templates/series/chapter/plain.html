@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en"
+	  xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+	<title th:text="@{|${chapter.series.title} - ${chapter.title}|}">MixedNutz.net</title>
+</head>
+<body>
+
+     <!-- Blog Post Content Column -->
+ 	<div class="col-lg-8" th:include="series/chapter/fragments_chapter :: chapter_plain">
+		chapter Template Here
+	</div>
+
+</body>
+</html>

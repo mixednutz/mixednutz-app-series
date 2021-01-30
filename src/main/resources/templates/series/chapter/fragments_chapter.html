@@ -223,6 +223,17 @@
             
 	</div>
 	
+	<div th:fragment="chapter_plain">
+		<!-- Chapter Post --> 
+		
+        <!-- Title -->
+        <h1 itemprop="name" th:text="${chapter.title}">Chapter Title</h1>
+        
+        <!-- Post Content -->
+        <div th:utext="${chapter.filteredBody}">...HTML Body...</div>
+         
+	</div>
+	
 	
 	
   

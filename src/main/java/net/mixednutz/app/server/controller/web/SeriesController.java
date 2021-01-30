@@ -87,9 +87,9 @@ public class SeriesController extends BaseSeriesController {
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
 			@AuthenticationPrincipal User user, Model model, Errors errors) {
 		
-		update(series, id, groupId, tagsString, user);
+		Series savedSeries = update(series, id, groupId, tagsString, user);
 		
-		return "redirect:"+series.getUri();
+		return "redirect:"+savedSeries.getUri();
 	}
 	
 	//------------

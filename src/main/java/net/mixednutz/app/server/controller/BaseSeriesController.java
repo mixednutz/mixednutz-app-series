@@ -179,7 +179,7 @@ public class BaseSeriesController {
 	}
 	
 	@Transactional
-	protected void update(Series form, Long id, 
+	protected Series update(Series form, Long id, 
 //			Integer friendGroupId, 
 			Integer groupId, String tagsString, 
 			User user) {
@@ -210,7 +210,7 @@ public class BaseSeriesController {
 		String[] tagArray = tagManager.splitTags(tagsString);
 		mergeTags(tagArray, entity);
 		
-		seriesRepository.save(entity);
+		return seriesRepository.save(entity);
 	}
 	
 	/**

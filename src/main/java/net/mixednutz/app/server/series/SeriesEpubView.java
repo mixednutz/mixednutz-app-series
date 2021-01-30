@@ -23,8 +23,8 @@ import org.thymeleaf.context.Context;
 
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.Series;
+import net.mixednutz.app.server.format.FormattingUtils;
 import net.mixednutz.app.server.format.HtmlFilter;
-import net.mixednutz.app.server.util.FormattingUtils;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Date.Event;

@@ -23,6 +23,7 @@ import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesFactory;
 import net.mixednutz.app.server.entity.post.series.SeriesReview;
 import net.mixednutz.app.server.entity.post.series.SeriesTag;
+import net.mixednutz.app.server.manager.NotificationManager;
 import net.mixednutz.app.server.manager.TagManager;
 import net.mixednutz.app.server.manager.post.series.SeriesManager;
 import net.mixednutz.app.server.repository.SeriesRepository;
@@ -58,6 +59,9 @@ public class BaseSeriesController {
 	
 	@Autowired
 	protected ChapterFactory chapterFactory;
+	
+	@Autowired
+	protected NotificationManager notificationManager;
 	
 	
 	protected Series get(String username, Long id, String titleKey) {
@@ -109,7 +113,7 @@ public class BaseSeriesController {
 			
 		if (user!=null) {
 			seriesManager.incrementViewCount(series, user);
-//			notificationManager.markAsRead(user, journal);
+			notificationManager.markAsRead(user, series);
 		} 
 		
 		model.addAttribute("tagScores", tagManager.getTagScores(series.getTags(), series.getAuthor(), user));
@@ -232,7 +236,7 @@ public class BaseSeriesController {
 		form.setAuthor(user);
 		
 		SeriesReview review = seriesReviewRepository.save(form);
-//		notificationManager.notifyNewComment(journal, comment);
+		notificationManager.notifyNewComment(series, review);
 		
 		return review;
 	}

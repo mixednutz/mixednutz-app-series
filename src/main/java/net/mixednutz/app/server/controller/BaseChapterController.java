@@ -26,6 +26,7 @@ import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.ScheduledChapter;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.format.HtmlFilter;
+import net.mixednutz.app.server.manager.NotificationManager;
 import net.mixednutz.app.server.manager.ReactionManager;
 import net.mixednutz.app.server.manager.post.series.ChapterManager;
 import net.mixednutz.app.server.repository.ChapterCommentRepository;
@@ -70,6 +71,9 @@ public class BaseChapterController {
 	
 	@Autowired
 	protected EmojiRepository emojiRepository;
+	
+	@Autowired
+	protected NotificationManager notificationManager;
 	
 	protected Chapter get(String username, 
 			Long seriesId, String seriesTitleKey, 
@@ -133,7 +137,7 @@ public class BaseChapterController {
 			
 		if (user!=null) {
 			chapterManager.incrementViewCount(chapter, user);
-//			notificationManager.markAsRead(user, journal);
+			notificationManager.markAsRead(user, chapter);
 		} 
 		
 		model.addAttribute("reactionScores", reactionManager.getReactionScores(chapter.getReactions(), chapter.getAuthor(), user));
@@ -213,6 +217,8 @@ public class BaseChapterController {
 		
 		chapter = chapterRepository.save(chapter);
 		
+		notificationManager.notifyNewAddition(chapter.getSeries(), chapter);
+		
 		return chapter;
 	}
 	
@@ -257,7 +263,7 @@ public class BaseChapterController {
 		form.setAuthor(user);
 		
 		ChapterComment comment = chapterCommentRepository.save(form);
-//		notificationManager.notifyNewComment(journal, comment);
+		notificationManager.notifyNewComment(chapter, comment);
 		
 		return comment;
 	}

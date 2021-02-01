@@ -37,7 +37,7 @@ public class ChapterApiController extends BaseChapterController {
 		if (reaction!=null) {
 			reaction = reactionRepository.save(reaction);
 			chapterRepository.save(chapter);
-//			notificationManager.notifyNewReaction(journal, reaction);
+			notificationManager.notifyNewReaction(chapter, reaction);
 		} else {
 //			notificationManager.unnotifiyReaction(diff.missing(journal.getReactions()));
 			chapterRepository.save(chapter);
@@ -58,7 +58,7 @@ public class ChapterApiController extends BaseChapterController {
 				user, new NewChapterReaction(emojiRepository, chapter, user));
 		for (ChapterReaction reaction: addedReactions) {
 			reaction = reactionRepository.save(reaction);
-//			notificationManager.notifyNewReaction(journal, reaction);
+			notificationManager.notifyNewReaction(chapter, reaction);
 		}
 		chapterRepository.save(chapter);
 		return addedReactions;

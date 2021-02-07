@@ -13,29 +13,24 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import net.mixednutz.api.core.model.NetworkInfo;
 import net.mixednutz.app.server.entity.InternalTimelineElement;
-import net.mixednutz.app.server.entity.InternalTimelineElement.Type;
 import net.mixednutz.app.server.entity.Oembeds.Oembed;
 import net.mixednutz.app.server.entity.Oembeds.OembedLink;
 import net.mixednutz.app.server.entity.User;
-import net.mixednutz.app.server.entity.post.series.Series;
+import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.manager.ApiElementConverter;
-import net.mixednutz.app.server.repository.SeriesRepository;
+import net.mixednutz.app.server.repository.ChapterRepository;
 import net.mixednutz.app.server.repository.UserRepository;
 
 @Component
-public class SeriesEntityConverter implements ApiElementConverter<Series> {
-
-	private static final Pattern SERIES_PATTERN_REST=Pattern.compile(
-			"^\\/(?<username>.*)\\/series\\/(?<id>[0-9]*)\\/(?<subjectKey>[^\\\\w]*)\\z", 
+public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
+	
+	private static final Pattern CHAPTER_PATTERN_REST=Pattern.compile(
+			"^\\/(?<username>.*)\\/series\\/(?<seriesid>[0-9]*)\\/(?<seriesTitleKey>.*)\\/chapter\\/(?<id>[0-9]*)\\/(?<titleKey>.*)", 
 			Pattern.CASE_INSENSITIVE);
-
-	@Autowired
-	private NetworkInfo networkInfo;
 	
 	@Autowired
-	private SeriesRepository seriesRepository;
+	private ChapterRepository chapterRepository;
 	
 	@Autowired
 	private UserRepository userRepository;
@@ -49,33 +44,27 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
     private void init() {
         accessor = new MessageSourceAccessor(messageSource, Locale.ENGLISH);
     }
-	
+
 	@Override
-	public InternalTimelineElement toTimelineElement(
-			InternalTimelineElement api, Series entity, User viewer) {
-		api.setType(new Type("Series",
-				networkInfo.getHostName(),
-				networkInfo.getId()+"_Series"));
-		api.setId(entity.getId());
-		api.setTitle(entity.getTitle());
-		return api;
+	public InternalTimelineElement toTimelineElement(InternalTimelineElement element, Chapter entity, User viewer) {
+		return null;
 	}
 
 	@Override
 	public boolean canConvert(Class<?> entityClazz) {
-		return Series.class.isAssignableFrom(entityClazz);
+		return false;
 	}
 
 	@Override
 	public Oembed toOembed(String path, Integer maxwidth, Integer maxheight, String format, Authentication auth) {
-		Matcher matcher = SERIES_PATTERN_REST.matcher(path);
+		Matcher matcher = CHAPTER_PATTERN_REST.matcher(path);
 		if (matcher.matches()) {
 			String username = matcher.group("username");
 			Long id = Long.parseLong(matcher.group("id"));
 
-			Optional<Series> series = get(username, id);
-			if (series.isPresent()) {
-				return toOembedLink(series.get());
+			Optional<Chapter> chapter = get(username, id);
+			if (chapter.isPresent()) {
+				return toOembedLink(chapter.get());
 			}
 		}
 		return null;
@@ -83,23 +72,26 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 
 	@Override
 	public boolean canConvertOembed(String path) {
-		Matcher matcher = SERIES_PATTERN_REST.matcher(path);
+		Matcher matcher = CHAPTER_PATTERN_REST.matcher(path);
 		return matcher.matches();
 	}
 	
-	private Optional<Series> get(String username, Long id) {
+	protected Optional<Chapter> get(String username, 
+			Long id) {
 		Optional<User> profileUser = userRepository.findByUsername(username);
 		
 		if (profileUser.isPresent()) {
-			return seriesRepository.findByOwnerAndId(profileUser.get(), id);
+			return chapterRepository
+					.findByOwnerAndId(profileUser.get(), id);
 		}
 		return Optional.empty();
 	}
 	
-	private OembedLink toOembedLink(Series series) {
+	private OembedLink toOembedLink(Chapter chapter) {
 		OembedLink link = new OembedLink();
-		link.setTitle(series.getTitle()+" : "+accessor.getMessage("site.title"));
-		link.setAuthorName(series.getAuthor().getUsername());
+		link.setTitle(chapter.getSeries().getTitle()+" - "+chapter.getTitle()+" : "+
+				accessor.getMessage("site.title"));
+		link.setAuthorName(chapter.getAuthor().getUsername());
 
 		return link;
 	}

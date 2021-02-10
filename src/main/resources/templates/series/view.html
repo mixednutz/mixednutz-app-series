@@ -101,12 +101,12 @@
             
             	<!-- Recent Posts Well -->
 				<div class="well">
-                    <h4>More seriess from <a th:if="${series.author!=null}" th:href='@{|/${series.author.username}|}' href="#" th:text="${series.author.username}">username</a><span th:if="${series.author==null}">this former user</span></h4>
-                    <div thinclude="series/fragments_series :: recentPosts (${recentPosts})">recentPosts</div>
+                    <h4>More Series from <a th:if="${series.author!=null}" th:href='@{|/${series.author.username}|}' href="#" th:text="${series.author.username}">username</a><span th:if="${series.author==null}">this former user</span></h4>
+                    <div th:include="series/fragments_series :: recentPosts (${recentPosts})">recentPosts</div>
                 </div>
                                 
                 <div class="well" th:if="${!#lists.isEmpty(tagPosts)}">
-                	<h4>More seriess from tags</h4>
+                	<h4>More Series from tags</h4>
                 	<div th:each="tagEntry: ${tagPosts}">
                     	<h5 th:text="${tagEntry.key}">tag</h5>
                     	<div th:include="series/fragments_series :: recentPosts (${tagEntry.value})">recentPosts</div>

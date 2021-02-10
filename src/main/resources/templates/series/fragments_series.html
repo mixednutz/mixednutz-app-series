@@ -353,6 +353,15 @@
             
 	</div>
 	
+	<div th:fragment="recentPosts (posts)">
+		<ul class="list-group">
+			<li th:each="recentPost : ${posts}" class="list-group-item">
+				<a th:href="@{|${recentPost.uri}|}" href="#" th:text="${recentPost.title}">Cras justo odio</a>
+				<small><time th:datetime="${#temporals.formatISO(recentPost.postedOnDate)}" th:text="${#temporals.format(recentPost.postedOnDate, #messages.msg('date.format.full'))}">November 11, 2014</time></small>
+			</li>
+		</ul>
+	</div>
+	
 	<div th:fragment="series_settings">
 		<h2>Series Settings</h2>
 		

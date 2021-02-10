@@ -119,4 +119,24 @@ public class ChapterController extends BaseChapterController {
 				
 		return "redirect:"+comment.getUri();
 	}
+	
+	@RequestMapping(value="/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}/comment/{inReplyToId}/reply", method = RequestMethod.POST, params="submit")
+	public String commentReply(@ModelAttribute(ChapterFactory.MODEL_ATTRIBUTE_COMMENT) ChapterComment comment, 
+			@PathVariable String username, 
+			@PathVariable Long seriesId, @PathVariable String seriesTitleKey,
+			@PathVariable Long id, @PathVariable String titleKey, 
+			@PathVariable Long inReplyToId,
+			@RequestParam(value="externalFeedId", required=false) Integer externalFeedId,
+			@AuthenticationPrincipal User user, Model model, Errors errors) {
+		if (user==null) {
+			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
+		}
+		
+		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
+				
+		comment.setInReplyTo(getComment(inReplyToId));
+		comment = saveComment(comment, chapter, user);
+				
+		return "redirect:"+comment.getUri();
+	}
 }

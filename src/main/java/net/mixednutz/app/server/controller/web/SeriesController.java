@@ -18,6 +18,7 @@ import org.springframework.web.servlet.View;
 import net.mixednutz.app.server.controller.BaseSeriesController;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
+import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesFactory;
 import net.mixednutz.app.server.entity.post.series.SeriesReview;
@@ -132,6 +133,25 @@ public class SeriesController extends BaseSeriesController {
 		}
 		
 		Series series = get(username, seriesId, titleKey);
+		review = saveComment(review, series, user);
+				
+		return "redirect:"+review.getUri();
+	}
+	
+	@RequestMapping(value="/{username}/series/{seriesId}/{titleKey}/comment/{inReplyToId}/reply", method = RequestMethod.POST, params="submit")
+	public String commentReply(@ModelAttribute(ChapterFactory.MODEL_ATTRIBUTE_COMMENT) SeriesReview review, 
+			@PathVariable String username, 
+			@PathVariable Long seriesId, @PathVariable String titleKey,
+			@PathVariable Long inReplyToId,
+			@RequestParam(value="externalFeedId", required=false) Integer externalFeedId,
+			@AuthenticationPrincipal User user, Model model, Errors errors) {
+		if (user==null) {
+			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
+		}
+		
+		Series series = get(username, seriesId, titleKey);
+		
+		review.setInReplyTo(getComment(inReplyToId));
 		review = saveComment(review, series, user);
 				
 		return "redirect:"+review.getUri();

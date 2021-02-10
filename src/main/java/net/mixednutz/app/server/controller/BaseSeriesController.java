@@ -231,6 +231,16 @@ public class BaseSeriesController {
 			}});
 	}
 	
+	protected SeriesReview getComment(Long commentId) {
+		return seriesReviewRepository.findById(commentId)
+			.orElseThrow(new Supplier<ResourceNotFoundException>() {
+				@Override
+				public ResourceNotFoundException get() {
+					throw new ResourceNotFoundException("Review not found");
+				}
+			});
+	}
+	
 	protected SeriesReview saveComment(SeriesReview form, Series series, User user) {
 		form.setSeries(series);
 		form.setAuthor(user);

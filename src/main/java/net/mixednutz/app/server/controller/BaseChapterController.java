@@ -258,6 +258,16 @@ public class BaseChapterController {
 		return chapterRepository.save(entity);
 	}
 	
+	protected ChapterComment getComment(Long commentId) {
+		return chapterCommentRepository.findById(commentId)
+			.orElseThrow(new Supplier<ResourceNotFoundException>() {
+				@Override
+				public ResourceNotFoundException get() {
+					throw new ResourceNotFoundException("Comment not found");
+				}
+			});
+	}
+	
 	protected ChapterComment saveComment(ChapterComment form, Chapter chapter, User user) {
 		form.setChapter(chapter);
 		form.setAuthor(user);

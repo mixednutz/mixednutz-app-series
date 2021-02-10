@@ -206,15 +206,7 @@
         <!-- Chapter Comments -->
 
         <!-- Comments Form -->
-        <div class="well">
-            <h4>Leave a Comment:</h4>
-            <form role="form" th:action="@{|${chapter.uri}/comment/new|}" th:object="${newComment}" method="post">
-                <div class="form-group">
-                    <textarea class="form-control" th:field="*{body}" rows="3"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary" name="submit">Submit</button>
-            </form>
-        </div>
+        <div th:replace="common/fragments_comments::post_comment_form(${chapter},'Leave a Comment')">Reply Form</div>
 
         <hr/>
 

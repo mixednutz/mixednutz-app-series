@@ -103,17 +103,10 @@
             
             	<!-- Recent Posts Well -->
 				<div class="well">
-                    <h4>More chapters from <a th:if="${chapter.author!=null}" th:href='@{|/${chapter.author.username}|}' href="#" th:text="${chapter.author.username}">username</a><span th:if="${chapter.author==null}">this former user</span></h4>
-                    <div thinclude="series/chapter/fragments_chapter :: recentPosts (${recentPosts})">recentPosts</div>
+                    <h4>More Series from <a th:if="${chapter.author!=null}" th:href='@{|/${chapter.author.username}|}' href="#" th:text="${chapter.author.username}">username</a><span th:if="${chapter.author==null}">this former user</span></h4>
+                    <div th:include="series/fragments_series :: recentPosts (${recentPosts})">recentPosts</div>
                 </div>
-                                
-                <div class="well" th:if="${!#lists.isEmpty(tagPosts)}">
-                	<h4>More chapters from tags</h4>
-                	<div th:each="tagEntry: ${tagPosts}">
-                    	<h5 th:text="${tagEntry.key}">tag</h5>
-                    	<div th:include="series/chapter/fragments_chapter :: recentPosts (${tagEntry.value})">recentPosts</div>
-                    </div>
-                </div>
+                
                 
                 
             </div>

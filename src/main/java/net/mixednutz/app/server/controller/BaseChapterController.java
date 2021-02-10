@@ -29,6 +29,7 @@ import net.mixednutz.app.server.format.HtmlFilter;
 import net.mixednutz.app.server.manager.NotificationManager;
 import net.mixednutz.app.server.manager.ReactionManager;
 import net.mixednutz.app.server.manager.post.series.ChapterManager;
+import net.mixednutz.app.server.manager.post.series.SeriesManager;
 import net.mixednutz.app.server.repository.ChapterCommentRepository;
 import net.mixednutz.app.server.repository.ChapterRepository;
 import net.mixednutz.app.server.repository.EmojiRepository;
@@ -44,6 +45,9 @@ public class BaseChapterController {
 	
 	@Autowired
 	protected ChapterManager chapterManager;
+	
+	@Autowired
+	private SeriesManager seriesManager;
 	
 	@Autowired
 	protected ChapterCommentRepository chapterCommentRepository;
@@ -148,7 +152,8 @@ public class BaseChapterController {
 		model.addAttribute("authors", chapterManager.loadCommentAuthors(chapter.getComments()));
 		
 		//Side bar stuff
-		//TODO Show previous and next chapter
+		model.addAttribute("recentPosts", seriesManager.getUserSeries(
+				chapter.getOwner(), user, 5));
 		
 		//New Comment Form
 		chapterFactory.newCommentForm(model);

@@ -70,6 +70,21 @@ public class SeriesSettingsManager implements ComponentSettings {
 	public String includeScriptFragmentName() {
 		return "series/fragments_series :: series_settings_JS";
 	}
+
+	@Override
+	public boolean includeNewFormModal() {
+		return true;
+	}
+	
+	@Override
+	public String includeNewFormModalContentFragmentName() {
+		return "series/fragments_series :: newSeriesForm_model";
+	}
+	
+	@Override
+	public String newFormModalId() {
+		return "newSeriesModal";
+	}
 	
 
 }

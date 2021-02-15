@@ -18,14 +18,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import net.mixednutz.app.server.controller.exception.ResourceMovedPermanentlyException;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
 import net.mixednutz.app.server.controller.exception.UserNotFoundException;
+import net.mixednutz.app.server.entity.InternalTimelineElement;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.VisibilityType;
+import net.mixednutz.app.server.entity.ExternalFeeds.AbstractFeed;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterComment;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.ScheduledChapter;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.format.HtmlFilter;
+import net.mixednutz.app.server.manager.ApiManager;
+import net.mixednutz.app.server.manager.ExternalFeedManager;
 import net.mixednutz.app.server.manager.NotificationManager;
 import net.mixednutz.app.server.manager.ReactionManager;
 import net.mixednutz.app.server.manager.post.series.ChapterManager;
@@ -33,6 +37,7 @@ import net.mixednutz.app.server.manager.post.series.SeriesManager;
 import net.mixednutz.app.server.repository.ChapterCommentRepository;
 import net.mixednutz.app.server.repository.ChapterRepository;
 import net.mixednutz.app.server.repository.EmojiRepository;
+import net.mixednutz.app.server.repository.ExternalFeedRepository;
 import net.mixednutz.app.server.repository.ReactionRepository;
 import net.mixednutz.app.server.repository.SeriesRepository;
 import net.mixednutz.app.server.repository.UserProfileRepository;
@@ -78,6 +83,15 @@ public class BaseChapterController {
 	
 	@Autowired
 	protected NotificationManager notificationManager;
+	
+	@Autowired
+	private ExternalFeedRepository externalFeedRepository;
+	
+	@Autowired
+	private ExternalFeedManager externalFeedManager;
+	
+	@Autowired
+	private ApiManager apiManager;
 	
 	protected Chapter get(String username, 
 			Long seriesId, String seriesTitleKey, 
@@ -184,7 +198,7 @@ public class BaseChapterController {
 			Series series,
 //			Integer friendGroupId, 
 			Long groupId, 
-			Integer[] externalFeedId, String tagsString, boolean emailFriendGroup, 
+			Long[] externalFeedId, String tagsString, boolean emailFriendGroup, 
 			LocalDateTime localPublishDate,
 			User user) {
 		if (user==null) {
@@ -221,6 +235,19 @@ public class BaseChapterController {
 //		journal.parseVisibility(user, friendGroupId, groupId);
 		
 		chapter = chapterRepository.save(chapter);
+		
+		//Feed Actions
+		//We don't have an timelineElement of Chapter, so we'll use series
+		InternalTimelineElement exportableEntity = apiManager.toTimelineElement(chapter.getSeries(), null);
+		if (externalFeedId!=null) {
+			for (Long feedId: externalFeedId) {
+				AbstractFeed feed= externalFeedRepository.findById(feedId).get();
+				externalFeedManager.crosspost(feed, 
+						exportableEntity.getTitle()+" - "+chapter.getTitle(), 
+						exportableEntity.getUrl(), 
+						null);
+			}
+		}
 		
 		notificationManager.notifyNewAddition(chapter.getSeries(), chapter);
 		

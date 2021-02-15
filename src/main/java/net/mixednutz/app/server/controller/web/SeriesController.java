@@ -118,6 +118,21 @@ public class SeriesController extends BaseSeriesController {
 		return "redirect:"+savedSeries.getUri();
 	}
 	
+
+	//------------
+	// Delete Mappings
+	//------------
+	
+
+	@RequestMapping(value="/series/{id}/delete", method = RequestMethod.POST, params="confirm")
+	public String deleteModal(@PathVariable Long id, 
+			@AuthenticationPrincipal User user) {
+		
+		delete(id, user);
+		
+		return "redirect:/main";
+	}
+	
 	//------------
 	// Comments Mappings
 	//------------

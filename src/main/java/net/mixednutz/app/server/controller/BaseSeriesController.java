@@ -217,6 +217,17 @@ public class BaseSeriesController {
 		return seriesRepository.save(entity);
 	}
 	
+	protected void delete(Long id, User user) {
+		Series entity = seriesRepository.findById(id).orElseThrow(()->{
+			return new ResourceNotFoundException("");
+		});
+		if (!entity.getAuthor().equals(user)) {
+			throw new AccessDeniedException("Series #"+id+" - That's not yours to edit!");
+		}
+		
+		seriesRepository.delete(entity);
+	}
+	
 	/**
 	 * Adds and Deletes tags from the thread
 	 * 

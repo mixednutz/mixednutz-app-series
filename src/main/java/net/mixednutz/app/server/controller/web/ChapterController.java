@@ -99,6 +99,21 @@ public class ChapterController extends BaseChapterController {
 		return "redirect:"+savedChapter.getUri();
 	}
 	
+
+	//------------
+	// Delete Mappings
+	//------------
+	
+
+	@RequestMapping(value="/series/{seriesId}/chapter/{id}/delete", method = RequestMethod.POST, params="confirm")
+	public String deleteModal(@PathVariable Long seriesId, @PathVariable Long id, 
+			@AuthenticationPrincipal User user) {
+		
+		String seriesUri = delete(seriesId, id, user);
+		
+		return "redirect:"+seriesUri;
+	}
+	
 	//------------
 	// Comments Mappings
 	//------------

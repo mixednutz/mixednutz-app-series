@@ -122,7 +122,7 @@
 					
 				</div>
 				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${chapter}, ${ {:} }, true, true, false, true)">
-					journal-options
+					chapter-options
 				</div>
 			</div>
 		</div>
@@ -144,6 +144,27 @@
 	$('#chapter-update-btn').hide();
 	/*]]>*/
 	</script>
+	
+	<div th:fragment="deleteChapterForm_model">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+			<h4>Delete Chapter</h4>
+		</div>
+		<form id="editchapter_form" th:action="@{|/series/${chapter.series.id}/chapter/${chapter.id}/delete|}" th:object="${chapter}" method="post">
+		<div class="modal-body">
+			Are you sure you want to delete:
+			
+			<h4 th:text="${chapter.title}">title</h4>
+			<small>created on <span th:text="${chapter.dateCreated}">date</span></small>
+	
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-danger" type="submit" name="confirm">Yes, Delete Now</button>
+  			<button class="btn" type="button" data-dismiss="modal">Cancel</button>
+		</div>
+		</form>
+		
+	</div>
 	
 	<div th:fragment="chapter">
 		<!-- Chapter Post --> 
@@ -176,7 +197,7 @@
 			<!-- Edit -->
 			<button data-toggle="modal" data-target="#editchapterModal" class="btn btn-default" type="button"><i class="glyphicon glyphicon-pencil"></i>&nbsp;Edit Chapter</button>
 			<!-- Delete -->
-			<button data-toggle="modal" data-target="#deleteseriesModal" class="btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i>&nbsp;Delete Chapter</button>
+			<button data-toggle="modal" data-target="#deletechapterModal" class="btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i>&nbsp;Delete Chapter</button>
 		</div>
         
         <hr/>

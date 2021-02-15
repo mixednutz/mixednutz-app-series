@@ -290,6 +290,19 @@ public class BaseChapterController {
 		return chapterRepository.save(entity);
 	}
 	
+	protected String delete(Long seriesId, Long id, User user) {
+		Chapter entity = chapterRepository.findByIdAndSeriesId(id, seriesId).orElseThrow(()->{
+			return new ResourceNotFoundException("");
+		});
+		if (!entity.getAuthor().equals(user)) {
+			throw new AccessDeniedException("Series #"+id+" - That's not yours to edit!");
+		}
+		
+		chapterRepository.delete(entity);
+		
+		return entity.getSeries().getUri();
+	}
+	
 	protected ChapterComment getComment(Long commentId) {
 		return chapterCommentRepository.findById(commentId)
 			.orElseThrow(new Supplier<ResourceNotFoundException>() {

@@ -48,6 +48,9 @@
 		th:with="seriesUrl=@{|${formatter.formatAbsoluteUrl(series.uri)}|}"
 		th:href="|${formatter.formatAbsoluteUrl('/oembed?url=' + seriesUrl)}|"
   		th:title="@{|${series.title} : #{site.title}|}"/>
+  		
+  	<meta name="_csrf" th:content="${_csrf.token}"/>
+	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
 
@@ -150,15 +153,22 @@
     <script th:src="@{|/webjars/bootstrap-modal/js/bootstrap-modalmanager.js|}"></script>
     <script th:src="@{|/webjars/bootstrap-modal/js/bootstrap-modal.js|}"></script>
     
+    <!-- IDB-Keyval -->
+    <script th:src="@{|/webjars/idb-keyval/dist/idb-keyval-iife.js|}"></script>
+    
     <!-- My JavaScript 
     ================================================== -->
     <script th:replace="header :: navbar_js"></script>
+    <script th:replace="common/fragments_js :: common"></script>
     <script th:replace="common/fragments_forms :: post_options_JS" th:inline="javascript"></script>
     <script include="series/modules_series :: editseriesForm_JS" th:inline="javascript"></script>
     <script include="common/modules_common :: tags_JS" th:inline="javascript"></script>
     <script th:include="common/fragments_reactions :: reactions_JS" th:inline="javascript"></script>
     <script th:include="series/chapter/fragments_chapter :: newChapterForm_JS"></script>
     <script type="text/javascript" th:src="@{|/js/series.js|}" src="../js/series.js"></script>
+	<script type="text/javascript" th:src="@{|/js/pwa.js|}" src="../js/pwa.js"></script>
+ 	<script type="text/javascript" th:src="@{|/js/pwa_feeds.js|}" src="../js/pwa_feeds.js"></script>
+    
 	
 	<!-- Google Analytics JavaScript 
  	================================================== -->

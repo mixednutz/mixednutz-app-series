@@ -13,7 +13,9 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import net.mixednutz.api.core.model.NetworkInfo;
 import net.mixednutz.app.server.entity.InternalTimelineElement;
+import net.mixednutz.app.server.entity.InternalTimelineElement.Type;
 import net.mixednutz.app.server.entity.Oembeds.Oembed;
 import net.mixednutz.app.server.entity.Oembeds.OembedLink;
 import net.mixednutz.app.server.entity.User;
@@ -28,6 +30,9 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 	private static final Pattern CHAPTER_PATTERN_REST=Pattern.compile(
 			"^\\/(?<username>.*)\\/series\\/(?<seriesid>[0-9]*)\\/(?<seriesTitleKey>.*)\\/chapter\\/(?<id>[0-9]*)\\/(?<titleKey>.*)", 
 			Pattern.CASE_INSENSITIVE);
+	
+	@Autowired
+	private NetworkInfo networkInfo;
 	
 	@Autowired
 	private ChapterRepository chapterRepository;
@@ -46,13 +51,19 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
     }
 
 	@Override
-	public InternalTimelineElement toTimelineElement(InternalTimelineElement element, Chapter entity, User viewer) {
-		return null;
+	public InternalTimelineElement toTimelineElement(
+			InternalTimelineElement api, Chapter entity, User viewer) {
+		api.setType(new Type("Chapter",
+				networkInfo.getHostName(),
+				networkInfo.getId()+"_Chapter"));
+		api.setId(entity.getId());
+		api.setTitle(entity.getSeries().getTitle()+" - "+entity.getTitle());
+		return api;
 	}
 
 	@Override
 	public boolean canConvert(Class<?> entityClazz) {
-		return false;
+		return Chapter.class.isAssignableFrom(entityClazz);
 	}
 
 	@Override

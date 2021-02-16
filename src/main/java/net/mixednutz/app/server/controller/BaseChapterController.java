@@ -237,19 +237,20 @@ public class BaseChapterController {
 		chapter = chapterRepository.save(chapter);
 		
 		//Feed Actions
-		//We don't have an timelineElement of Chapter, so we'll use series
-		InternalTimelineElement exportableEntity = apiManager.toTimelineElement(chapter.getSeries(), null);
-		if (externalFeedId!=null) {
-			for (Long feedId: externalFeedId) {
-				AbstractFeed feed= externalFeedRepository.findById(feedId).get();
-				externalFeedManager.crosspost(feed, 
-						exportableEntity.getTitle()+" - "+chapter.getTitle(), 
-						exportableEntity.getUrl(), 
-						null);
+		if (chapter.getScheduled()==null) {
+			InternalTimelineElement exportableEntity = apiManager.toTimelineElement(chapter, null);
+			if (externalFeedId!=null) {
+				for (Long feedId: externalFeedId) {
+					AbstractFeed feed= externalFeedRepository.findById(feedId).get();
+					externalFeedManager.crosspost(feed, 
+							exportableEntity.getTitle(), 
+							exportableEntity.getUrl(), 
+							null);
+				}
 			}
+			
+			notificationManager.notifyNewAddition(chapter.getSeries(), chapter);
 		}
-		
-		notificationManager.notifyNewAddition(chapter.getSeries(), chapter);
 		
 		return chapter;
 	}

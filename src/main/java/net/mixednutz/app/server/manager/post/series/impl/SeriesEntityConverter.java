@@ -1,5 +1,6 @@
 package net.mixednutz.app.server.manager.post.series.impl;
 
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -19,6 +20,7 @@ import net.mixednutz.app.server.entity.InternalTimelineElement.Type;
 import net.mixednutz.app.server.entity.Oembeds.Oembed;
 import net.mixednutz.app.server.entity.Oembeds.OembedLink;
 import net.mixednutz.app.server.entity.User;
+import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.manager.ApiElementConverter;
 import net.mixednutz.app.server.repository.SeriesRepository;
@@ -58,6 +60,13 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 				networkInfo.getId()+"_Series"));
 		api.setId(entity.getId());
 		api.setTitle(entity.getTitle());
+		if (entity.getChapters()!=null && !entity.getChapters().isEmpty()) {
+			//set publish date to latest chapter
+			entity.getChapters().stream()
+				.filter((c)-> c.getDatePublished()!=null)
+				.max(Comparator.comparing(Chapter::getDatePublished))
+				.ifPresent((c)->api.setPostedOnDate(c.getDatePublished()));
+		}
 		return api;
 	}
 

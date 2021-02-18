@@ -9,7 +9,8 @@ import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesReview;
 
 @Repository
-public interface SeriesRepository extends PostRepository<Series, SeriesReview>, SeriesCustomRepository {
+public interface SeriesRepository extends PostRepository<Series, SeriesReview>, SeriesCustomRepository,
+	ChapterGroupRepository {
 
 	Optional<Series> findByOwnerAndTitleKey(
 			User owner,

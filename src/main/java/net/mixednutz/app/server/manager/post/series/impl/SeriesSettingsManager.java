@@ -34,6 +34,16 @@ public class SeriesSettingsManager implements ComponentSettings {
 	}
 
 	@Override
+	public boolean css() {
+		return true;
+	}
+
+	@Override
+	public String cssHref() {
+		return "/css/series.css";
+	}
+
+	@Override
 	public Map<String, ?> getSettings() {
 		Map<String, Object> settings = new HashMap<String, Object>();
 		settings.put("genres", genres());

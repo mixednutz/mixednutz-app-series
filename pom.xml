@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>net.mixednutz.app.series</groupId>
 	<artifactId>mixednutz-app-series</artifactId>
-	<version>2.0.0-SNAPSHOT</version>
+	<version>2.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>mixednutz-app-series</name>
@@ -18,28 +17,83 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.0.6.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>1.8</java.version>
-		
-		<mixednutz-api.version>2.0.0-SNAPSHOT</mixednutz-api.version>
-		<mixednutz-app.version>2.0.0-SNAPSHOT</mixednutz-app.version>
-		<spring-social.version>1.1.6.RELEASE</spring-social.version>
-		<epublib.version>3.1</epublib.version>
-	</properties>
+	
+	<organization>
+        <name>Andrew Festa</name>
+        <url>http://www.andrewfesta.com</url>
+    </organization>
+        
+    <scm>
+		<connection>scm:git:ssh://git@github.com/mixednutz/mixednutz-app-series.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/mixednutz/mixednutz-app-series.git</developerConnection>
+		<url>https://github.com/mixednutz/mixednutz-app-series</url>
+		<tag>mixednutz-app-series-2.0.0</tag>
+    </scm>
+	
+	<!-- 
+		Deploy JARs to GitHub
+	 -->
+	<distributionManagement>
+	   	<repository>
+     			<id>github</id>
+     			<name>GitHub MixedNutz Apache Maven Packages</name>
+     			<url>https://maven.pkg.github.com/mixednutz/${project.artifactId}</url>
+   		</repository>
+	</distributionManagement>
 	
 	<repositories>
-	    <repository>
+		<repository>
+			<id>github</id>
+        	<name>GitHub Mixednutz Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/mixednutz/mixednutz-java-api</url>
+			<releases><enabled>true</enabled></releases>
+       		<snapshots><enabled>true</enabled></snapshots>
+		</repository>
+		<repository>
+			<id>github-mixednutz-java-api-core</id>
+			<url>https://maven.pkg.github.com/mixednutz/mixednutz-java-api-core</url>
+			<releases><enabled>true</enabled></releases>
+       		<snapshots><enabled>true</enabled></snapshots>
+		</repository>
+		<repository>
+			<id>github-mixednutz-app-core</id>
+			<url>https://maven.pkg.github.com/mixednutz/mixednutz-app-core</url>
+			<releases><enabled>true</enabled></releases>
+       		<snapshots><enabled>true</enabled></snapshots>
+		</repository>
+		
+		<repository>
 	        <id>psiegman-repo</id>
 	        <url>https://github.com/psiegman/mvn-repo/raw/master/releases</url>
 	    </repository>
 	</repositories>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.8</java.version>
+		
+		<mixednutz-app.version>2.0.0</mixednutz-app.version>
+		<spring-social.version>1.1.6.RELEASE</spring-social.version>
+		<epublib.version>3.1</epublib.version>
+	</properties>
+	
 	<build>
 		<plugins>
+			<!-- Maven Release Plugin -->
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.4.2</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.scm</groupId>
+						<artifactId>maven-scm-provider-gitexe</artifactId>
+						<version>1.8.1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -76,11 +130,6 @@
 	<dependencies>
 	
 		<dependency>
-			<groupId>net.mixednutz</groupId>
-			<artifactId>mixednutz-java-api</artifactId>
-			<version>${mixednutz-api.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>net.mixednutz.app.core</groupId>
 			<artifactId>mixednutz-app-core</artifactId>
 			<version>${mixednutz-app.version}</version>
@@ -91,12 +140,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -112,23 +155,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
    			<groupId>org.springframework.boot</groupId>
     		<artifactId>spring-boot-starter-test</artifactId>
     		<scope>test</scope>
-    		<exclusions>
-    			<exclusion>
-    				<groupId>org.slf4j</groupId>
-    				<artifactId>slf4j-api</artifactId>
-    			</exclusion>
-    		</exclusions>
 		</dependency>
 	
 		<!-- Jackson Annotations for JSON serialization -->

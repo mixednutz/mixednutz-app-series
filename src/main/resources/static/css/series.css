@@ -6,3 +6,31 @@
 	color: #00AA00;
 	font-weight: bold;
 }
+
+.timeline .Series .preview {
+	padding: 10px;
+}
+
+.timeline .Series .glyphicon-tag {
+	color: #AAB8C2;
+}
+
+.timeline .Series .fa-smile {
+	color: #AAB8C2;
+}
+
+.timeline .Series .action-group .fa-share-alt {
+	color: #FFFFFF;
+}
+
+.timeline .Series .action-group .fa-smile {
+	color: #FFFFFF;
+}
+
+.timeline .Series .share_background {
+	color: #AAB8C2;
+}
+
+.timeline .Series .action-group .fa-lock {
+	color: #AAB8C2;
+}

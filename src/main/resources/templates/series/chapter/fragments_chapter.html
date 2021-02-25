@@ -183,7 +183,7 @@
         <p>
         	<span th:if="${chapter.datePublished!=null}"><span class="glyphicon glyphicon-time"></span> Posted on <time th:datetime="${#temporals.formatISO(chapter.datePublished)}" th:text="${#temporals.format(chapter.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time></span>
         	<span th:if="${chapter.datePublished==null && chapter.scheduled!=null}"><span class="glyphicon glyphicon-time"></span> <span class="scheduled">Scheduled for</span> <time th:datetime="${#temporals.formatISO(chapter.scheduled.publishDate)}" th:text="${#temporals.format(chapter.scheduled.publishDate, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time></span>
-        	<span class="glyphicon glyphicon-eye-open"></span> <span th:text="${views}">0</span> Views
+        	<span class="glyphicon glyphicon-eye-open"></span> <span th:text="${views}">0</span> Views / <span th:text="${chapter.hitCount}">0</span> Hits
         	<span class="glyphicon glyphicon-stats"></span> Word Count: <span th:text="${chapter.wordCount}">0</span>
         </p>
         

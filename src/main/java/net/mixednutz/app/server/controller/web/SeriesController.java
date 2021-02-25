@@ -45,6 +45,7 @@ public class SeriesController extends BaseSeriesController {
 			Authentication auth, Model model) {
 		Series series = get(username, id, titleKey);
 		getSeries(series, auth,model);
+		incrementHitCount(series);
 		
 		model.addAttribute("views", series.getViews().size());
 		seriesFactory.addNewPostReferenceData(model);

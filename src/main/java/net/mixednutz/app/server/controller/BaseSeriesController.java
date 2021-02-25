@@ -217,6 +217,11 @@ public class BaseSeriesController {
 		return seriesRepository.save(entity);
 	}
 	
+	protected void incrementHitCount(Series entity) {
+		entity.incrementHitCount();
+		seriesRepository.save(entity);
+	}
+	
 	protected void delete(Long id, User user) {
 		Series entity = seriesRepository.findById(id).orElseThrow(()->{
 			return new ResourceNotFoundException("");

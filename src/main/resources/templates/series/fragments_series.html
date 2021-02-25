@@ -272,7 +272,7 @@
         <!-- Date/Time --> 
         <p>
         	<span class="glyphicon glyphicon-time"></span> Posted on <time th:datetime="${#temporals.formatISO(series.datePublished)}" th:text="${#temporals.format(series.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
-        	<span class="glyphicon glyphicon-eye-open"></span> <span th:text="${views}">0</span> Views
+        	<span class="glyphicon glyphicon-eye-open"></span> <span th:text="${views}">0</span> Views / <span th:text="${series.hitCount}">0</span> Hits
         	<span class="glyphicon glyphicon-stats"></span> Word Count: <span th:text="${wordCount}">0</span>
         	<!--<span class="glyphicon glyphicon-heart"></span> <span>0</span> Favorites -->
         </p>

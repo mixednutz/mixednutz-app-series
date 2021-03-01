@@ -34,7 +34,7 @@ import net.mixednutz.app.server.repository.UserRepository;
 public class BaseSeriesController {
 	
 	@Autowired
-	private SeriesRepository seriesRepository;
+	protected SeriesRepository seriesRepository;
 	
 	@Autowired
 	private SeriesManager seriesManager;

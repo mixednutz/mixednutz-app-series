@@ -53,7 +53,7 @@
 						<div id="editor" class="form-control" data-placeholder="Start your story..."></div>
 					</div>
 				</div>
-				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newchapter}, ${ {'Chapter':chapterCrosspostFeeds} }, true, true, true, false)">
+				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newchapter}, ${ {'Chapter':chapterCrosspostFeeds} }, true, true, false, true, false)">
 					chapter-options
 				</div>
 			</div>
@@ -121,7 +121,7 @@
 					</div>
 					
 				</div>
-				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${chapter}, ${ {:} }, true, true, false, true)">
+				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${chapter}, ${ {:} }, true, true, false, false, true)">
 					chapter-options
 				</div>
 			</div>

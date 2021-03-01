@@ -1,6 +1,8 @@
 package net.mixednutz.app.server.manager.post.series.impl;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -14,15 +16,20 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import net.mixednutz.api.core.model.Action;
+import net.mixednutz.api.core.model.Link;
 import net.mixednutz.api.core.model.NetworkInfo;
+import net.mixednutz.api.core.model.ReactionCount;
 import net.mixednutz.app.server.entity.InternalTimelineElement;
 import net.mixednutz.app.server.entity.InternalTimelineElement.Type;
 import net.mixednutz.app.server.entity.Oembeds.Oembed;
 import net.mixednutz.app.server.entity.Oembeds.OembedLink;
+import net.mixednutz.app.server.entity.ReactionScore;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.manager.ApiElementConverter;
+import net.mixednutz.app.server.manager.ReactionManager;
 import net.mixednutz.app.server.repository.SeriesRepository;
 import net.mixednutz.app.server.repository.UserRepository;
 
@@ -41,6 +48,9 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 	
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private ReactionManager reactionManager;
 	
 	@Autowired
     private MessageSource messageSource;
@@ -66,8 +76,35 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 				.filter((c)-> c.getDatePublished()!=null)
 				.max(Comparator.comparing(Chapter::getDatePublished))
 				.ifPresent((c)->api.setPostedOnDate(c.getDatePublished()));
+			
+			//Roll up Reactions:
+			setReactionCounts(api, reactionManager.rollupReactionScores(
+					entity.getChapters(), entity.getAuthor(), viewer));
 		}
+		
 		return api;
+	}
+	protected ReactionCount toReactionCount(ReactionScore reactionScore, String baseUrl) {
+		ReactionCount api = new ReactionCount();
+		api.setId(reactionScore.getEmoji().getId());
+		api.setUnicode(reactionScore.getEmoji().getHtmlCode());
+		api.setDescription(reactionScore.getEmoji().getDescription());
+		api.setCount(reactionScore.getScore());
+		api.setUserIncluded(reactionScore.isUserIncluded());
+		api.setToggleAction(new Action(
+				new Link(baseUrl+"/reaction/toggle?emojiId="+api.getId()),
+				"emoji_"+api.getId(),
+				api.getUnicode(), 
+				api.getDescription()));
+		return api;
+	}
+	
+	protected void setReactionCounts(InternalTimelineElement api, Iterable<ReactionScore> reactionScores) {
+		List<ReactionCount> reactions = new ArrayList<>();
+		for (ReactionScore reaction : reactionScores) {
+			reactions.add(toReactionCount(reaction, api.getUrl()));
+		}
+		api.setReactions(reactions);
 	}
 
 	@Override

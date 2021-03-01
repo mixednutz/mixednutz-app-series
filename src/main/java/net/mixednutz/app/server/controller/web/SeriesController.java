@@ -53,9 +53,11 @@ public class SeriesController extends BaseSeriesController {
 		//Chapter word count:
 		long totalWords = 0;
 		for (Chapter chapter: series.getChapters()) {
-			long wc = chapterManager.wordCount(chapter);
-			totalWords += wc;
-			chapter.setWordCount(wc);
+			if (chapter.getDatePublished()!=null) {
+				long wc = chapterManager.wordCount(chapter);
+				totalWords += wc;
+				chapter.setWordCount(wc);
+			}
 		}
 		model.addAttribute("wordCount", totalWords);
 				

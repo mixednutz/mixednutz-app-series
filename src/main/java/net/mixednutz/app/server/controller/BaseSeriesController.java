@@ -240,11 +240,8 @@ public class BaseSeriesController {
 	 * @param thread
 	 */
 	protected void mergeTags(String[] tagArray, final Series series) {
-		tagManager.mergeTags(tagArray, series.getTags(), new TagManager.NewTagCallback<SeriesTag>(){
-			@Override
-			public SeriesTag createTag(String tagString) {
-				return new SeriesTag(series, tagString);
-			}});
+		tagManager.mergeTags(tagArray, series.getTags(), 
+				(tagString)->new SeriesTag(series, tagString));
 	}
 	
 	protected SeriesReview getComment(Long commentId) {

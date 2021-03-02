@@ -14,7 +14,6 @@ import net.mixednutz.app.server.controller.BaseSeriesController;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesTag;
-import net.mixednutz.app.server.manager.TagManager;
 
 @Controller
 @RequestMapping({"/api","/internal"})
@@ -34,14 +33,12 @@ public class SeriesApiController extends BaseSeriesController {
 		final Series series = get(username, id, titleKey);
 		
 		SeriesTag tag =  tagManager.toggleTag(tagString, series.getTags(), series.getAuthor(), 
-				user, new TagManager.NewTagCallback<SeriesTag>(){
-			@Override
-			public SeriesTag createTag(String tagString) {
-				if (user.equals(series.getAuthor())) {
-					return new SeriesTag(series, tagString);
-				}
-				return new SeriesTag(series, tagString, user);
-			}});
+				user, (tagStr)->{
+					if (user.equals(series.getAuthor())) {
+						return new SeriesTag(series, tagString);
+					}
+					return new SeriesTag(series, tagString, user);
+				});
 		seriesRepository.save(series);
 		return tag;
 	}
@@ -69,14 +66,12 @@ public class SeriesApiController extends BaseSeriesController {
 	protected Collection<SeriesTag> addTags(final String[] tagArray, final Series series, 
 			final User currentUser) {
 		return tagManager.addTags(tagArray, series.getTags(), series.getAuthor(), 
-				currentUser, new TagManager.NewTagCallback<SeriesTag>(){
-			@Override
-			public SeriesTag createTag(String tagString) {
-				if (currentUser.equals(series.getAuthor())) {
-					return new SeriesTag(series, tagString);
-				}
-				return new SeriesTag(series, tagString, currentUser);
-			}});
+				currentUser, (tagString)->{
+					if (currentUser.equals(series.getAuthor())) {
+						return new SeriesTag(series, tagString);
+					}
+					return new SeriesTag(series, tagString, currentUser);
+				});
 	}
 
 }

@@ -41,6 +41,8 @@ public class ChapterController extends BaseChapterController {
 			Authentication auth, Model model) {
 		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
 		getChapter(chapter, auth,model);
+		
+		incrementHitCount(chapter);
 		model.addAttribute("views", chapter.getViews().size());
 		
 		// Check for previous/next chapter
@@ -49,10 +51,12 @@ public class ChapterController extends BaseChapterController {
 		model.addAttribute("hasPrev", index>0);
 		if (index>0) {
 			model.addAttribute("prevUri",chapters.get(index-1).getUri());
+			model.addAttribute("prevPublished", chapters.get(index-1).getDatePublished()!=null);
 		}
 		if (index+1<chapters.size()) {
 			model.addAttribute("hasNext", true);
 			model.addAttribute("nextUri",chapters.get(index+1).getUri());
+			model.addAttribute("nextPublished", chapters.get(index+1).getDatePublished()!=null);
 		} else {
 			model.addAttribute("hasNext", false);
 		}

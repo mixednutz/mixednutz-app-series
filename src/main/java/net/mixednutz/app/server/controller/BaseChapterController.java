@@ -291,6 +291,11 @@ public class BaseChapterController {
 		return chapterRepository.save(entity);
 	}
 	
+	protected void incrementHitCount(Chapter entity) {
+		entity.incrementHitCount();
+		chapterRepository.save(entity);
+	}
+	
 	protected String delete(Long seriesId, Long id, User user) {
 		Chapter entity = chapterRepository.findByIdAndSeriesId(id, seriesId).orElseThrow(()->{
 			return new ResourceNotFoundException("");

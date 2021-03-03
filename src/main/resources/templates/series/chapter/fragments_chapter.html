@@ -53,7 +53,7 @@
 						<div id="editor" class="form-control" data-placeholder="Start your story..."></div>
 					</div>
 				</div>
-				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newchapter}, ${ {'Chapter':chapterCrosspostFeeds} }, true, true, true, false)">
+				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newchapter}, ${ {'Chapter':chapterCrosspostFeeds} }, true, true, false, true, false)">
 					chapter-options
 				</div>
 			</div>
@@ -121,7 +121,7 @@
 					</div>
 					
 				</div>
-				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${chapter}, ${ {:} }, true, true, false, true)">
+				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${chapter}, ${ {:} }, true, true, false, false, true)">
 					chapter-options
 				</div>
 			</div>
@@ -183,7 +183,7 @@
         <p>
         	<span th:if="${chapter.datePublished!=null}"><span class="glyphicon glyphicon-time"></span> Posted on <time th:datetime="${#temporals.formatISO(chapter.datePublished)}" th:text="${#temporals.format(chapter.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time></span>
         	<span th:if="${chapter.datePublished==null && chapter.scheduled!=null}"><span class="glyphicon glyphicon-time"></span> <span class="scheduled">Scheduled for</span> <time th:datetime="${#temporals.formatISO(chapter.scheduled.publishDate)}" th:text="${#temporals.format(chapter.scheduled.publishDate, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time></span>
-        	<span class="glyphicon glyphicon-eye-open"></span> <span th:text="${views}">0</span> Views
+        	<span class="glyphicon glyphicon-eye-open"></span> <span th:text="${views}">0</span> Views / <span th:text="${chapter.hitCount}">0</span> Hits
         	<span class="glyphicon glyphicon-stats"></span> Word Count: <span th:text="${chapter.wordCount}">0</span>
         </p>
         
@@ -202,10 +202,10 @@
         
         <hr/>
         <div>
-        	<a th:if="${hasPrev}" th:href="@{|${prevUri}|}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</a>
-        	<button th:if="${!hasPrev}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</button>
-        	<a th:if="${hasNext}" th:href="@{|${nextUri}|}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></a>
-        	<button th:if="${!hasNext}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></button>
+        	<a th:if="${hasPrev and prevPublished}" th:href="@{|${prevUri}|}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev or !prevPublished}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</a>
+        	<button th:if="${!hasPrev or !prevPublished}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev or !prevPublished}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</button>
+        	<a th:if="${hasNext and nextPublished}" th:href="@{|${nextUri}|}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext or !nextPublished}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></a>
+        	<button th:if="${!hasNext or !nextPublished}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext or !nextPublished}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></button>
         </div>
         <hr/>
         
@@ -214,10 +214,10 @@
                 
         <hr/>
         <div>
-        	<a th:if="${hasPrev}" th:href="@{|${prevUri}|}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</a>
-        	<button th:if="${!hasPrev}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</button>
-        	<a th:if="${hasNext}" th:href="@{|${nextUri}|}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></a>
-        	<button th:if="${!hasNext}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></button>
+        	<a th:if="${hasPrev} and ${prevPublished}" th:href="@{|${prevUri}|}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev or !prevPublished}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</a>
+        	<button th:if="${!hasPrev} or ${!prevPublished}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev or !prevPublished}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</button>
+        	<a th:if="${hasNext and nextPublished}" th:href="@{|${nextUri}|}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext or !nextPublished}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></a>
+        	<button th:if="${!hasNext or !nextPublished}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext or !nextPublished}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></button>
         </div><a></a>
         <hr/>
         

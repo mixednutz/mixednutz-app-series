@@ -45,6 +45,7 @@ public class SeriesController extends BaseSeriesController {
 			Authentication auth, Model model) {
 		Series series = get(username, id, titleKey);
 		getSeries(series, auth,model);
+		incrementHitCount(series);
 		
 		model.addAttribute("views", series.getViews().size());
 		seriesFactory.addNewPostReferenceData(model);
@@ -53,8 +54,10 @@ public class SeriesController extends BaseSeriesController {
 		long totalWords = 0;
 		for (Chapter chapter: series.getChapters()) {
 			long wc = chapterManager.wordCount(chapter);
-			totalWords += wc;
 			chapter.setWordCount(wc);
+			if (chapter.getDatePublished()!=null) {
+				totalWords += wc;
+			}
 		}
 		model.addAttribute("wordCount", totalWords);
 				

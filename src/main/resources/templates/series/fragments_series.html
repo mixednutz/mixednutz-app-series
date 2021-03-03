@@ -54,7 +54,7 @@
 					<i class="far fa-smile"></i> Reactions: <span
 						class="reactions-list"></span>
 				</div>
-				<div class="action-group" role="group">
+				<!-- <div class="action-group" role="group">
 					<a sec:authorize="isAuthenticated()" class="reactBtn" href="#"
 						data-toggle="modal" data-target="#reactModal"> <span
 						class="fa-stack fa-stack fa-lg"> <i
@@ -73,7 +73,7 @@
 							class="fas fa-lock fa-stack-1x"></i>
 					</span>
 					</span> <small class="id" style="display: none;"></small>
-				</div>
+				</div> -->
 			</div>
 		</div>
 	</div>
@@ -142,7 +142,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newseries}, ${ {'Series':seriesCrosspostFeeds} }, true, false, false, false)">
+				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newseries}, ${ {'Series':seriesCrosspostFeeds} }, true, false, true, false, false)">
 					series-options
 				</div>
 			</div>
@@ -221,7 +221,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${series}, ${ {:} }, true, false, false, true)">
+				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${series}, ${ {:} }, true, false, true, false, true)">
 					journal-options
 				</div>
 			</div>
@@ -272,7 +272,7 @@
         <!-- Date/Time --> 
         <p>
         	<span class="glyphicon glyphicon-time"></span> Posted on <time th:datetime="${#temporals.formatISO(series.datePublished)}" th:text="${#temporals.format(series.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
-        	<span class="glyphicon glyphicon-eye-open"></span> <span th:text="${views}">0</span> Views
+        	<span class="glyphicon glyphicon-eye-open"></span> <span th:text="${views}">0</span> Views / <span th:text="${series.hitCount}">0</span> Hits
         	<span class="glyphicon glyphicon-stats"></span> Word Count: <span th:text="${wordCount}">0</span>
         	<!--<span class="glyphicon glyphicon-heart"></span> <span>0</span> Favorites -->
         </p>
@@ -289,6 +289,9 @@
 				<a href="#" th:each="additional : ${series.additionalGenres}" th:text="${additional.displayName}" class="btn btn-sm btn-default">series.additionalGenre.displayName</a>
 			</div>
 		</div>
+		
+		<!-- Tags -->
+  		<div th:include="common/fragments_tags :: tags (${series.uri})">tags</div>
 		
 		
 		
@@ -328,6 +331,7 @@
         
         <h2>Table of Contents</h2>
         <div class="toc list-group" sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${series.author.userId}">
+        	<!-- Author's TOC -->
         	<div th:each="chapter : ${series.chapters}" class="list-group-item">
         		<div>
         		<!-- Chapter Title -->
@@ -342,7 +346,23 @@
         		</div>
         	</div>
         </div>
-        <div class="toc list-group" sec:authorize="!isAuthenticated()" >
+        <div class="toc list-group" sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}!=${series.author.userId}">
+        	<!-- Authenticated User's TOC -->
+        	<div th:each="chapter : ${series.chapters}" th:if="${chapter.datePublished!=null}" class="list-group-item">
+        		<div>
+        		<!-- Chapter Title -->
+        		<a th:href="@{|${chapter.uri}|}" th:text="${chapter.title}">chapter.title</a>, 
+        		<!-- Comments -->
+        		<small><a th:href="@{|${chapter.uri}#comments|}" ><span th:text="${#lists.size(chapter.comments)}"></span> comments</a></small> 
+        		<!-- Word Count -->
+        		<small>(<span th:text="${chapter.wordCount}">wordCount</span> words)</small>
+        		<!-- Publish Date -->
+        		<time class="pull-right" th:if="${chapter.datePublished!=null}" th:datetime="${#temporals.formatISO(chapter.datePublished)}" th:text="${#temporals.format(chapter.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
+        		</div>
+        	</div>
+        </div>
+         <div class="toc list-group" sec:authorize="!isAuthenticated()">
+        	<!-- Non-Authenticated User's TOC -->
         	<div th:each="chapter : ${series.chapters}" th:if="${chapter.datePublished!=null}" class="list-group-item">
         		<div>
         		<!-- Chapter Title -->

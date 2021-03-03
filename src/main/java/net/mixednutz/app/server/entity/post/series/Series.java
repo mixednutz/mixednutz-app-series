@@ -23,12 +23,14 @@ import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.mixednutz.app.server.entity.CommentsAware;
+import net.mixednutz.app.server.entity.TagsAware;
 import net.mixednutz.app.server.entity.post.GroupedPosts;
 
 @Entity
 @Table(name="Series")
 public class Series extends AbstractSeries<SeriesReview> 
-	implements GroupedPosts<Chapter, ChapterComment>, CommentsAware<SeriesReview> {
+	implements GroupedPosts<Chapter, ChapterComment>, CommentsAware<SeriesReview>, 
+	TagsAware<SeriesTag> {
 	
 	private List<SeriesReview> reviews;
 	private Set<SeriesTag> tags;

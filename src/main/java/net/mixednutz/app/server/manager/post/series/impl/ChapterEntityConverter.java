@@ -1,5 +1,7 @@
 package net.mixednutz.app.server.manager.post.series.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -13,14 +15,19 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import net.mixednutz.api.core.model.Action;
+import net.mixednutz.api.core.model.Link;
 import net.mixednutz.api.core.model.NetworkInfo;
+import net.mixednutz.api.core.model.TagCount;
 import net.mixednutz.app.server.entity.InternalTimelineElement;
 import net.mixednutz.app.server.entity.InternalTimelineElement.Type;
 import net.mixednutz.app.server.entity.Oembeds.Oembed;
 import net.mixednutz.app.server.entity.Oembeds.OembedLink;
+import net.mixednutz.app.server.entity.TagScore;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.manager.ApiElementConverter;
+import net.mixednutz.app.server.manager.TagManager;
 import net.mixednutz.app.server.repository.ChapterRepository;
 import net.mixednutz.app.server.repository.UserRepository;
 
@@ -41,6 +48,9 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 	private UserRepository userRepository;
 	
 	@Autowired
+	private TagManager tagManager;
+	
+	@Autowired
     private MessageSource messageSource;
 	
 	private MessageSourceAccessor accessor;
@@ -58,6 +68,33 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 				networkInfo.getId()+"_Chapter"));
 		api.setId(entity.getId());
 		api.setTitle(entity.getSeries().getTitle()+" - "+entity.getTitle());
+		
+		if (entity.getSeries().getTags()!=null) {
+			setTagCounts(api, tagManager.getTagScores(
+					entity.getSeries().getTags(), entity.getAuthor(), viewer));
+		}
+		
+		return api;
+	}
+	
+	protected void setTagCounts(InternalTimelineElement api, Iterable<TagScore> tagScores) {
+		List<TagCount> tags = new ArrayList<>();
+		for (TagScore tag : tagScores) {
+			tags.add(toTagCount(tag, api.getUrl()));
+		}
+		api.setTags(tags);
+	}
+	
+	protected TagCount toTagCount(TagScore tagScore, String baseUrl) {
+		TagCount api = new TagCount();
+		api.setName(tagScore.getTag());
+		api.setDisplayName(tagScore.getTag());
+		api.setCount(tagScore.getScore());
+		api.setUserIncluded(tagScore.isUserIncluded());
+		api.setToggleAction(new Action(
+				new Link(baseUrl+"/tag/toggle?tag="+api.getName()), 
+				"tag_"+api.getName(), 
+				api.getName()));
 		return api;
 	}
 

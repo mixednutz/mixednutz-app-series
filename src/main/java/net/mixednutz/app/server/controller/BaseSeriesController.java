@@ -34,7 +34,7 @@ import net.mixednutz.app.server.repository.UserRepository;
 public class BaseSeriesController {
 	
 	@Autowired
-	private SeriesRepository seriesRepository;
+	protected SeriesRepository seriesRepository;
 	
 	@Autowired
 	private SeriesManager seriesManager;
@@ -217,6 +217,11 @@ public class BaseSeriesController {
 		return seriesRepository.save(entity);
 	}
 	
+	protected void incrementHitCount(Series entity) {
+		entity.incrementHitCount();
+		seriesRepository.save(entity);
+	}
+	
 	protected void delete(Long id, User user) {
 		Series entity = seriesRepository.findById(id).orElseThrow(()->{
 			return new ResourceNotFoundException("");
@@ -235,11 +240,8 @@ public class BaseSeriesController {
 	 * @param thread
 	 */
 	protected void mergeTags(String[] tagArray, final Series series) {
-		tagManager.mergeTags(tagArray, series.getTags(), new TagManager.NewTagCallback<SeriesTag>(){
-			@Override
-			public SeriesTag createTag(String tagString) {
-				return new SeriesTag(series, tagString);
-			}});
+		tagManager.mergeTags(tagArray, series.getTags(), 
+				(tagString)->new SeriesTag(series, tagString));
 	}
 	
 	protected SeriesReview getComment(Long commentId) {

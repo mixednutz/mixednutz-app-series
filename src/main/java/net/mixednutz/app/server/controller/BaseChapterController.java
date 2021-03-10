@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.NativeWebRequest;
 
 import net.mixednutz.app.server.controller.exception.ResourceMovedPermanentlyException;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
@@ -200,7 +202,7 @@ public class BaseChapterController {
 			Long groupId, 
 			Long[] externalFeedId, String tagsString, boolean emailFriendGroup, 
 			LocalDateTime localPublishDate,
-			User user) {
+			User user, NativeWebRequest request) {
 		if (user==null) {
 			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
 		}
@@ -216,6 +218,11 @@ public class BaseChapterController {
 				.setPublishDate(ZonedDateTime.of(localPublishDate, ZoneId.systemDefault()));
 			chapter.getScheduled().setExternalFeedId(externalFeedId);
 			chapter.getScheduled().setEmailFriendGroup(emailFriendGroup);
+			String chapterId = request.getParameter("channelIdAsString");
+			if (chapterId!=null) {
+				chapter.getScheduled().getExternalFeedData().put("channelIdAsString", chapterId);
+			}
+			
 		} else {
 			chapter.setDatePublished(ZonedDateTime.now());
 		}
@@ -242,10 +249,11 @@ public class BaseChapterController {
 			if (externalFeedId!=null) {
 				for (Long feedId: externalFeedId) {
 					AbstractFeed feed= externalFeedRepository.findById(feedId).get();
+
 					externalFeedManager.crosspost(feed, 
 							exportableEntity.getTitle(), 
 							exportableEntity.getUrl(), 
-							null);
+							null, (HttpServletRequest) request.getNativeRequest());
 				}
 			}
 			

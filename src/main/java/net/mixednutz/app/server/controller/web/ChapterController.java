@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.NativeWebRequest;
 
 import net.mixednutz.app.server.controller.BaseChapterController;
 import net.mixednutz.app.server.entity.User;
@@ -77,10 +78,11 @@ public class ChapterController extends BaseChapterController {
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
 			@RequestParam(value="email_fgroup", defaultValue="false") boolean emailFriendGroup,
 			@DateTimeFormat(iso=ISO.DATE_TIME) @RequestParam(value="localPublishDate", required=false) LocalDateTime localPublishDate,
-			@AuthenticationPrincipal User user, Model model, Errors errors) {
+			@AuthenticationPrincipal User user, Model model, Errors errors,
+			NativeWebRequest request) {
 		Series series = loadSeries(seriesId);
 		chapter = save(chapter, series, groupId, externalFeedId, 
-				tagsString, emailFriendGroup, localPublishDate, user);
+				tagsString, emailFriendGroup, localPublishDate, user, request);
 
 		return "redirect:"+chapter.getUri();
 	}	

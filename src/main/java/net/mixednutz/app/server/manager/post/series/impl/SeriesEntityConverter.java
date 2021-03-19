@@ -77,7 +77,8 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 				.max(Comparator.comparing(Chapter::getDatePublished))
 				.ifPresent((c)->{
 					api.setPostedOnDate(c.getDatePublished());
-					//api.setLatestSubtitle(c.getTitle());
+					api.setLatestSubtitle(c.getTitle());
+					api.setLatestSubdescription(c.getDescription());
 				});
 			
 			//Roll up Reactions:

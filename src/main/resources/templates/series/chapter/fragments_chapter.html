@@ -52,6 +52,10 @@
 						<input type="hidden" id="series_body" th:field="*{body}"/>
 						<div id="editor" class="form-control" data-placeholder="Start your story..."></div>
 					</div>
+					<div class="form-group">
+						<label for="summary">Summary</label>
+						<input id="newjournal_summary" class="form-control" th:field="*{description}" size="50" type="text" placeholder="Short summary of this chapter..."/>
+					</div>
 				</div>
 				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newchapter}, ${ {'Chapter':chapterCrosspostFeeds} }, true, true, false, true, false)">
 					chapter-options
@@ -119,7 +123,10 @@
 						<input type="hidden" id="chapter_body" th:field="*{body}"/>
 						<div id="editor" class="form-control" data-placeholder="Start your story..."></div>
 					</div>
-					
+					<div class="form-group">
+						<label for="description">Summary</label>
+						<input class="form-control" th:field="*{description}" size="50" type="text" placeholder="Short summary of this chapter..."/>
+					</div>
 				</div>
 				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${chapter}, ${ {:} }, true, true, false, false, true)">
 					chapter-options

@@ -71,11 +71,15 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 		api.setId(entity.getId());
 		api.setTitle(entity.getTitle());
 		if (entity.getChapters()!=null && !entity.getChapters().isEmpty()) {
-			//set publish date to latest chapter
+			//set publish date to latest chapter and get latest chapter title
 			entity.getChapters().stream()
 				.filter((c)-> c.getDatePublished()!=null)
 				.max(Comparator.comparing(Chapter::getDatePublished))
-				.ifPresent((c)->api.setPostedOnDate(c.getDatePublished()));
+				.ifPresent((c)->{
+					api.setPostedOnDate(c.getDatePublished());
+					api.setLatestSubtitle(c.getTitle());
+					api.setLatestSubdescription(c.getDescription());
+				});
 			
 			//Roll up Reactions:
 			setReactionCounts(api, reactionManager.rollupReactionScores(

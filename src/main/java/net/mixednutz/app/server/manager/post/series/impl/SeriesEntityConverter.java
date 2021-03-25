@@ -64,7 +64,7 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 	
 	@Override
 	public InternalTimelineElement toTimelineElement(
-			InternalTimelineElement api, Series entity, User viewer) {
+			InternalTimelineElement api, Series entity, User viewer, String baseUrl) {
 		api.setType(new Type("Series",
 				networkInfo.getHostName(),
 				networkInfo.getId()+"_Series"));
@@ -77,6 +77,7 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 				.max(Comparator.comparing(Chapter::getDatePublished))
 				.ifPresent((c)->{
 					api.setPostedOnDate(c.getDatePublished());
+					api.setLatestSuburl(baseUrl+c.getUri());
 					api.setLatestSubtitle(c.getTitle());
 					api.setLatestSubdescription(c.getDescription());
 				});

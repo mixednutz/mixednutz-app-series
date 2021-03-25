@@ -62,7 +62,7 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 
 	@Override
 	public InternalTimelineElement toTimelineElement(
-			InternalTimelineElement api, Chapter entity, User viewer) {
+			InternalTimelineElement api, Chapter entity, User viewer, String baseUrl) {
 		api.setType(new Type("Chapter",
 				networkInfo.getHostName(),
 				networkInfo.getId()+"_Chapter"));

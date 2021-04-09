@@ -74,7 +74,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		
-		<mixednutz-app.version>2.0.10</mixednutz-app.version>
+		<mixednutz-app.version>2.0.11-SNAPSHOT</mixednutz-app.version>
 		<spring-social.version>1.1.6.RELEASE</spring-social.version>
 		<epublib.version>3.1</epublib.version>
 	</properties>

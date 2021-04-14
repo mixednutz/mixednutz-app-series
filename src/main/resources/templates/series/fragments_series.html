@@ -35,6 +35,9 @@
 						<div class="createdAt">
 							Posted on: <span>11/11/2014</span>
 						</div>
+						<div class="sizeOfChapters">
+							Chapters: <span class="value">0</span> <span class="completionStatus"></span>
+						</div>
 						<div class="sizeOfComments">
 							Comments: <span>0</span>
 						</div>
@@ -77,6 +80,29 @@
 			</div>
 		</div>
 	</div>
+	<script th:fragment="timeline_template_series_JS">
+	console.log('test');
+	var buildSeriesTimelineElement = function(template, element) {
+		console.log('buildSeriesTimelineElement');
+		if (element.type.name=='Series') {
+			console.log(element);
+			var additionalData = element.additionalData;
+			template.find(".sizeOfChapters .value").text(additionalData.sizeOfChapters);
+			var status = 'In Progress';
+			if (additionalData.status=='COMPLETED') {
+				status = 'Completed';
+			} else if (additionalData.status=='HIATUS') {
+				status = 'Hiatus';
+			}
+			template.find(".completionStatus")
+				.addClass(additionalData.status)
+				.text(status);	
+		}
+		
+	}
+	page.registerElementCallback(buildSeriesTimelineElement);
+	console.log(page.elementCallbacks);
+	</script>
   
   	<div th:fragment="newSeriesForm_model">
 		<div class="modal-header">

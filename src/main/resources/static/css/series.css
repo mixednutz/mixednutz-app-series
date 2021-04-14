@@ -34,3 +34,15 @@
 .timeline .Series .action-group .fa-lock {
 	color: #AAB8C2;
 }
+.timeline .Series .completionStatus {
+	padding-left: 1em;
+}
+.timeline .Series .completionStatus.IN_PROGRESS {
+	color: #0000CC;
+}
+.timeline .Series .completionStatus.COMPLETED {
+	color: #00CC00;
+}
+.timeline .Series .completionStatus.HIATUS {
+	color: #AA8800;
+}

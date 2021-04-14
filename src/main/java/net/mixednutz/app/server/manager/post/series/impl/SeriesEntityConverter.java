@@ -2,6 +2,7 @@ package net.mixednutz.app.server.manager.post.series.impl;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -70,7 +71,10 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 				networkInfo.getId()+"_Series"));
 		api.setId(entity.getId());
 		api.setTitle(entity.getTitle());
+		api.getAdditionalData().put(networkInfo.getId()+"_Series", new HashMap<>());
 		if (entity.getChapters()!=null && !entity.getChapters().isEmpty()) {
+			api.getAdditionalData().put("sizeOfChapters", entity.getChapters().size());
+			
 			//set publish date to latest chapter and get latest chapter title
 			entity.getChapters().stream()
 				.filter((c)-> c.getDatePublished()!=null)
@@ -86,6 +90,7 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 			setReactionCounts(api, reactionManager.rollupReactionScores(
 					entity.getChapters(), entity.getAuthor(), viewer));
 		}
+		api.getAdditionalData().put("status", entity.getStatus());
 		
 		return api;
 	}

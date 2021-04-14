@@ -60,6 +60,16 @@ public class SeriesSettingsManager implements ComponentSettings {
 	public String includeTimelineTemplateHtmlFragmentName() {
 		return "series/fragments_series :: timeline_template_series";
 	}
+	
+	@Override
+	public boolean includeTimelineTemplateScriptFragment() {
+		return true;
+	}
+
+	@Override
+	public String includeTimelineTemplateScriptFragmentName() {
+		return "series/fragments_series :: timeline_template_series_JS";
+	}
 
 	@Override
 	public boolean includeHtmlFragment() {

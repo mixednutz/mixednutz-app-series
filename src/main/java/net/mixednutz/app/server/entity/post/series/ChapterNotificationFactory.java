@@ -7,21 +7,19 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.AbstractCommentNotification;
+import net.mixednutz.app.server.entity.post.AbstractCommentReplyNotification;
+import net.mixednutz.app.server.entity.post.AbstractPostComment;
 import net.mixednutz.app.server.entity.post.AbstractReactionNotification;
 import net.mixednutz.app.server.entity.post.PostNotification;
 import net.mixednutz.app.server.manager.NotificationManager.PostNotificationFactory;
-import net.mixednutz.app.server.repository.PostNotificationRepository;
+import net.mixednutz.app.server.manager.impl.BaseNotificationFactory;
 
 @Component
-public class ChapterNotificationFactory implements PostNotificationFactory<Chapter, ChapterComment, ChapterReaction> {
-	
-	@Autowired
-	PostNotificationRepository notificationRepository;
+public class ChapterNotificationFactory extends BaseNotificationFactory implements PostNotificationFactory<Chapter, ChapterComment, ChapterReaction> {
 	
 	@Override
 	public boolean canConvert(Class<?> postEntityClazz) {
@@ -46,6 +44,12 @@ public class ChapterNotificationFactory implements PostNotificationFactory<Chapt
 					criteriaBuilder.equal(itemRoot.get("chapterId"), post.getId()),
 					criteriaBuilder.equal(itemRoot.get("userId"), user.getUserId()));
 		}, ChapterCommentNotification.class);
+	}
+	
+	@Override
+	public Iterable<? extends AbstractCommentReplyNotification<? extends AbstractPostComment>> lookupCommentReplyNotifications(
+			User user, Chapter post) {
+		return lookupCommentReplyNotifications(user, post.getComments());
 	}
 
 	@Override

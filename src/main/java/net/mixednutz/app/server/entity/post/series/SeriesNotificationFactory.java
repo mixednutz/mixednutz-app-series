@@ -9,23 +9,21 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.AbstractCommentNotification;
+import net.mixednutz.app.server.entity.post.AbstractCommentReplyNotification;
+import net.mixednutz.app.server.entity.post.AbstractPostComment;
 import net.mixednutz.app.server.entity.post.AbstractReactionNotification;
 import net.mixednutz.app.server.entity.post.PostNotification;
 import net.mixednutz.app.server.entity.post.PostReaction;
 import net.mixednutz.app.server.manager.NotificationManager.PostNotificationFactory;
-import net.mixednutz.app.server.repository.PostNotificationRepository;
+import net.mixednutz.app.server.manager.impl.BaseNotificationFactory;
 
 @Component
-public class SeriesNotificationFactory implements PostNotificationFactory<Series, SeriesReview, PostReaction> {
+public class SeriesNotificationFactory extends BaseNotificationFactory implements PostNotificationFactory<Series, SeriesReview, PostReaction> {
 		
-	@Autowired
-	PostNotificationRepository notificationRepository;
-	
 	@Override
 	public boolean canConvert(Class<?> postEntityClazz) {
 		return Series.class.isAssignableFrom(postEntityClazz);
@@ -49,6 +47,12 @@ public class SeriesNotificationFactory implements PostNotificationFactory<Series
 					criteriaBuilder.equal(itemRoot.get("seriesId"), post.getId()),
 					criteriaBuilder.equal(itemRoot.get("userId"), user.getUserId()));
 		}, SeriesCommentNotification.class);
+	}
+	
+	@Override
+	public Iterable<? extends AbstractCommentReplyNotification<? extends AbstractPostComment>> lookupCommentReplyNotifications(User user,
+			Series post) {
+		return lookupCommentReplyNotifications(user,post.getReviews());
 	}
 
 	@Override

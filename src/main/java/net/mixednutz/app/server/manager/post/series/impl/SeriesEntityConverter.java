@@ -73,7 +73,11 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 		api.setTitle(entity.getTitle());
 		api.getAdditionalData().put(networkInfo.getId()+"_Series", new HashMap<>());
 		if (entity.getChapters()!=null && !entity.getChapters().isEmpty()) {
-			api.getAdditionalData().put("sizeOfChapters", entity.getChapters().size());
+			//set chapters count
+			long sizeOfChapters = entity.getChapters().stream()
+				.filter((c)-> c.getDatePublished()!=null)
+				.count();
+			api.getAdditionalData().put("sizeOfChapters", sizeOfChapters);
 			
 			//set publish date to latest chapter and get latest chapter title
 			entity.getChapters().stream()
@@ -90,6 +94,7 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 			setReactionCounts(api, reactionManager.rollupReactionScores(
 					entity.getChapters(), entity.getAuthor(), viewer));
 		}
+		//set series status
 		api.getAdditionalData().put("status", entity.getStatus());
 		
 		return api;

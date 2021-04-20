@@ -207,6 +207,8 @@
 			<button data-toggle="modal" data-target="#deletechapterModal" class="btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i>&nbsp;Delete Chapter</button>
 		</div>
         
+        <div sec:authorize="!isAuthenticated()" th:replace="google_adsense :: horizontal_ad"></div>
+        
         <hr/>
         <div>
         	<a th:if="${hasPrev and prevPublished}" th:href="@{|${prevUri}|}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev or !prevPublished}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</a>

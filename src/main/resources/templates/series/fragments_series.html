@@ -333,8 +333,12 @@
 			<!-- Delete -->
 			<button data-toggle="modal" data-target="#deleteseriesModal" class="btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i>&nbsp;Delete Series</button>
 		</div>
-				
+		
+		
         <hr/>
+        
+        <div sec:authorize="!isAuthenticated()" th:replace="google_adsense :: horizontal_ad"></div>
+				
 
         <!-- Preview Image -->
         <!-- <img class="img-responsive" src="http://placehold.it/900x300" alt=""/> 

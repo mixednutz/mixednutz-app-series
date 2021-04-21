@@ -28,16 +28,27 @@ import net.mixednutz.app.server.entity.ReactionsAware;
 public class Chapter extends AbstractChapter<ChapterComment> implements
 	CommentsAware<ChapterComment>, ReactionsAware<ChapterReaction>{
 	
-	private Series series;
+	private boolean hasExplictSexualContent;
 	
+	// Foreign table mappings
+	private Series series;
 	private ScheduledChapter scheduled;
-
 	private List<ChapterComment> comments;
 	private Set<ChapterReaction> reactions;
 	private Set<ChapterView> views;
 	
+	// Transient fields
 	private String filteredBody;
 	private Long wordCount;
+	
+	
+	public Boolean getHasExplictSexualContent() {
+		return hasExplictSexualContent;
+	}
+
+	public void setHasExplictSexualContent(Boolean explictSexualContent) {
+		this.hasExplictSexualContent = explictSexualContent!=null?explictSexualContent:false;
+	}
 		
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="scheduled_id")
@@ -48,7 +59,7 @@ public class Chapter extends AbstractChapter<ChapterComment> implements
 	public void setScheduled(ScheduledChapter scheduled) {
 		this.scheduled = scheduled;
 	}
-
+	
 	@OneToMany(mappedBy="chapter", cascade={CascadeType.REMOVE})
 	@OrderBy("dateCreated asc")
 	public List<ChapterComment> getComments() {

@@ -294,6 +294,7 @@ public class BaseChapterController {
 		entity.setDescription(form.getDescription());
 		entity.setBody(form.getBody());
 		entity.setVisibility(form.getVisibility());
+		entity.setHasExplictSexualContent(form.getHasExplictSexualContent());
 		
 //		journal.parseVisibility(user, friendGroupId, groupId);
 				

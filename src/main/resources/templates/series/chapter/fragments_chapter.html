@@ -52,6 +52,10 @@
 						<input type="hidden" id="series_body" th:field="*{body}"/>
 						<div id="editor" class="form-control" data-placeholder="Start your story..."></div>
 					</div>
+					<div class="form-check">
+						<input id="explictSexualContent" th:field="*{hasExplictSexualContent}" class="form-check-input" type="checkbox" value="true"/>
+						<label for="explictSexualContent" class="form-check-label">Chapter has Sexual Explicit Content (sexual acts or themes consensual or non-consensual)</label>
+					</div>
 					<div class="form-group">
 						<label for="summary">Summary</label>
 						<input id="newjournal_summary" class="form-control" th:field="*{description}" size="50" type="text" placeholder="Short summary of this chapter..."/>
@@ -122,6 +126,10 @@
 						</div> 
 						<input type="hidden" id="chapter_body" th:field="*{body}"/>
 						<div id="editor" class="form-control" data-placeholder="Start your story..."></div>
+					</div>
+					<div class="form-check">
+						<input id="explictSexualContent" th:field="*{hasExplictSexualContent}" class="form-check-input" type="checkbox" value="true"/>
+						<label for="explictSexualContent" class="form-check-label">Chapter has Sexual Explicit Content (sexual acts or themes consensual or non-consensual)</label>
 					</div>
 					<div class="form-group">
 						<label for="description">Summary</label>
@@ -207,9 +215,15 @@
 			<button data-toggle="modal" data-target="#deletechapterModal" class="btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i>&nbsp;Delete Chapter</button>
 		</div>
         
-        <div sec:authorize="!isAuthenticated()" th:replace="google_adsense :: horizontal_ad"></div>
+        <div th:if="${!chapter.hasExplictSexualContent}">
+        	<div sec:authorize="!isAuthenticated()" th:replace="google_adsense :: horizontal_ad"></div>
+        </div>
         
+        <div th:if="${chapter.hasExplictSexualContent}">
+        	<hr/>
+        	<p class="alert alert-warning">Content Warning: Chapter has Sexually Explicit Content.</p></div>
         <hr/>
+        
         <div>
         	<a th:if="${hasPrev and prevPublished}" th:href="@{|${prevUri}|}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev or !prevPublished}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</a>
         	<button th:if="${!hasPrev or !prevPublished}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev or !prevPublished}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</button>

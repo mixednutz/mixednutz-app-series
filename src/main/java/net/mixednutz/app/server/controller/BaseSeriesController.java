@@ -1,5 +1,6 @@
 package net.mixednutz.app.server.controller;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.function.Supplier;
 
@@ -11,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MultipartFile;
 
 import net.mixednutz.app.server.controller.exception.ResourceMovedPermanentlyException;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
@@ -23,6 +25,8 @@ import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesFactory;
 import net.mixednutz.app.server.entity.post.series.SeriesReview;
 import net.mixednutz.app.server.entity.post.series.SeriesTag;
+import net.mixednutz.app.server.io.domain.PersistableMultipartFile;
+import net.mixednutz.app.server.io.manager.PhotoUploadManager;
 import net.mixednutz.app.server.manager.NotificationManager;
 import net.mixednutz.app.server.manager.TagManager;
 import net.mixednutz.app.server.manager.post.series.SeriesManager;
@@ -49,7 +53,7 @@ public class BaseSeriesController {
 	private UserProfileRepository profileRepository;
 	
 	@Autowired
-	private UserRepository userRepository;
+	protected UserRepository userRepository;
 	
 	@Autowired
 	protected TagManager tagManager;
@@ -62,6 +66,9 @@ public class BaseSeriesController {
 	
 	@Autowired
 	protected NotificationManager notificationManager;
+	
+	@Autowired
+	protected PhotoUploadManager photoUploadManager;
 	
 	
 	protected Series get(String username, Long id, String titleKey) {
@@ -184,6 +191,7 @@ public class BaseSeriesController {
 	
 	@Transactional
 	protected Series update(Series form, Long id, 
+			MultipartFile coverImage, boolean clearCoverImage,
 //			Integer friendGroupId, 
 			Integer groupId, String tagsString, 
 			User user) {
@@ -195,6 +203,11 @@ public class BaseSeriesController {
 		});
 		if (!entity.getAuthor().equals(user)) {
 			throw new AccessDeniedException("Series #"+id+" - That's not yours to edit!");
+		}
+		
+		String coverFilename = null;
+		if (coverImage!=null && !coverImage.getOriginalFilename().equals("")) {
+			coverFilename = uploadPhoto(user, coverImage);
 		}
 		
 		entity.setTitle(form.getTitle());
@@ -209,6 +222,11 @@ public class BaseSeriesController {
 		entity.getAdditionalGenres().addAll(form.getAdditionalGenres());
 		entity.setRating(form.getRating());
 		entity.setStatus(form.getStatus());
+		if (coverFilename!=null) {
+			entity.setCoverFilename(coverFilename);
+		} else if (clearCoverImage) {
+			entity.setCoverFilename(null);
+		}
 		
 //		journal.parseVisibility(user, friendGroupId, groupId);
 		
@@ -265,9 +283,21 @@ public class BaseSeriesController {
 		return review;
 	}
 	
+	private String uploadPhoto(User user, MultipartFile file) {
+		PersistableMultipartFile pFile = new PersistableMultipartFile();
+		pFile.setFile(file);
+		try {
+			return photoUploadManager.uploadFile(user, pFile, "book");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	@ExceptionHandler(ResourceMovedPermanentlyException.class)
 	public String handleException(final ResourceMovedPermanentlyException e) {
 	    return "redirect:"+e.getRedirectUri();
 	}
-
+	
 }

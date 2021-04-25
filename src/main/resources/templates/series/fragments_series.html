@@ -44,6 +44,7 @@
 					</div>
 				</div>
 				<div class="preview">
+					<img class="cover cover-left" width="100"/>
 					<div>
 						<span class="description">Description</span> [<a class="readmore">READ
 							MORE</a>]
@@ -97,6 +98,14 @@
 			template.find(".completionStatus")
 				.addClass(additionalData.status)
 				.text(status);	
+			
+			if (additionalData.cover!=null) {
+				template.find(".cover")
+					.attr('src',additionalData.cover.src)
+					.attr('title',additionalData.cover.alt);
+			} else {
+				template.find(".cover").remove();
+			}
 		}
 		
 	}
@@ -109,7 +118,7 @@
 			<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
 			<h4>New Series</h4>
 		</div>
-		<form id="newseries_form" th:action="@{|/series/new|}" th:object="${newseries}" method="post">
+		<form id="newseries_form" th:action="@{|/series/new|}" th:object="${newseries}" method="post" enctype="multipart/form-data">
 		<div class="modal-body">
 			<div class="row">
 				<div class="series-form col-xs-12 col-md-8">
@@ -188,7 +197,7 @@
 			<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
 			<h4>Edit Series</h4>
 		</div>
-		<form id="editseries_form" th:action="@{|/series/${series.id}/edit|}" th:object="${series}" method="post">
+		<form id="editseries_form" th:action="@{|/series/${series.id}/edit|}" th:object="${series}" method="post" enctype="multipart/form-data">
 		<div class="modal-body">
 			<div class="row">
 				<div class="series-form col-xs-12 col-md-8">
@@ -210,6 +219,18 @@
 						<label for="editseries_description">Description</label>
 						<textarea id="editseries_description" class="form-control" th:field="*{description}" rows="6" required="required"/>
 					</div>
+					<!-- Avatar -->
+					<div class="avatar form-group"> 
+						<label for="coverImage" th:text="#{form.coverImage.label}">form.coverImage.label</label>
+						<input type="file" id="coverImage" name="coverImage" accept=".gif,.png,.jpg"/>
+						<small id="coverImage_help" class="form-text text-muted" th:text="#{form.coverImage.help}">form.avatar.help</small>
+					</div>
+					<div class="clearCoverImage form-check"> 
+						<input class="form-check-input" type="checkbox" id="clearCoverImage" name="clearAvatarImage" />
+						<label class="form-check-label" for="clearCoverImage" th:text="#{form.clearCoverImage.label}">form.clearCoverImage.label</label>
+						<small id="clearCoverImage_help" class="form-text text-muted" th:text="#{form.clearCoverImage.help}">form.clearCoverImage.help</small>
+					</div>
+					
 					<div class="form-group">
 						<label>Maturity Rating:</label>
 						<select th:field="*{rating}" class="form-control" required="required">
@@ -294,6 +315,8 @@
         </p>
         
         <hr/>
+        
+        <img class="cover cover-left" th:if="${series.coverFilename!=null}" th:src="@{|${series.coverUri}|}" src="../../img/nophoto.gif" width="120"/>
 
         <!-- Date/Time --> 
         <p>
@@ -319,7 +342,7 @@
 		<!-- Tags -->
   		<div th:include="common/fragments_tags :: tags (${series.uri})">tags</div>
 		
-		
+		<div style="clear:both;"></div>
 		
   		
 		<hr sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${series.author.userId}" />

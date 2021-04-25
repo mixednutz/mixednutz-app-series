@@ -46,3 +46,10 @@
 .timeline .Series .completionStatus.HIATUS {
 	color: #AA8800;
 }
+.cover {
+	border: 1px solid #DDD;
+}
+.cover-left {
+	float: left;
+	margin-right: 10px;
+}

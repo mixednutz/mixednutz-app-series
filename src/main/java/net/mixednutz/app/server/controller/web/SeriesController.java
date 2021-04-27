@@ -1,6 +1,19 @@
 package net.mixednutz.app.server.controller.web;
 
+import java.io.IOException;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,21 +26,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.View;
 
 import net.mixednutz.app.server.controller.BaseSeriesController;
+import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesFactory;
 import net.mixednutz.app.server.entity.post.series.SeriesReview;
+import net.mixednutz.app.server.io.domain.FileWrapper;
 import net.mixednutz.app.server.manager.post.series.ChapterManager;
 import net.mixednutz.app.server.series.SeriesEpubView;
 
 @SessionAttributes(value={"series"})
 @Controller
 public class SeriesController extends BaseSeriesController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(SeriesController.class);
+	
+	public static final String COVERS_STORAGE_DIR = "/covers-storage";
+	private static final String COVERS_STORAGE_MAPPING = COVERS_STORAGE_DIR+"/**";
+
 	
 	@Autowired
 	private ChapterManager chapterManager;
@@ -40,7 +62,7 @@ public class SeriesController extends BaseSeriesController {
 	//------------
 
 	@RequestMapping(value="/{username}/series/{id}/{titleKey}", method = {RequestMethod.GET,RequestMethod.HEAD})
-	public String getJournal(@PathVariable String username, 
+	public String getSeries(@PathVariable String username, 
 			@PathVariable Long id, @PathVariable String titleKey, 
 			Authentication auth, Model model) {
 		Series series = get(username, id, titleKey);
@@ -84,6 +106,45 @@ public class SeriesController extends BaseSeriesController {
 		return seriesEpubsView;
 	}
 	
+	@RequestMapping(value="/series"+COVERS_STORAGE_MAPPING, method = RequestMethod.GET)
+	public ResponseEntity<Resource> getCoverResource(
+			HttpServletRequest request,
+			@RequestParam(value="size", defaultValue="original") String size,
+//			@RequestParam(value="rotate", defaultValue="0") int rotateDegrees,
+			@AuthenticationPrincipal User user) {
+		
+				
+		String uri = request.getRequestURI();
+		int idx = uri.indexOf(COVERS_STORAGE_DIR);
+		int beginIdx = idx+COVERS_STORAGE_DIR.length()+1;
+		String filename = uri.substring(beginIdx);
+		
+		System.out.println(filename);
+		
+		Optional<Series> seriesAccount = seriesRepository.findByCoverFilename(filename);
+		if (!seriesAccount.isPresent()) {
+			throw new ResourceNotFoundException("Cover "+filename+" not found");
+		}
+		
+		FileWrapper file;
+		try {
+			file = photoUploadManager.downloadFile(seriesAccount.get().getAuthor(), filename, size);
+		} catch (IOException e) {
+			LOG.error("Error reading image", e);
+			return new ResponseEntity<>(null, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		if (file==null) {
+			return new ResponseEntity<>(null, new HttpHeaders(), HttpStatus.NOT_FOUND);
+		}
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.parseMediaType(file.getContentType()));
+		
+		Resource resource = new FileSystemResource(file.getFile());
+		return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+	}
+	
+	
 	//------------
 	// Insert Mappings
 	//------------
@@ -111,12 +172,15 @@ public class SeriesController extends BaseSeriesController {
 	@RequestMapping(value="/series/{id}/edit", method = RequestMethod.POST, params="submit")
 	public String updateModal(@ModelAttribute("series") Series series, 
 			@PathVariable Long id, 
+			@RequestParam("coverImage") MultipartFile coverImage,
+			@RequestParam(name="clearCoverImage", defaultValue="false") boolean clearCoverImage,
 //			@RequestParam("fgroup_id") Integer friendGroupId, 
 			@RequestParam("group_id") Integer groupId,
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
 			@AuthenticationPrincipal User user, Model model, Errors errors) {
 		
-		Series savedSeries = update(series, id, groupId, tagsString, user);
+		Series savedSeries = update(series, id, coverImage, clearCoverImage, 
+				groupId, tagsString, user);
 		
 		return "redirect:"+savedSeries.getUri();
 	}
@@ -174,4 +238,6 @@ public class SeriesController extends BaseSeriesController {
 				
 		return "redirect:"+review.getUri();
 	}
+	
+	
 }

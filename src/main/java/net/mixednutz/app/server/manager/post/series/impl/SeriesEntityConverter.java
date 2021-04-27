@@ -2,7 +2,6 @@ package net.mixednutz.app.server.manager.post.series.impl;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -18,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import net.mixednutz.api.core.model.Action;
+import net.mixednutz.api.core.model.Image;
 import net.mixednutz.api.core.model.Link;
 import net.mixednutz.api.core.model.NetworkInfo;
 import net.mixednutz.api.core.model.ReactionCount;
@@ -71,7 +71,10 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 				networkInfo.getId()+"_Series"));
 		api.setId(entity.getId());
 		api.setTitle(entity.getTitle());
-		api.getAdditionalData().put(networkInfo.getId()+"_Series", new HashMap<>());
+		if (entity.getCoverFilename()!=null) {
+			api.getAdditionalData().put("cover", new Image(
+					baseUrl+entity.getCoverUri(), entity.getTitle()+" book cover"));
+		}
 		if (entity.getChapters()!=null && !entity.getChapters().isEmpty()) {
 			//set chapters count
 			long sizeOfChapters = entity.getChapters().stream()

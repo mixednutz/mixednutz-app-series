@@ -131,7 +131,8 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 	}
 
 	@Override
-	public Oembed toOembed(String path, Integer maxwidth, Integer maxheight, String format, Authentication auth) {
+	public Oembed toOembed(String path, Integer maxwidth, Integer maxheight, 
+			String format, Authentication auth, String baseUrl) {
 		Matcher matcher = SERIES_PATTERN_REST.matcher(path);
 		if (matcher.matches()) {
 			String username = matcher.group("username");
@@ -139,7 +140,7 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 
 			Optional<Series> series = get(username, id);
 			if (series.isPresent()) {
-				return toOembedLink(series.get());
+				return toOembedLink(series.get(), baseUrl);
 			}
 		}
 		return null;
@@ -160,11 +161,15 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 		return Optional.empty();
 	}
 	
-	private OembedLink toOembedLink(Series series) {
+	private OembedLink toOembedLink(Series series, String baseUrl) {
 		OembedLink link = new OembedLink();
 		link.setTitle(series.getTitle()+" : "+accessor.getMessage("site.title"));
 		link.setAuthorName(series.getAuthor().getUsername());
-
+		if (series.getCoverFilename()!=null) {
+			//TODO - need height and width to make this work
+//			link.setThumbnailUrl(baseUrl+series.getCoverUri());
+		}
+		
 		return link;
 	}
 

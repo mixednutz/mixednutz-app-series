@@ -104,7 +104,8 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 	}
 
 	@Override
-	public Oembed toOembed(String path, Integer maxwidth, Integer maxheight, String format, Authentication auth) {
+	public Oembed toOembed(String path, Integer maxwidth, Integer maxheight, 
+			String format, Authentication auth, String baseUrl) {
 		Matcher matcher = CHAPTER_PATTERN_REST.matcher(path);
 		if (matcher.matches()) {
 			String username = matcher.group("username");
@@ -112,7 +113,7 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 
 			Optional<Chapter> chapter = get(username, id);
 			if (chapter.isPresent()) {
-				return toOembedLink(chapter.get());
+				return toOembedLink(chapter.get(), baseUrl);
 			}
 		}
 		return null;
@@ -135,12 +136,16 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 		return Optional.empty();
 	}
 	
-	private OembedLink toOembedLink(Chapter chapter) {
+	private OembedLink toOembedLink(Chapter chapter, String baseUrl) {
 		OembedLink link = new OembedLink();
 		link.setTitle(chapter.getSeries().getTitle()+" - "+chapter.getTitle()+" : "+
 				accessor.getMessage("site.title"));
 		link.setAuthorName(chapter.getAuthor().getUsername());
-
+		if (chapter.getSeries().getCoverFilename()!=null) {
+			//TODO - need height and width to make this work
+//			link.setThumbnailUrl(baseUrl+chapter.getSeries().getCoverUri());
+		}
+		
 		return link;
 	}
 

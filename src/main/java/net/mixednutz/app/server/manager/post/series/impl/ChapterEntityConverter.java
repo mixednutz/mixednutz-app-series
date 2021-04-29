@@ -26,6 +26,7 @@ import net.mixednutz.app.server.entity.Oembeds.OembedLink;
 import net.mixednutz.app.server.entity.TagScore;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
+import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
 import net.mixednutz.app.server.manager.ApiElementConverter;
 import net.mixednutz.app.server.manager.TagManager;
 import net.mixednutz.app.server.repository.ChapterRepository;
@@ -37,7 +38,7 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 	private static final Pattern CHAPTER_PATTERN_REST=Pattern.compile(
 			"^\\/(?<username>.*)\\/series\\/(?<seriesid>[0-9]*)\\/(?<seriesTitleKey>.*)\\/chapter\\/(?<id>[0-9]*)\\/(?<titleKey>.*)", 
 			Pattern.CASE_INSENSITIVE);
-	
+		
 	@Autowired
 	private NetworkInfo networkInfo;
 	
@@ -142,8 +143,9 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 				accessor.getMessage("site.title"));
 		link.setAuthorName(chapter.getAuthor().getUsername());
 		if (chapter.getSeries().getCoverFilename()!=null) {
-			//TODO - need height and width to make this work
-//			link.setThumbnailUrl(baseUrl+chapter.getSeries().getCoverUri());
+			link.setThumbnailUrl(baseUrl+chapter.getSeries().getCoverUri()+"?size="+Size.BOOK.getSize());
+			link.setThumbnailWidth(250);
+			link.setThumbnailHeight(400);
 		}
 		
 		return link;

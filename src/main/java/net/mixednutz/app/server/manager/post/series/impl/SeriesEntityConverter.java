@@ -29,6 +29,7 @@ import net.mixednutz.app.server.entity.ReactionScore;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.Series;
+import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
 import net.mixednutz.app.server.manager.ApiElementConverter;
 import net.mixednutz.app.server.manager.ReactionManager;
 import net.mixednutz.app.server.repository.SeriesRepository;
@@ -73,7 +74,7 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 		api.setTitle(entity.getTitle());
 		if (entity.getCoverFilename()!=null) {
 			api.getAdditionalData().put("cover", new Image(
-					baseUrl+entity.getCoverUri(), entity.getTitle()+" book cover"));
+					baseUrl+entity.getCoverUri()+"?size="+Size.BOOK.getSize(), entity.getTitle()+" book cover"));
 		}
 		if (entity.getChapters()!=null && !entity.getChapters().isEmpty()) {
 			//set chapters count
@@ -166,8 +167,9 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 		link.setTitle(series.getTitle()+" : "+accessor.getMessage("site.title"));
 		link.setAuthorName(series.getAuthor().getUsername());
 		if (series.getCoverFilename()!=null) {
-			//TODO - need height and width to make this work
-//			link.setThumbnailUrl(baseUrl+series.getCoverUri());
+			link.setThumbnailUrl(baseUrl+series.getCoverUri()+"?size="+Size.BOOK.getSize());
+			link.setThumbnailWidth(250);
+			link.setThumbnailHeight(400);
 		}
 		
 		return link;

@@ -27,6 +27,7 @@ import net.mixednutz.app.server.entity.post.series.SeriesReview;
 import net.mixednutz.app.server.entity.post.series.SeriesTag;
 import net.mixednutz.app.server.io.domain.PersistableMultipartFile;
 import net.mixednutz.app.server.io.manager.PhotoUploadManager;
+import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
 import net.mixednutz.app.server.manager.NotificationManager;
 import net.mixednutz.app.server.manager.TagManager;
 import net.mixednutz.app.server.manager.post.series.SeriesManager;
@@ -287,7 +288,7 @@ public class BaseSeriesController {
 		PersistableMultipartFile pFile = new PersistableMultipartFile();
 		pFile.setFile(file);
 		try {
-			return photoUploadManager.uploadFile(user, pFile, "book");
+			return photoUploadManager.uploadFile(user, pFile, Size.BOOK);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

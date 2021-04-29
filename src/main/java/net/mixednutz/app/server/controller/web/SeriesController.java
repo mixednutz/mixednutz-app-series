@@ -38,6 +38,7 @@ import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesFactory;
 import net.mixednutz.app.server.entity.post.series.SeriesReview;
 import net.mixednutz.app.server.io.domain.FileWrapper;
+import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
 import net.mixednutz.app.server.manager.post.series.ChapterManager;
 import net.mixednutz.app.server.series.SeriesEpubView;
 
@@ -109,7 +110,7 @@ public class SeriesController extends BaseSeriesController {
 	@RequestMapping(value="/series"+COVERS_STORAGE_MAPPING, method = RequestMethod.GET)
 	public ResponseEntity<Resource> getCoverResource(
 			HttpServletRequest request,
-			@RequestParam(value="size", defaultValue="original") String size,
+			@RequestParam(value="size", defaultValue="original") String sizeName,
 //			@RequestParam(value="rotate", defaultValue="0") int rotateDegrees,
 			@AuthenticationPrincipal User user) {
 		
@@ -127,6 +128,7 @@ public class SeriesController extends BaseSeriesController {
 		}
 		
 		FileWrapper file;
+		Size size = Size.getValue(sizeName);
 		try {
 			file = photoUploadManager.downloadFile(seriesAccount.get().getAuthor(), filename, size);
 		} catch (IOException e) {

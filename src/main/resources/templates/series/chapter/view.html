@@ -26,6 +26,10 @@
     <meta property="og:url" th:content="@{|${formatter.formatAbsoluteUrl(chapter.uri)}|}"/>
     <meta name="twitter:url" th:content="@{|${formatter.formatAbsoluteUrl(chapter.uri)}|}"/>
     
+    <meta th:if="${chapter.series.coverFilename!=null}" itemprop="image" th:content="@{|${formatter.formatAbsoluteUrl(chapter.series.coverUri)}|}"/>
+    <meta th:if="${chapter.series.coverFilename!=null}" property="og:image" th:content="@{|${formatter.formatAbsoluteUrl(chapter.series.coverUri)}|}"/>
+    <meta th:if="${chapter.series.coverFilename!=null}" name="twitter:image" th:content="@{|${formatter.formatAbsoluteUrl(chapter.series.coverUri)}|}"/>
+    
 	<!-- Bootstrap Core CSS -->
 	<link th:href="@{|/webjars/bootstrap/css/bootstrap.min.css|}" rel="stylesheet"/>
 	

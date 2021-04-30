@@ -29,6 +29,7 @@ import net.mixednutz.app.server.entity.ReactionScore;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.Series;
+import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
 import net.mixednutz.app.server.manager.ApiElementConverter;
 import net.mixednutz.app.server.manager.ReactionManager;
 import net.mixednutz.app.server.repository.SeriesRepository;
@@ -73,7 +74,7 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 		api.setTitle(entity.getTitle());
 		if (entity.getCoverFilename()!=null) {
 			api.getAdditionalData().put("cover", new Image(
-					baseUrl+entity.getCoverUri(), entity.getTitle()+" book cover"));
+					baseUrl+entity.getCoverUri()+"?size="+Size.BOOK.getSize(), entity.getTitle()+" book cover"));
 		}
 		if (entity.getChapters()!=null && !entity.getChapters().isEmpty()) {
 			//set chapters count
@@ -131,7 +132,8 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 	}
 
 	@Override
-	public Oembed toOembed(String path, Integer maxwidth, Integer maxheight, String format, Authentication auth) {
+	public Oembed toOembed(String path, Integer maxwidth, Integer maxheight, 
+			String format, Authentication auth, String baseUrl) {
 		Matcher matcher = SERIES_PATTERN_REST.matcher(path);
 		if (matcher.matches()) {
 			String username = matcher.group("username");
@@ -139,7 +141,7 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 
 			Optional<Series> series = get(username, id);
 			if (series.isPresent()) {
-				return toOembedLink(series.get());
+				return toOembedLink(series.get(), baseUrl);
 			}
 		}
 		return null;
@@ -160,11 +162,16 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 		return Optional.empty();
 	}
 	
-	private OembedLink toOembedLink(Series series) {
+	private OembedLink toOembedLink(Series series, String baseUrl) {
 		OembedLink link = new OembedLink();
 		link.setTitle(series.getTitle()+" : "+accessor.getMessage("site.title"));
 		link.setAuthorName(series.getAuthor().getUsername());
-
+		if (series.getCoverFilename()!=null) {
+			link.setThumbnailUrl(baseUrl+series.getCoverUri()+"?size="+Size.BOOK.getSize());
+			link.setThumbnailWidth(250);
+			link.setThumbnailHeight(400);
+		}
+		
 		return link;
 	}
 

@@ -26,6 +26,7 @@ import net.mixednutz.app.server.entity.Oembeds.OembedLink;
 import net.mixednutz.app.server.entity.TagScore;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
+import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
 import net.mixednutz.app.server.manager.ApiElementConverter;
 import net.mixednutz.app.server.manager.TagManager;
 import net.mixednutz.app.server.repository.ChapterRepository;
@@ -37,7 +38,7 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 	private static final Pattern CHAPTER_PATTERN_REST=Pattern.compile(
 			"^\\/(?<username>.*)\\/series\\/(?<seriesid>[0-9]*)\\/(?<seriesTitleKey>.*)\\/chapter\\/(?<id>[0-9]*)\\/(?<titleKey>.*)", 
 			Pattern.CASE_INSENSITIVE);
-	
+		
 	@Autowired
 	private NetworkInfo networkInfo;
 	
@@ -104,7 +105,8 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 	}
 
 	@Override
-	public Oembed toOembed(String path, Integer maxwidth, Integer maxheight, String format, Authentication auth) {
+	public Oembed toOembed(String path, Integer maxwidth, Integer maxheight, 
+			String format, Authentication auth, String baseUrl) {
 		Matcher matcher = CHAPTER_PATTERN_REST.matcher(path);
 		if (matcher.matches()) {
 			String username = matcher.group("username");
@@ -112,7 +114,7 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 
 			Optional<Chapter> chapter = get(username, id);
 			if (chapter.isPresent()) {
-				return toOembedLink(chapter.get());
+				return toOembedLink(chapter.get(), baseUrl);
 			}
 		}
 		return null;
@@ -135,12 +137,17 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 		return Optional.empty();
 	}
 	
-	private OembedLink toOembedLink(Chapter chapter) {
+	private OembedLink toOembedLink(Chapter chapter, String baseUrl) {
 		OembedLink link = new OembedLink();
 		link.setTitle(chapter.getSeries().getTitle()+" - "+chapter.getTitle()+" : "+
 				accessor.getMessage("site.title"));
 		link.setAuthorName(chapter.getAuthor().getUsername());
-
+		if (chapter.getSeries().getCoverFilename()!=null) {
+			link.setThumbnailUrl(baseUrl+chapter.getSeries().getCoverUri()+"?size="+Size.BOOK.getSize());
+			link.setThumbnailWidth(250);
+			link.setThumbnailHeight(400);
+		}
+		
 		return link;
 	}
 

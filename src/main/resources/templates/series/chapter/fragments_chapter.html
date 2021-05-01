@@ -261,6 +261,11 @@
         <!-- Posted Comments -->
 		<div id="comments" class="comments" th:include="common/fragments_comments :: post_comments (${chapter})">Comments</div>
             
+        <hr/>
+        
+        <div th:if="${!chapter.hasExplictSexualContent}">
+        	<div sec:authorize="!isAuthenticated()" th:replace="google_adsense :: horizontal_ad"></div>
+        </div>
 	</div>
 	
 	<div th:fragment="chapter_plain">

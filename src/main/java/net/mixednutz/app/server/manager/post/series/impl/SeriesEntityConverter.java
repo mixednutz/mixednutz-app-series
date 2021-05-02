@@ -1,5 +1,6 @@
 package net.mixednutz.app.server.manager.post.series.impl;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -15,6 +17,9 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import com.rometools.rome.feed.rss.Channel;
 
 import net.mixednutz.api.core.model.Action;
 import net.mixednutz.api.core.model.Image;
@@ -41,7 +46,12 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 	private static final Pattern SERIES_PATTERN_REST=Pattern.compile(
 			"^\\/(?<username>.*)\\/series\\/(?<id>[0-9]*)\\/(?<subjectKey>[^\\\\w]*)\\z", 
 			Pattern.CASE_INSENSITIVE);
+	
+	private static final String TYPE_NAME = "Series";
 
+	@Autowired
+	private ChapterEntityConverter chapterEntityConverter;
+	
 	@Autowired
 	private NetworkInfo networkInfo;
 	
@@ -67,9 +77,9 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 	@Override
 	public InternalTimelineElement toTimelineElement(
 			InternalTimelineElement api, Series entity, User viewer, String baseUrl) {
-		api.setType(new Type("Series",
+		api.setType(new Type(TYPE_NAME,
 				networkInfo.getHostName(),
-				networkInfo.getId()+"_Series"));
+				networkInfo.getId()+"_"+TYPE_NAME));
 		api.setId(entity.getId());
 		api.setTitle(entity.getTitle());
 		if (entity.getCoverFilename()!=null) {
@@ -173,6 +183,37 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 		}
 		
 		return link;
+	}
+	
+	public Channel toRssChannel(Series series, String baseUrl) {
+		Channel channel = new Channel();
+		channel.setFeedType("rss_2.0");
+		channel.setTitle(series.getTitle()+" : "+accessor.getMessage("site.title"));
+		channel.setDescription(series.getDescription());
+		String channelLink = UriComponentsBuilder
+				.fromHttpUrl(baseUrl + series.getUri())
+				.queryParam("utm_source", "channel")
+				.queryParam("utm_medium", "rss")
+				.queryParam("utm_campaign", TYPE_NAME.toLowerCase())
+				.build().toUriString();
+		channel.setLink(channelLink);
+		if (series.getCoverFilename()!=null) {
+			channel.setImage(new com.rometools.rome.feed.rss.Image());
+			channel.getImage().setUrl(baseUrl + series.getCoverUri()+"?size="+Size.BOOK.getSize());
+			channel.getImage().setWidth(250);
+			channel.getImage().setHeight(400);
+			channel.getImage().setTitle(channel.getTitle());
+			channel.getImage().setLink(channel.getLink());
+		}
+		channel.setCopyright("Copyright " + ZonedDateTime.now().getYear() + " " + accessor.getMessage("site.title"));
+		channel.setLanguage("en");
+		channel.setItems(
+				series.getChapters().stream()
+					.filter((c)-> c.getDatePublished()!=null)
+					.sorted(Comparator.comparing(Chapter::getDatePublished).reversed())
+					.map((c)->chapterEntityConverter.toRssItem(c, baseUrl))
+					.collect(Collectors.toList()));
+		return channel;
 	}
 
 }

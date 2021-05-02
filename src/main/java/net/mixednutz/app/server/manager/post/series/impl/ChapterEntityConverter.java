@@ -1,6 +1,7 @@
 package net.mixednutz.app.server.manager.post.series.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -14,6 +15,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import com.rometools.rome.feed.rss.Description;
+import com.rometools.rome.feed.rss.Item;
 
 import net.mixednutz.api.core.model.Action;
 import net.mixednutz.api.core.model.Link;
@@ -39,6 +44,8 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 			"^\\/(?<username>.*)\\/series\\/(?<seriesid>[0-9]*)\\/(?<seriesTitleKey>.*)\\/chapter\\/(?<id>[0-9]*)\\/(?<titleKey>.*)", 
 			Pattern.CASE_INSENSITIVE);
 		
+	private static final String TYPE_NAME = "Chapter";
+	
 	@Autowired
 	private NetworkInfo networkInfo;
 	
@@ -64,9 +71,9 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 	@Override
 	public InternalTimelineElement toTimelineElement(
 			InternalTimelineElement api, Chapter entity, User viewer, String baseUrl) {
-		api.setType(new Type("Chapter",
+		api.setType(new Type(TYPE_NAME,
 				networkInfo.getHostName(),
-				networkInfo.getId()+"_Chapter"));
+				networkInfo.getId()+"_"+TYPE_NAME));
 		api.setId(entity.getId());
 		api.setTitle(entity.getSeries().getTitle()+" - "+entity.getTitle());
 		
@@ -124,6 +131,22 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 	public boolean canConvertOembed(String path) {
 		Matcher matcher = CHAPTER_PATTERN_REST.matcher(path);
 		return matcher.matches();
+	}
+	
+	public Item toRssItem(Chapter chapter, String baseUrl) {
+		Item item = new Item();
+		item.setTitle(chapter.getTitle());
+		item.setAuthor(chapter.getAuthor().getUsername());
+		String itemLink = UriComponentsBuilder.fromHttpUrl(baseUrl + chapter.getUri())
+				.queryParam("utm_source", TYPE_NAME.toLowerCase())
+				.queryParam("utm_medium", "rss")
+				.queryParam("utm_campaign", "post").build().toUriString();
+		item.setLink(itemLink);
+		item.setPubDate(Date.from(chapter.getDatePublished().toInstant()));
+		item.setComments(baseUrl + chapter.getUri() + "#comments");
+		item.setDescription(new Description());
+		item.getDescription().setValue(chapter.getDescription());
+		return item;
 	}
 	
 	protected Optional<Chapter> get(String username, 

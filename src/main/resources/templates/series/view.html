@@ -47,6 +47,11 @@
 	<!-- Custom Fonts -->
 	<link th:href="@{|/webjars/font-awesome/css/all.css|}" rel="stylesheet" type="text/css" />
 	
+	<!-- RSS -->
+	<link rel="alternate" type="application/rss+xml" 
+		th:href="@{|/rss${series.uri}|}"
+		th:title="@{|${series.title} : #{site.title}|}"/>	
+		
 	<!-- oEmbed -->
 	<link rel="alternate" type="application/json+oembed" 
 		th:with="seriesUrl=@{|${formatter.formatAbsoluteUrl(series.uri)}|}"

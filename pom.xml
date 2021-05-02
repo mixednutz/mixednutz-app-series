@@ -4,7 +4,7 @@
 
 	<groupId>net.mixednutz.app.series</groupId>
 	<artifactId>mixednutz-app-series</artifactId>
-	<version>2.0.16</version>
+	<version>2.0.17</version>
 	<packaging>jar</packaging>
 
 	<name>mixednutz-app-series</name>
@@ -29,7 +29,7 @@
 		<connection>scm:git:ssh://git@github.com/mixednutz/mixednutz-app-series.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/mixednutz/mixednutz-app-series.git</developerConnection>
 		<url>https://github.com/mixednutz/mixednutz-app-series</url>
-		<tag>mixednutz-app-series-2.0.16</tag>
+		<tag>mixednutz-app-series-2.0.17</tag>
     </scm>
 	
 	<!-- 
@@ -77,6 +77,7 @@
 		<mixednutz-app.version>2.0.15</mixednutz-app.version>
 		<spring-social.version>1.1.6.RELEASE</spring-social.version>
 		<epublib.version>3.1</epublib.version>
+		<version.rome>1.8.0</version.rome>
 	</properties>
 	
 	<build>
@@ -206,6 +207,14 @@
 		    		<artifactId>slf4j-simple</artifactId>
 		    	</exclusion>
 		    </exclusions>
+		</dependency>
+		
+		<!-- ROME -->
+	    <dependency>
+		    <groupId>com.rometools</groupId>
+		    <artifactId>rome</artifactId>
+		    <version>${version.rome}</version>
+		    <scope>provided</scope>
 		</dependency>
 		
 		<!-- Testing -->

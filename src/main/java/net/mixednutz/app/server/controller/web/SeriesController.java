@@ -1,6 +1,8 @@
 package net.mixednutz.app.server.controller.web;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,9 +27,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.View;
+
+import com.rometools.rome.feed.rss.Channel;
 
 import net.mixednutz.app.server.controller.BaseSeriesController;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
@@ -40,6 +45,7 @@ import net.mixednutz.app.server.entity.post.series.SeriesReview;
 import net.mixednutz.app.server.io.domain.FileWrapper;
 import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
 import net.mixednutz.app.server.manager.post.series.ChapterManager;
+import net.mixednutz.app.server.manager.post.series.impl.SeriesEntityConverter;
 import net.mixednutz.app.server.series.SeriesEpubView;
 
 @SessionAttributes(value={"series"})
@@ -58,6 +64,12 @@ public class SeriesController extends BaseSeriesController {
 	@Autowired
 	private SeriesEpubView seriesEpubsView;
 	
+	@Autowired
+	private SeriesEntityConverter seriesEntityConverter;
+	
+	@Autowired
+	private HttpServletRequest request;
+		
 	//------------
 	// View Mappings
 	//------------
@@ -105,6 +117,16 @@ public class SeriesController extends BaseSeriesController {
 		Series series = get(username, id, titleKey);
 		model.addAttribute("series", series);
 		return seriesEpubsView;
+	}
+	
+	@RequestMapping(value="/rss/{username}/series/{id}/{titleKey}", 
+			method = RequestMethod.GET, 
+			produces=MediaType.APPLICATION_RSS_XML_VALUE)
+	public @ResponseBody Channel getSeriesRss(@PathVariable String username, 
+			@PathVariable Long id, @PathVariable String titleKey) {
+		Series series = get(username, id, titleKey);
+		
+		return toChannel(series);
 	}
 	
 	@RequestMapping(value="/series"+COVERS_STORAGE_MAPPING, method = RequestMethod.GET)
@@ -239,6 +261,23 @@ public class SeriesController extends BaseSeriesController {
 		review = saveComment(review, series, user);
 				
 		return "redirect:"+review.getUri();
+	}
+	
+	private String getBaseUrl() {
+		try {
+			URL baseUrl = new URL(
+					request.getScheme(), 
+					request.getServerName(), 
+					request.getServerPort(), 
+					"");
+			return baseUrl.toExternalForm();
+		} catch (MalformedURLException e) {
+			throw new RuntimeException("Something's wrong with creating the baseUrl!", e);
+		}
+	}
+	
+	protected Channel toChannel(Series series) {	
+		return seriesEntityConverter.toRssChannel(series, getBaseUrl());
 	}
 	
 	

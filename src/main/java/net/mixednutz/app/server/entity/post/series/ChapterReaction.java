@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.AbstractReaction;
+import net.mixednutz.app.server.entity.post.Post;
 
 @Entity
 @DiscriminatorValue(ChapterReaction.TYPE)
@@ -65,6 +66,19 @@ public class ChapterReaction extends AbstractReaction {
 	@Transient
 	public String getParentUri() {
 		return chapter.getUri();
+	}
+	
+	@Override
+	public <P extends Post<?>> void setPost(P post) {
+		this.chapter = (Chapter) post;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transient
+	@JsonIgnore
+	public <P extends Post<?>> P getPost() {
+		return (P) chapter;
 	}
 	
 }

@@ -240,7 +240,11 @@
         <div th:utext="${chapter.filteredBody}">...HTML Body...</div>
                 
         <hr/>
-        <div>
+        
+        <!-- Reactions -->
+		<div class="bottomReactions" th:include="common/fragments_reactions :: reactions (${chapter.reactions}, ${reactionScores}, ${chapter.uri}, null)">reactions</div>      
+        
+        <div class="bottomChapterNav">
         	<a th:if="${hasPrev} and ${prevPublished}" th:href="@{|${prevUri}|}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev or !prevPublished}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</a>
         	<button th:if="${!hasPrev} or ${!prevPublished}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev or !prevPublished}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</button>
         	<a th:if="${hasNext and nextPublished}" th:href="@{|${nextUri}|}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext or !nextPublished}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></a>

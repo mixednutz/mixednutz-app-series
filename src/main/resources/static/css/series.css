@@ -53,3 +53,10 @@
 	float: left;
 	margin-right: 10px;
 }
+.bottomReactions {
+	float: right;
+	margin-bottom: 1em;
+}
+.bottomChapterNav {
+	clear: both;
+}

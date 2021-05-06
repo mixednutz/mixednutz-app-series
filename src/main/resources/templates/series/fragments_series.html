@@ -342,6 +342,10 @@
 		<!-- Tags -->
   		<div th:include="common/fragments_tags :: tags (${series.uri})">tags</div>
 		
+		<div>Subscribe: 
+			<a href="#" th:href="@{|/rss${series.uri}|}"><i class="fas fa-rss"></i> RSS</a>
+		</div>
+		
 		<div style="clear:both;"></div>
 		
   		

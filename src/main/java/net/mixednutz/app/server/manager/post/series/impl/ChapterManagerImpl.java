@@ -25,6 +25,8 @@ import net.mixednutz.app.server.repository.ChapterRepository;
 public class ChapterManagerImpl extends PostManagerImpl<Chapter, ChapterComment, ChapterView>
 implements ChapterManager {
 	
+	public static final int WORDS_PER_MINUTE = 225;
+	
 	@Autowired
 	public void setPostRepository(ChapterRepository chapterRepository) {
 		this.postRepository = chapterRepository;
@@ -65,6 +67,13 @@ implements ChapterManager {
 		}
 		return words.size();
 //	    return tokens.countTokens();
+	}
+
+	@Override
+	public long readingTime(Chapter chapter) {
+		//Get wordcount, but check to see if we've calculated it already
+		long wordCount = chapter.getWordCount()!=null?chapter.getWordCount():wordCount(chapter);
+		return Math.round((double)wordCount / WORDS_PER_MINUTE);
 	}
 
 }

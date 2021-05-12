@@ -24,5 +24,7 @@ public interface ChapterManager extends PostManager<Chapter, ChapterComment> {
 	void incrementViewCount(Chapter chapter, User viewer);
 	
 	long wordCount(Chapter chapter);
+	
+	long readingTime(Chapter chapter);
 
 }

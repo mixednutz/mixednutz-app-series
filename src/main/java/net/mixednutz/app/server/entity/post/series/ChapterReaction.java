@@ -27,13 +27,9 @@ public class ChapterReaction extends AbstractReaction {
 	
 	private Chapter chapter;
 	
-	public ChapterReaction(Chapter chapter, String emojiId) {
-		super(TYPE, emojiId);
-		this.chapter = chapter;
-	}
-	
 	public ChapterReaction(Chapter chapter, String emojiId, User user) {
 		super(TYPE, emojiId, user.getUserId());
+		this.setReactor(user);
 		this.chapter = chapter;
 	}
 

@@ -154,6 +154,8 @@ public class BaseChapterController {
 		
 		//Word Count
 		chapter.setWordCount(chapterManager.wordCount(chapter));
+		//Reading Time
+		chapter.setReadingTime(chapterManager.readingTime(chapter));
 			
 		if (user!=null) {
 			chapterManager.incrementViewCount(chapter, user);

@@ -40,6 +40,7 @@ public class Chapter extends AbstractChapter<ChapterComment> implements
 	// Transient fields
 	private String filteredBody;
 	private Long wordCount;
+	private Long readingTime;
 	
 	
 	public Boolean getHasExplictSexualContent() {
@@ -117,6 +118,15 @@ public class Chapter extends AbstractChapter<ChapterComment> implements
 
 	public void setWordCount(Long wordCount) {
 		this.wordCount = wordCount;
+	}
+
+	@Transient
+	public Long getReadingTime() {
+		return readingTime;
+	}
+
+	public void setReadingTime(Long readingTime) {
+		this.readingTime = readingTime;
 	}
 
 	@Transient

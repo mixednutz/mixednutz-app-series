@@ -37,14 +37,12 @@ import com.rometools.rome.feed.rss.Channel;
 import net.mixednutz.app.server.controller.BaseSeriesController;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
 import net.mixednutz.app.server.entity.User;
-import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesFactory;
 import net.mixednutz.app.server.entity.post.series.SeriesReview;
 import net.mixednutz.app.server.io.domain.FileWrapper;
 import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
-import net.mixednutz.app.server.manager.post.series.ChapterManager;
 import net.mixednutz.app.server.manager.post.series.impl.SeriesEntityConverter;
 import net.mixednutz.app.server.series.SeriesEpubView;
 
@@ -57,9 +55,6 @@ public class SeriesController extends BaseSeriesController {
 	public static final String COVERS_STORAGE_DIR = "/covers-storage";
 	private static final String COVERS_STORAGE_MAPPING = COVERS_STORAGE_DIR+"/**";
 
-	
-	@Autowired
-	private ChapterManager chapterManager;
 	
 	@Autowired
 	private SeriesEpubView seriesEpubsView;
@@ -85,16 +80,12 @@ public class SeriesController extends BaseSeriesController {
 		model.addAttribute("views", series.getViews().size());
 		seriesFactory.addNewPostReferenceData(model);
 		
-		//Chapter word count:
-		long totalWords = 0;
-		for (Chapter chapter: series.getChapters()) {
-			long wc = chapterManager.wordCount(chapter);
-			chapter.setWordCount(wc);
-			if (chapter.getDatePublished()!=null) {
-				totalWords += wc;
-			}
-		}
-		model.addAttribute("wordCount", totalWords);
+		//Word count:
+		series.setWordCount(seriesManager.wordCount(series));
+		model.addAttribute("wordCount", series.getWordCount());
+		//Reading Time:
+		series.setReadingTime(seriesManager.readingTime(series));
+		model.addAttribute("readingTime", series.getReadingTime());
 				
 		return "series/view";
 	}

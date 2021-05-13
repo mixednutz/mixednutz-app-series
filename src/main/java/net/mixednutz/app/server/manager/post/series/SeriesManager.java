@@ -36,5 +36,9 @@ public interface SeriesManager extends PostManager<Series, SeriesReview>,
 			String[] tags, Long excludeId);
 	
 	void incrementViewCount(Series series, User viewer);
+	
+	long wordCount(Series series);
+	
+	long readingTime(Series series);
 
 }

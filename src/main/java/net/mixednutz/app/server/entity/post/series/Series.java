@@ -45,6 +45,10 @@ public class Series extends AbstractSeries<SeriesReview>
 	private Rating rating;
 	private Status status = Status.IN_PROGRESS;
 	
+	// Transient fields
+	private Long wordCount;
+	private Long readingTime;
+	
 	@Override
 	public void onPersist() {
 		super.onPersist();
@@ -170,6 +174,24 @@ public class Series extends AbstractSeries<SeriesReview>
 
 	public void setCoverFilename(String coverFilename) {
 		this.coverFilename = coverFilename;
+	}
+	
+	@Transient
+	public Long getWordCount() {
+		return wordCount;
+	}
+
+	public void setWordCount(Long wordCount) {
+		this.wordCount = wordCount;
+	}
+
+	@Transient
+	public Long getReadingTime() {
+		return readingTime;
+	}
+
+	public void setReadingTime(Long readingTime) {
+		this.readingTime = readingTime;
 	}
 	
 }

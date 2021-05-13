@@ -42,7 +42,7 @@ public class BaseSeriesController {
 	protected SeriesRepository seriesRepository;
 	
 	@Autowired
-	private SeriesManager seriesManager;
+	protected SeriesManager seriesManager;
 	
 	@Autowired
 	protected SeriesReviewRepository seriesReviewRepository;

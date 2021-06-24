@@ -8,6 +8,8 @@ import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -21,6 +23,7 @@ import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.mixednutz.app.server.entity.CommentsAware;
+import net.mixednutz.app.server.entity.ExternalFeedContent;
 import net.mixednutz.app.server.entity.ReactionsAware;
 
 @Entity
@@ -35,6 +38,7 @@ public class Chapter extends AbstractChapter<ChapterComment> implements
 	private ScheduledChapter scheduled;
 	private List<ChapterComment> comments;
 	private Set<ChapterReaction> reactions;
+	private Set<ExternalFeedContent> crossposts;
 	private Set<ChapterView> views;
 	
 	// Transient fields
@@ -91,6 +95,16 @@ public class Chapter extends AbstractChapter<ChapterComment> implements
 
 	public void setReactions(Set<ChapterReaction> reactions) {
 		this.reactions = reactions;
+	}
+
+	@JoinTable(name="Series_Chapter_Crossposts")
+	@ManyToMany(cascade=CascadeType.ALL)
+	public Set<ExternalFeedContent> getCrossposts() {
+		return crossposts;
+	}
+
+	public void setCrossposts(Set<ExternalFeedContent> crossposts) {
+		this.crossposts = crossposts;
 	}
 
 	@OneToMany(mappedBy="chapter", orphanRemoval=true)

@@ -3,6 +3,7 @@ package net.mixednutz.app.server.controller;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -243,7 +244,7 @@ public class BaseChapterController {
 		
 //		journal.parseVisibility(user, friendGroupId, groupId);
 		
-		chapter = chapterRepository.save(chapter);
+		Chapter savedchapter = chapterRepository.save(chapter);
 		
 		//Feed Actions
 		if (chapter.getScheduled()==null) {
@@ -255,7 +256,14 @@ public class BaseChapterController {
 					externalFeedManager.crosspost(feed, 
 							exportableEntity.getTitle(), 
 							exportableEntity.getUrl(), 
-							null, (HttpServletRequest) request.getNativeRequest());
+							null, (HttpServletRequest) request.getNativeRequest())
+					.ifPresent(crosspost->{
+						if (savedchapter.getCrossposts()==null) {
+							savedchapter.setCrossposts(new HashSet<>());
+						}
+						savedchapter.getCrossposts().add(crosspost);
+						chapterRepository.save(savedchapter);
+					});
 				}
 			}
 			

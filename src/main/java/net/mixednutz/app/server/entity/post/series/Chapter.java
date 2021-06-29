@@ -23,13 +23,15 @@ import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.mixednutz.app.server.entity.CommentsAware;
+import net.mixednutz.app.server.entity.CrosspostsAware;
 import net.mixednutz.app.server.entity.ExternalFeedContent;
 import net.mixednutz.app.server.entity.ReactionsAware;
 
 @Entity
 @Table(name="Series_Chapter")
 public class Chapter extends AbstractChapter<ChapterComment> implements
-	CommentsAware<ChapterComment>, ReactionsAware<ChapterReaction>{
+	CommentsAware<ChapterComment>, ReactionsAware<ChapterReaction>,
+	CrosspostsAware {
 	
 	private boolean hasExplictSexualContent;
 	

@@ -3,8 +3,10 @@ package net.mixednutz.app.server.controller;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +26,7 @@ import net.mixednutz.app.server.controller.exception.UserNotFoundException;
 import net.mixednutz.app.server.entity.InternalTimelineElement;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.VisibilityType;
+import net.mixednutz.app.server.entity.ExternalFeedContent;
 import net.mixednutz.app.server.entity.ExternalFeeds.AbstractFeed;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterComment;
@@ -215,12 +218,19 @@ public class BaseChapterController {
 		if (chapter.getTitle()==null || chapter.getTitle().trim().length()==0) {
 			chapter.setTitle("(No Title)");
 		}
+		
+		//Get First Chapter
+		Optional<Chapter> inReplyTo = series.getChapters().stream()
+			.filter(c->!c.getCrossposts().isEmpty())
+			.min(Comparator.comparing(Chapter::getDatePublished));
+		
 		if (localPublishDate!=null) {
 			chapter.setScheduled(new ScheduledChapter());
 			chapter.getScheduled()
 				.setPublishDate(ZonedDateTime.of(localPublishDate, ZoneId.systemDefault()));
 			chapter.getScheduled().setExternalFeedId(externalFeedId);
 			chapter.getScheduled().setEmailFriendGroup(emailFriendGroup);
+			inReplyTo.ifPresent(c->chapter.getScheduled().setInReplyTo(c));			
 			String chapterId = request.getParameter("channelIdAsString");
 			if (chapterId!=null) {
 				chapter.getScheduled().getExternalFeedData().put("channelIdAsString", chapterId);
@@ -252,11 +262,21 @@ public class BaseChapterController {
 			if (externalFeedId!=null) {
 				for (Long feedId: externalFeedId) {
 					AbstractFeed feed= externalFeedRepository.findById(feedId).get();
-
+					
+					// Get in-reply-to crosspost element
+					ExternalFeedContent inReplyToCrosspost=null;
+					if (inReplyTo.isPresent()) {
+						Optional<ExternalFeedContent> first = inReplyTo.get().getCrossposts().stream()
+								.filter(cp->cp.getFeed().equals(feed)).findFirst();
+						if (first.isPresent()) {
+							inReplyToCrosspost = first.get();
+						}
+					}					
+					
 					externalFeedManager.crosspost(feed, 
 							exportableEntity.getTitle(), 
 							exportableEntity.getUrl(), 
-							null, (HttpServletRequest) request.getNativeRequest())
+							null, inReplyToCrosspost, (HttpServletRequest) request.getNativeRequest())
 					.ifPresent(crosspost->{
 						if (savedchapter.getCrossposts()==null) {
 							savedchapter.setCrossposts(new HashSet<>());

@@ -1,9 +1,9 @@
 package net.mixednutz.app.server.manager.post.series.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.mixednutz.app.server.entity.post.series.Chapter;
 
@@ -11,7 +11,7 @@ public class ChapterManagerImplTest {
 
 	ChapterManagerImpl manager;
 	
-	@Before
+	@BeforeEach
 	public void setup() {
 		manager = new ChapterManagerImpl();
 	}

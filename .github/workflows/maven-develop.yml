@@ -5,9 +5,9 @@ name: Maven Package
 
 on:
   push:
-    branches: [ develop ]
+    branches-ignore: [ main ]
   pull_request:
-    branches: [ develop ]
+    branches-ignore: [ main ]
 
 jobs:
   build:
@@ -28,8 +28,3 @@ jobs:
       env:
         GITHUB_USERNAME: ${{ secrets.MY_USERNAME }}
         GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
-
-    - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
-      env:
-        GITHUB_TOKEN: ${{ github.token }}

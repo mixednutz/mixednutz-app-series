@@ -9,11 +9,17 @@ import javax.persistence.ManyToOne;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.AbstractTag;
 
 @Entity
 @DiscriminatorValue(SeriesTag.TYPE)
+@JsonTypeName(SeriesTag.TYPE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SeriesTag extends AbstractTag {
 
 	public static final String TYPE = "Series";
@@ -34,6 +40,7 @@ public class SeriesTag extends AbstractTag {
 		super(TYPE);
 	}
 
+	@JsonIgnore
 	@ManyToOne()
 	@JoinColumn(name="series_id")
 	@NotFound(action=NotFoundAction.IGNORE)

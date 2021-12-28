@@ -8,6 +8,8 @@ import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -21,23 +23,39 @@ import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.mixednutz.app.server.entity.CommentsAware;
+import net.mixednutz.app.server.entity.CrosspostsAware;
+import net.mixednutz.app.server.entity.ExternalFeedContent;
 import net.mixednutz.app.server.entity.ReactionsAware;
 
 @Entity
 @Table(name="Series_Chapter")
 public class Chapter extends AbstractChapter<ChapterComment> implements
-	CommentsAware<ChapterComment>, ReactionsAware<ChapterReaction>{
+	CommentsAware<ChapterComment>, ReactionsAware<ChapterReaction>,
+	CrosspostsAware {
 	
+	private boolean hasExplictSexualContent;
+	
+	// Foreign table mappings
 	private Series series;
-	
 	private ScheduledChapter scheduled;
-
 	private List<ChapterComment> comments;
 	private Set<ChapterReaction> reactions;
+	private Set<ExternalFeedContent> crossposts;
 	private Set<ChapterView> views;
 	
+	// Transient fields
 	private String filteredBody;
 	private Long wordCount;
+	private Long readingTime;
+	
+	
+	public Boolean getHasExplictSexualContent() {
+		return hasExplictSexualContent;
+	}
+
+	public void setHasExplictSexualContent(Boolean explictSexualContent) {
+		this.hasExplictSexualContent = explictSexualContent!=null?explictSexualContent:false;
+	}
 		
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="scheduled_id")
@@ -48,7 +66,7 @@ public class Chapter extends AbstractChapter<ChapterComment> implements
 	public void setScheduled(ScheduledChapter scheduled) {
 		this.scheduled = scheduled;
 	}
-
+	
 	@OneToMany(mappedBy="chapter", cascade={CascadeType.REMOVE})
 	@OrderBy("dateCreated asc")
 	public List<ChapterComment> getComments() {
@@ -81,6 +99,16 @@ public class Chapter extends AbstractChapter<ChapterComment> implements
 		this.reactions = reactions;
 	}
 
+	@JoinTable(name="Series_Chapter_Crossposts")
+	@ManyToMany(cascade=CascadeType.ALL)
+	public Set<ExternalFeedContent> getCrossposts() {
+		return crossposts;
+	}
+
+	public void setCrossposts(Set<ExternalFeedContent> crossposts) {
+		this.crossposts = crossposts;
+	}
+
 	@OneToMany(mappedBy="chapter", orphanRemoval=true)
 	public Set<ChapterView> getViews() {
 		return views;
@@ -106,6 +134,15 @@ public class Chapter extends AbstractChapter<ChapterComment> implements
 
 	public void setWordCount(Long wordCount) {
 		this.wordCount = wordCount;
+	}
+
+	@Transient
+	public Long getReadingTime() {
+		return readingTime;
+	}
+
+	public void setReadingTime(Long readingTime) {
+		this.readingTime = readingTime;
 	}
 
 	@Transient

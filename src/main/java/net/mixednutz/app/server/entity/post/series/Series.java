@@ -22,13 +22,16 @@ import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import net.mixednutz.app.server.controller.web.SeriesController;
 import net.mixednutz.app.server.entity.CommentsAware;
+import net.mixednutz.app.server.entity.TagsAware;
 import net.mixednutz.app.server.entity.post.GroupedPosts;
 
 @Entity
 @Table(name="Series")
 public class Series extends AbstractSeries<SeriesReview> 
-	implements GroupedPosts<Chapter, ChapterComment>, CommentsAware<SeriesReview> {
+	implements GroupedPosts<Chapter, ChapterComment>, CommentsAware<SeriesReview>, 
+	TagsAware<SeriesTag> {
 	
 	private List<SeriesReview> reviews;
 	private Set<SeriesTag> tags;
@@ -36,10 +39,15 @@ public class Series extends AbstractSeries<SeriesReview>
 
 	private List<Chapter> chapters;
 	
+	private String coverFilename;
 	private Genre genre;
 	private Set<Genre> additionalGenres;
 	private Rating rating;
 	private Status status = Status.IN_PROGRESS;
+	
+	// Transient fields
+	private Long wordCount;
+	private Long readingTime;
 	
 	@Override
 	public void onPersist() {
@@ -114,6 +122,14 @@ public class Series extends AbstractSeries<SeriesReview>
 		}
 		return "/series/id/"+getId();
 	}
+	
+	@Transient
+	public String getCoverUri() {
+		if (getCoverFilename()!=null) {
+			return "/series"+SeriesController.COVERS_STORAGE_DIR+"/"+getCoverFilename();
+		}
+		return null;
+	}
 
 	@Override
 	public void setPosts(List<Chapter> posts) {
@@ -152,4 +168,30 @@ public class Series extends AbstractSeries<SeriesReview>
 		this.status = stautus;
 	}
 
+	public String getCoverFilename() {
+		return coverFilename;
+	}
+
+	public void setCoverFilename(String coverFilename) {
+		this.coverFilename = coverFilename;
+	}
+	
+	@Transient
+	public Long getWordCount() {
+		return wordCount;
+	}
+
+	public void setWordCount(Long wordCount) {
+		this.wordCount = wordCount;
+	}
+
+	@Transient
+	public Long getReadingTime() {
+		return readingTime;
+	}
+
+	public void setReadingTime(Long readingTime) {
+		this.readingTime = readingTime;
+	}
+	
 }

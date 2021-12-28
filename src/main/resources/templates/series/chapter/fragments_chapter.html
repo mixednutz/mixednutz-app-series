@@ -45,15 +45,23 @@
 							
 							<div class="btn-group">
 								<a class="btn btn-default" data-edit="undo" title="Undo (Ctrl/Cmd+Z)"><i class="fas fa-undo"></i></a>
-								<a class="btn btn-default" data-edit="redo" title="Redo (Ctrl/Cmd+Y)"><i class="fas fa-repeat"></i></a>
+								<a class="btn btn-default" data-edit="redo" title="Redo (Ctrl/Cmd+Y)"><i class="fas fa-redo"></i></a>
 								<a class="btn btn-default" data-edit="html" title="Clear Formatting"><i class='glyphicon glyphicon-pencil'></i></a>
 							</div>
 						</div> 
 						<input type="hidden" id="series_body" th:field="*{body}"/>
 						<div id="editor" class="form-control" data-placeholder="Start your story..."></div>
 					</div>
+					<div class="form-check">
+						<input id="explictSexualContent" th:field="*{hasExplictSexualContent}" class="form-check-input" type="checkbox" value="true"/>
+						<label for="explictSexualContent" class="form-check-label">Chapter has Sexual Explicit Content (sexual acts or themes consensual or non-consensual)</label>
+					</div>
+					<div class="form-group">
+						<label for="summary">Summary</label>
+						<input id="newjournal_summary" class="form-control" th:field="*{description}" size="50" type="text" placeholder="Short summary of this chapter..."/>
+					</div>
 				</div>
-				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newchapter}, ${ {'Chapter':chapterCrosspostFeeds} }, true, true, true, false)">
+				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newchapter}, ${ {'Chapter':chapterCrosspostFeeds} }, true, true, false, true, false)">
 					chapter-options
 				</div>
 			</div>
@@ -112,16 +120,23 @@
 							
 							<div class="btn-group">
 								<a class="btn btn-default" data-edit="undo" title="Undo (Ctrl/Cmd+Z)"><i class="fas fa-undo"></i></a>
-								<a class="btn btn-default" data-edit="redo" title="Redo (Ctrl/Cmd+Y)"><i class="fas fa-repeat"></i></a>
+								<a class="btn btn-default" data-edit="redo" title="Redo (Ctrl/Cmd+Y)"><i class="fas fa-redo"></i></a>
 								<a class="btn btn-default" data-edit="html" title="Clear Formatting"><i class='glyphicon glyphicon-pencil'></i></a>
 							</div>
 						</div> 
 						<input type="hidden" id="chapter_body" th:field="*{body}"/>
 						<div id="editor" class="form-control" data-placeholder="Start your story..."></div>
 					</div>
-					
+					<div class="form-check">
+						<input id="explictSexualContent" th:field="*{hasExplictSexualContent}" class="form-check-input" type="checkbox" value="true"/>
+						<label for="explictSexualContent" class="form-check-label">Chapter has Sexual Explicit Content (sexual acts or themes consensual or non-consensual)</label>
+					</div>
+					<div class="form-group">
+						<label for="description">Summary</label>
+						<input class="form-control" th:field="*{description}" size="50" type="text" placeholder="Short summary of this chapter..."/>
+					</div>
 				</div>
-				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${chapter}, ${ {:} }, true, true, false, true)">
+				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${chapter}, ${ {:} }, true, true, false, false, true)">
 					chapter-options
 				</div>
 			</div>
@@ -183,12 +198,17 @@
         <p>
         	<span th:if="${chapter.datePublished!=null}"><span class="glyphicon glyphicon-time"></span> Posted on <time th:datetime="${#temporals.formatISO(chapter.datePublished)}" th:text="${#temporals.format(chapter.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time></span>
         	<span th:if="${chapter.datePublished==null && chapter.scheduled!=null}"><span class="glyphicon glyphicon-time"></span> <span class="scheduled">Scheduled for</span> <time th:datetime="${#temporals.formatISO(chapter.scheduled.publishDate)}" th:text="${#temporals.format(chapter.scheduled.publishDate, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time></span>
-        	<span class="glyphicon glyphicon-eye-open"></span> <span th:text="${views}">0</span> Views
-        	<span class="glyphicon glyphicon-stats"></span> Word Count: <span th:text="${chapter.wordCount}">0</span>
+        	<span class="glyphicon glyphicon-eye-open"></span> <span th:text="${views}">0</span> Views / <span th:text="${chapter.hitCount}">0</span> Hits
+        	<span class="glyphicon glyphicon-stats"></span> Word Count: <span th:text="${chapter.wordCount}">0</span> 
+        	 (<span th:if="${chapter.readingTime > 60}"><span th:text="${chapter.readingTime / 60}">0</span> <span th:if="${(chapter.readingTime / 60)==1}">hour </span><span th:if="${(chapter.readingTime / 60)!=1}">hours </span></span><span th:text="${chapter.readingTime % 60}">0</span> minutes)
+        </p>
+        <!-- Synopsis -->
+        <p th:if="${!#strings.isEmpty(chapter.description)}">
+        	<span class="glyphicon glyphicon-book"></span> Synopsis: <span th:text="${chapter.description}">chapter.description</span>
         </p>
         
         <!-- Reactions -->
-		<div th:include="common/fragments_reactions :: reactions (${chapter.reactions}, ${reactionScores}, ${chapter.uri}, null)">reactions</div>
+		<div th:include="common/fragments_reactions :: reactions (${chapter.reactions}, ${reactionScores}, ${chapter.uri}, null)">reactions</div>      
         
         <hr sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${chapter.author.userId}" />
 		
@@ -200,12 +220,20 @@
 			<button data-toggle="modal" data-target="#deletechapterModal" class="btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i>&nbsp;Delete Chapter</button>
 		</div>
         
+        <div th:if="${!chapter.hasExplictSexualContent}">
+        	<div sec:authorize="!isAuthenticated()" th:replace="google_adsense :: horizontal_ad"></div>
+        </div>
+        
+        <div th:if="${chapter.hasExplictSexualContent}">
+        	<hr/>
+        	<p class="alert alert-warning">Content Warning: Chapter has Sexually Explicit Content.</p></div>
         <hr/>
+        
         <div>
-        	<a th:if="${hasPrev}" th:href="@{|${prevUri}|}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</a>
-        	<button th:if="${!hasPrev}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</button>
-        	<a th:if="${hasNext}" th:href="@{|${nextUri}|}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></a>
-        	<button th:if="${!hasNext}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></button>
+        	<a th:if="${hasPrev and prevPublished}" th:href="@{|${prevUri}|}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev or !prevPublished}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</a>
+        	<button th:if="${!hasPrev or !prevPublished}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev or !prevPublished}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</button>
+        	<a th:if="${hasNext and nextPublished}" th:href="@{|${nextUri}|}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext or !nextPublished}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></a>
+        	<button th:if="${!hasNext or !nextPublished}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext or !nextPublished}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></button>
         </div>
         <hr/>
         
@@ -213,11 +241,15 @@
         <div th:utext="${chapter.filteredBody}">...HTML Body...</div>
                 
         <hr/>
-        <div>
-        	<a th:if="${hasPrev}" th:href="@{|${prevUri}|}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</a>
-        	<button th:if="${!hasPrev}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</button>
-        	<a th:if="${hasNext}" th:href="@{|${nextUri}|}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></a>
-        	<button th:if="${!hasNext}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></button>
+        
+        <!-- Reactions -->
+		<div class="bottomReactions" th:include="common/fragments_reactions :: reactions (${chapter.reactions}, ${reactionScores}, ${chapter.uri}, null)">reactions</div>      
+        
+        <div class="bottomChapterNav">
+        	<a th:if="${hasPrev} and ${prevPublished}" th:href="@{|${prevUri}|}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev or !prevPublished}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</a>
+        	<button th:if="${!hasPrev} or ${!prevPublished}" class="prevChapterBtn btn btn-default" type="button" th:disabled="${!hasPrev or !prevPublished}"><i class="glyphicon glyphicon-backward"></i>&nbsp;Previous Chapter</button>
+        	<a th:if="${hasNext and nextPublished}" th:href="@{|${nextUri}|}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext or !nextPublished}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></a>
+        	<button th:if="${!hasNext or !nextPublished}" class="nextChapterBtn btn btn-default pull-right" type="button" th:disabled="${!hasNext or !nextPublished}">Next Chapter&nbsp;<i class="glyphicon glyphicon-forward"></i></button>
         </div><a></a>
         <hr/>
         
@@ -234,6 +266,11 @@
         <!-- Posted Comments -->
 		<div id="comments" class="comments" th:include="common/fragments_comments :: post_comments (${chapter})">Comments</div>
             
+        <hr/>
+        
+        <div th:if="${!chapter.hasExplictSexualContent}">
+        	<div sec:authorize="!isAuthenticated()" th:replace="google_adsense :: horizontal_ad"></div>
+        </div>
 	</div>
 	
 	<div th:fragment="chapter_plain">

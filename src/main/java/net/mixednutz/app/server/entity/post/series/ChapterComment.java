@@ -49,6 +49,11 @@ public class ChapterComment extends AbstractPostComment {
 		this.chapter = (Chapter) post;
 	}
 	
-	
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transient
+	public <P extends Post<C>, C extends PostComment> P getPost() {
+		return (P) chapter;
+	}
 
 }

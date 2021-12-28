@@ -14,8 +14,6 @@ import net.mixednutz.app.server.controller.BaseChapterController;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterReaction;
-import net.mixednutz.app.server.manager.ReactionManager;
-import net.mixednutz.app.server.repository.EmojiRepository;
 
 @Controller
 @RequestMapping({"/api","/internal"})
@@ -33,7 +31,11 @@ public class ChapterApiController extends BaseChapterController {
 		
 //		CollectionDifference<ChapterReaction> diff= new CollectionDifference<>(chapter.getReactions());
 		ChapterReaction reaction =  reactionManager.toggleReaction(emojiId, chapter.getReactions(), chapter.getAuthor(), 
-				user, new NewChapterReaction(emojiRepository, chapter, user));
+				user, (eId)->{
+					ChapterReaction r = new ChapterReaction(chapter, eId, user);
+					r.setEmoji(emojiRepository.findById(eId).get());
+					return r;
+				});
 		if (reaction!=null) {
 			reaction = reactionRepository.save(reaction);
 			chapterRepository.save(chapter);
@@ -55,7 +57,11 @@ public class ChapterApiController extends BaseChapterController {
 			@AuthenticationPrincipal final User user) {
 		final Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
 		Collection<ChapterReaction> addedReactions = reactionManager.addReaction(emojiId, chapter.getReactions(), chapter.getAuthor(), 
-				user, new NewChapterReaction(emojiRepository, chapter, user));
+				user, (eId)->{
+					ChapterReaction reaction = new ChapterReaction(chapter, eId, user);
+					reaction.setEmoji(emojiRepository.findById(eId).get());
+					return reaction;
+				});
 		for (ChapterReaction reaction: addedReactions) {
 			reaction = reactionRepository.save(reaction);
 			notificationManager.notifyNewReaction(chapter, reaction);
@@ -64,25 +70,4 @@ public class ChapterApiController extends BaseChapterController {
 		return addedReactions;
 	}
 	
-	private static class NewChapterReaction implements ReactionManager.NewReactionCallback<ChapterReaction> {
-		private final User user;
-		private final Chapter chapter;
-		private EmojiRepository emojiRepository;
-		
-		public NewChapterReaction(EmojiRepository emojiRepository, Chapter chapter, User user) {
-			super();
-			this.emojiRepository = emojiRepository;
-			this.chapter = chapter;
-			this.user = user;
-		}
-
-		@Override
-		public ChapterReaction createReaction(String emojiId) {
-			ChapterReaction reaction = new ChapterReaction(chapter, emojiId, user);
-			reaction.setEmoji(emojiRepository.findById(emojiId).get());
-			return reaction;
-		}
-		
-	}
-
 }

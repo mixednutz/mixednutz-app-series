@@ -17,4 +17,6 @@ public interface SeriesRepository extends PostRepository<Series, SeriesReview>, 
 			String titleKey
 			);
 	
+	Optional<Series> findByCoverFilename(String coverFilename);
+	
 }

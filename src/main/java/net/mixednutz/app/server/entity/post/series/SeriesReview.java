@@ -49,4 +49,11 @@ public class SeriesReview extends AbstractPostComment {
 		this.series = (Series) post;
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transient
+	public <P extends Post<C>, C extends PostComment> P getPost() {
+		return (P) series;
+	}
+	
 }

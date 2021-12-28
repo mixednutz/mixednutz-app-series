@@ -26,6 +26,10 @@
     <meta property="og:url" th:content="@{|${formatter.formatAbsoluteUrl(series.uri)}|}"/>
     <meta name="twitter:url" th:content="@{|${formatter.formatAbsoluteUrl(series.uri)}|}"/>
     
+    <meta th:if="${series.coverFilename!=null}" itemprop="image" th:content="@{|${formatter.formatAbsoluteUrl(series.coverUri)}|}"/>
+    <meta th:if="${series.coverFilename!=null}" property="og:image" th:content="@{|${formatter.formatAbsoluteUrl(series.coverUri)}|}"/>
+    <meta th:if="${series.coverFilename!=null}" name="twitter:image" th:content="@{|${formatter.formatAbsoluteUrl(series.coverUri)}|}"/>
+    
 	<!-- Bootstrap Core CSS -->
 	<link th:href="@{|/webjars/bootstrap/css/bootstrap.min.css|}" rel="stylesheet"/>
 	
@@ -43,6 +47,11 @@
 	<!-- Custom Fonts -->
 	<link th:href="@{|/webjars/font-awesome/css/all.css|}" rel="stylesheet" type="text/css" />
 	
+	<!-- RSS -->
+	<link rel="alternate" type="application/rss+xml" 
+		th:href="@{|/rss${series.uri}|}"
+		th:title="@{|${series.title} : #{site.title}|}"/>	
+		
 	<!-- oEmbed -->
 	<link rel="alternate" type="application/json+oembed" 
 		th:with="seriesUrl=@{|${formatter.formatAbsoluteUrl(series.uri)}|}"
@@ -51,6 +60,8 @@
   		
   	<meta name="_csrf" th:content="${_csrf.token}"/>
 	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+	
+	<script th:replace="google_adsense :: tracking"></script>
 </head>
 <body>
 
@@ -78,7 +89,7 @@
 		<!-- Add Tags Form -->
 		<div id="addTagsModal" class="modal fade" tabindex="-1" role="dialog" data-focus-on="input:first">
 			<div>
-				<div class="modal-content" include="common/modules_common :: addTags_modal">
+				<div class="modal-content" th:include="common/fragments_tags :: addTags_modal">
 				</div>
 			</div>
 		</div>
@@ -162,13 +173,13 @@
     <script th:replace="common/fragments_js :: common"></script>
     <script th:replace="common/fragments_forms :: post_options_JS" th:inline="javascript"></script>
     <script include="series/modules_series :: editseriesForm_JS" th:inline="javascript"></script>
-    <script include="common/modules_common :: tags_JS" th:inline="javascript"></script>
+    <script th:include="common/fragments_tags :: tags_JS"  th:inline="javascript"></script>
     <script th:include="common/fragments_reactions :: reactions_JS" th:inline="javascript"></script>
     <script th:include="series/chapter/fragments_chapter :: newChapterForm_JS"></script>
     <script type="text/javascript" th:src="@{|/js/series.js|}" src="../js/series.js"></script>
 	<script type="text/javascript" th:src="@{|/js/pwa.js|}" src="../js/pwa.js"></script>
  	<script type="text/javascript" th:src="@{|/js/pwa_feeds.js|}" src="../js/pwa_feeds.js"></script>
-    
+    <script type="text/javascript" th:src="@{|/js/keepAlive.js|}" src="../js/keepAlive.js"></script>
 	
 	<!-- Google Analytics JavaScript 
  	================================================== -->

@@ -26,6 +26,10 @@
     <meta property="og:url" th:content="@{|${formatter.formatAbsoluteUrl(chapter.uri)}|}"/>
     <meta name="twitter:url" th:content="@{|${formatter.formatAbsoluteUrl(chapter.uri)}|}"/>
     
+    <meta th:if="${chapter.series.coverFilename!=null}" itemprop="image" th:content="@{|${formatter.formatAbsoluteUrl(chapter.series.coverUri)}|}"/>
+    <meta th:if="${chapter.series.coverFilename!=null}" property="og:image" th:content="@{|${formatter.formatAbsoluteUrl(chapter.series.coverUri)}|}"/>
+    <meta th:if="${chapter.series.coverFilename!=null}" name="twitter:image" th:content="@{|${formatter.formatAbsoluteUrl(chapter.series.coverUri)}|}"/>
+    
 	<!-- Bootstrap Core CSS -->
 	<link th:href="@{|/webjars/bootstrap/css/bootstrap.min.css|}" rel="stylesheet"/>
 	
@@ -51,6 +55,10 @@
   		
   	<meta name="_csrf" th:content="${_csrf.token}"/>
 	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+	
+	<th:block th:if="${!chapter.hasExplictSexualContent}">
+	<script  th:replace="google_adsense :: tracking"></script>
+	</th:block>
 </head>
 <body>
 
@@ -153,7 +161,7 @@
     <script include="common/modules_common :: tags_JS" th:inline="javascript"></script>
     <script th:include="common/fragments_reactions :: reactions_JS" th:inline="javascript"></script>
     <script type="text/javascript" th:src="@{|/js/series.js|}" src="../js/series.js"></script>
-    
+    <script type="text/javascript" th:src="@{|/js/keepAlive.js|}" src="../js/keepAlive.js"></script>
 	
 	<!-- Google Analytics JavaScript 
  	================================================== -->

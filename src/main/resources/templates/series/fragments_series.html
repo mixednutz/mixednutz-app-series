@@ -35,12 +35,16 @@
 						<div class="createdAt">
 							Posted on: <span>11/11/2014</span>
 						</div>
+						<div class="sizeOfChapters">
+							Chapters: <span class="value">0</span> <span class="completionStatus"></span>
+						</div>
 						<div class="sizeOfComments">
 							Comments: <span>0</span>
 						</div>
 					</div>
 				</div>
 				<div class="preview">
+					<img class="cover cover-left" width="100"/>
 					<div>
 						<span class="description">Description</span> [<a class="readmore">READ
 							MORE</a>]
@@ -54,7 +58,7 @@
 					<i class="far fa-smile"></i> Reactions: <span
 						class="reactions-list"></span>
 				</div>
-				<div class="action-group" role="group">
+				<!-- <div class="action-group" role="group">
 					<a sec:authorize="isAuthenticated()" class="reactBtn" href="#"
 						data-toggle="modal" data-target="#reactModal"> <span
 						class="fa-stack fa-stack fa-lg"> <i
@@ -73,17 +77,48 @@
 							class="fas fa-lock fa-stack-1x"></i>
 					</span>
 					</span> <small class="id" style="display: none;"></small>
-				</div>
+				</div> -->
 			</div>
 		</div>
 	</div>
+	<script th:fragment="timeline_template_series_JS">
+	console.log('test');
+	var buildSeriesTimelineElement = function(template, element) {
+		console.log('buildSeriesTimelineElement');
+		if (element.type.name=='Series') {
+			console.log(element);
+			var additionalData = element.additionalData;
+			template.find(".sizeOfChapters .value").text(additionalData.sizeOfChapters);
+			var status = 'In Progress';
+			if (additionalData.status=='COMPLETED') {
+				status = 'Completed';
+			} else if (additionalData.status=='HIATUS') {
+				status = 'Hiatus';
+			}
+			template.find(".completionStatus")
+				.addClass(additionalData.status)
+				.text(status);	
+			
+			if (additionalData.cover!=null) {
+				template.find(".cover")
+					.attr('src',additionalData.cover.src)
+					.attr('title',additionalData.cover.alt);
+			} else {
+				template.find(".cover").remove();
+			}
+		}
+		
+	}
+	page.registerElementCallback(buildSeriesTimelineElement);
+	console.log(page.elementCallbacks);
+	</script>
   
   	<div th:fragment="newSeriesForm_model">
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
 			<h4>New Series</h4>
 		</div>
-		<form id="newseries_form" th:action="@{|/series/new|}" th:object="${newseries}" method="post">
+		<form id="newseries_form" th:action="@{|/series/new|}" th:object="${newseries}" method="post" enctype="multipart/form-data">
 		<div class="modal-body">
 			<div class="row">
 				<div class="series-form col-xs-12 col-md-8">
@@ -142,7 +177,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newseries}, ${ {'Series':seriesCrosspostFeeds} }, true, false, false, false)">
+				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newseries}, ${ {'Series':seriesCrosspostFeeds} }, true, false, true, false, false)">
 					series-options
 				</div>
 			</div>
@@ -162,7 +197,7 @@
 			<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
 			<h4>Edit Series</h4>
 		</div>
-		<form id="editseries_form" th:action="@{|/series/${series.id}/edit|}" th:object="${series}" method="post">
+		<form id="editseries_form" th:action="@{|/series/${series.id}/edit|}" th:object="${series}" method="post" enctype="multipart/form-data">
 		<div class="modal-body">
 			<div class="row">
 				<div class="series-form col-xs-12 col-md-8">
@@ -184,6 +219,18 @@
 						<label for="editseries_description">Description</label>
 						<textarea id="editseries_description" class="form-control" th:field="*{description}" rows="6" required="required"/>
 					</div>
+					<!-- Avatar -->
+					<div class="avatar form-group"> 
+						<label for="coverImage" th:text="#{form.coverImage.label}">form.coverImage.label</label>
+						<input type="file" id="coverImage" name="coverImage" accept=".gif,.png,.jpg"/>
+						<small id="coverImage_help" class="form-text text-muted" th:text="#{form.coverImage.help}">form.avatar.help</small>
+					</div>
+					<div class="clearCoverImage form-check"> 
+						<input class="form-check-input" type="checkbox" id="clearCoverImage" name="clearAvatarImage" />
+						<label class="form-check-label" for="clearCoverImage" th:text="#{form.clearCoverImage.label}">form.clearCoverImage.label</label>
+						<small id="clearCoverImage_help" class="form-text text-muted" th:text="#{form.clearCoverImage.help}">form.clearCoverImage.help</small>
+					</div>
+					
 					<div class="form-group">
 						<label>Maturity Rating:</label>
 						<select th:field="*{rating}" class="form-control" required="required">
@@ -221,7 +268,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${series}, ${ {:} }, true, false, false, true)">
+				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${series}, ${ {:} }, true, false, true, false, true)">
 					journal-options
 				</div>
 			</div>
@@ -268,12 +315,15 @@
         </p>
         
         <hr/>
+        
+        <img class="cover cover-left" th:if="${series.coverFilename!=null}" th:src="@{|${series.coverUri}|}" src="../../img/nophoto.gif" width="120"/>
 
         <!-- Date/Time --> 
         <p>
         	<span class="glyphicon glyphicon-time"></span> Posted on <time th:datetime="${#temporals.formatISO(series.datePublished)}" th:text="${#temporals.format(series.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
-        	<span class="glyphicon glyphicon-eye-open"></span> <span th:text="${views}">0</span> Views
-        	<span class="glyphicon glyphicon-stats"></span> Word Count: <span th:text="${wordCount}">0</span>
+        	<span class="glyphicon glyphicon-eye-open"></span> <span th:text="${views}">0</span> Views / <span th:text="${series.hitCount}">0</span> Hits
+        	<span class="glyphicon glyphicon-stats"></span> Word Count: <span th:text="${series.wordCount}">0</span>
+        	 (<span th:if="${series.readingTime > 60}"><span th:text="${series.readingTime / 60}">0</span> <span th:if="${(series.readingTime / 60)==1}">hour </span><span th:if="${(series.readingTime / 60)!=1}">hours </span></span><span th:text="${series.readingTime % 60}">0</span> minutes)
         	<!--<span class="glyphicon glyphicon-heart"></span> <span>0</span> Favorites -->
         </p>
 
@@ -290,7 +340,14 @@
 			</div>
 		</div>
 		
+		<!-- Tags -->
+  		<div th:include="common/fragments_tags :: tags (${series.uri})">tags</div>
 		
+		<div>Subscribe: 
+			<a href="#" th:href="@{|/rss${series.uri}|}"><i class="fas fa-rss"></i> RSS</a>
+		</div>
+		
+		<div style="clear:both;"></div>
 		
   		
 		<hr sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${series.author.userId}" />
@@ -304,13 +361,13 @@
 			<!-- Delete -->
 			<button data-toggle="modal" data-target="#deleteseriesModal" class="btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i>&nbsp;Delete Series</button>
 		</div>
+		
+		
+        <hr/>
+        
+        <div sec:authorize="!isAuthenticated()" th:replace="google_adsense :: horizontal_ad"></div>
 				
         <hr/>
-
-        <!-- Preview Image -->
-        <!-- <img class="img-responsive" src="http://placehold.it/900x300" alt=""/> 
-
-        <hr/>-->
 
         <!-- Post Content -->
         <h2>Synopsis</h2>
@@ -328,6 +385,7 @@
         
         <h2>Table of Contents</h2>
         <div class="toc list-group" sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${series.author.userId}">
+        	<!-- Author's TOC -->
         	<div th:each="chapter : ${series.chapters}" class="list-group-item">
         		<div>
         		<!-- Chapter Title -->
@@ -342,7 +400,23 @@
         		</div>
         	</div>
         </div>
-        <div class="toc list-group" sec:authorize="!isAuthenticated()" >
+        <div class="toc list-group" sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}!=${series.author.userId}">
+        	<!-- Authenticated User's TOC -->
+        	<div th:each="chapter : ${series.chapters}" th:if="${chapter.datePublished!=null}" class="list-group-item">
+        		<div>
+        		<!-- Chapter Title -->
+        		<a th:href="@{|${chapter.uri}|}" th:text="${chapter.title}">chapter.title</a>, 
+        		<!-- Comments -->
+        		<small><a th:href="@{|${chapter.uri}#comments|}" ><span th:text="${#lists.size(chapter.comments)}"></span> comments</a></small> 
+        		<!-- Word Count -->
+        		<small>(<span th:text="${chapter.wordCount}">wordCount</span> words)</small>
+        		<!-- Publish Date -->
+        		<time class="pull-right" th:if="${chapter.datePublished!=null}" th:datetime="${#temporals.formatISO(chapter.datePublished)}" th:text="${#temporals.format(chapter.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
+        		</div>
+        	</div>
+        </div>
+         <div class="toc list-group" sec:authorize="!isAuthenticated()">
+        	<!-- Non-Authenticated User's TOC -->
         	<div th:each="chapter : ${series.chapters}" th:if="${chapter.datePublished!=null}" class="list-group-item">
         		<div>
         		<!-- Chapter Title -->
@@ -371,7 +445,11 @@
 
         <!-- Posted Comments -->
 		<div id="comments" class="comments" th:include="common/fragments_comments :: post_comments (${series})">Comments</div>
-            
+           
+        <hr/>
+        
+        <div sec:authorize="!isAuthenticated()" th:replace="google_adsense :: horizontal_ad"></div>
+		 
 	</div>
 	
 	<div th:fragment="recentPosts (posts)">

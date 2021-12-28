@@ -74,9 +74,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		
-		<mixednutz-app.version>2.0.2</mixednutz-app.version>
+		<mixednutz-app.version>2.0.18</mixednutz-app.version> 
 		<spring-social.version>1.1.6.RELEASE</spring-social.version>
 		<epublib.version>3.1</epublib.version>
+		<version.rome>1.8.0</version.rome>
 	</properties>
 	
 	<build>
@@ -133,6 +134,7 @@
 			<groupId>net.mixednutz.app.core</groupId>
 			<artifactId>mixednutz-app-core</artifactId>
 			<version>${mixednutz-app.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		
 		<!--  Spring -->
@@ -205,6 +207,14 @@
 		    		<artifactId>slf4j-simple</artifactId>
 		    	</exclusion>
 		    </exclusions>
+		</dependency>
+		
+		<!-- ROME -->
+	    <dependency>
+		    <groupId>com.rometools</groupId>
+		    <artifactId>rome</artifactId>
+		    <version>${version.rome}</version>
+		    <scope>provided</scope>
 		</dependency>
 		
 		<!-- Testing -->

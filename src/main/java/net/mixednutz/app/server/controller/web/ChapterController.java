@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.NativeWebRequest;
 
 import net.mixednutz.app.server.controller.BaseChapterController;
 import net.mixednutz.app.server.entity.User;
@@ -41,6 +42,8 @@ public class ChapterController extends BaseChapterController {
 			Authentication auth, Model model) {
 		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
 		getChapter(chapter, auth,model);
+		
+		incrementHitCount(chapter);
 		model.addAttribute("views", chapter.getViews().size());
 		
 		// Check for previous/next chapter
@@ -49,10 +52,12 @@ public class ChapterController extends BaseChapterController {
 		model.addAttribute("hasPrev", index>0);
 		if (index>0) {
 			model.addAttribute("prevUri",chapters.get(index-1).getUri());
+			model.addAttribute("prevPublished", chapters.get(index-1).getDatePublished()!=null);
 		}
 		if (index+1<chapters.size()) {
 			model.addAttribute("hasNext", true);
 			model.addAttribute("nextUri",chapters.get(index+1).getUri());
+			model.addAttribute("nextPublished", chapters.get(index+1).getDatePublished()!=null);
 		} else {
 			model.addAttribute("hasNext", false);
 		}
@@ -73,10 +78,11 @@ public class ChapterController extends BaseChapterController {
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
 			@RequestParam(value="email_fgroup", defaultValue="false") boolean emailFriendGroup,
 			@DateTimeFormat(iso=ISO.DATE_TIME) @RequestParam(value="localPublishDate", required=false) LocalDateTime localPublishDate,
-			@AuthenticationPrincipal User user, Model model, Errors errors) {
+			@AuthenticationPrincipal User user, Model model, Errors errors,
+			NativeWebRequest request) {
 		Series series = loadSeries(seriesId);
 		chapter = save(chapter, series, groupId, externalFeedId, 
-				tagsString, emailFriendGroup, localPublishDate, user);
+				tagsString, emailFriendGroup, localPublishDate, user, request);
 
 		return "redirect:"+chapter.getUri();
 	}	

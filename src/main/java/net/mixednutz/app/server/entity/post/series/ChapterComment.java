@@ -22,6 +22,9 @@ public class ChapterComment extends AbstractPostComment {
 	public static final String CHAPTER_COMMENT_TYPE = "SeriesChapter";
 	
 	private Chapter chapter;
+	
+	// Transient fields
+	private String filteredBody;
 
 	public ChapterComment() {
 		super(CHAPTER_COMMENT_TYPE);
@@ -54,6 +57,15 @@ public class ChapterComment extends AbstractPostComment {
 	@Transient
 	public <P extends Post<C>, C extends PostComment> P getPost() {
 		return (P) chapter;
+	}
+	
+	@Transient
+	public String getFilteredBody() {
+		return filteredBody;
+	}
+
+	public void setFilteredBody(String filteredBody) {
+		this.filteredBody = filteredBody;
 	}
 
 }

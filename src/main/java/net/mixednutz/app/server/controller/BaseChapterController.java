@@ -351,6 +351,15 @@ public class BaseChapterController {
 	
 	protected ChapterComment getComment(Long commentId) {
 		return chapterCommentRepository.findById(commentId)
+			.map(comment->{
+				//HTML Filter
+				String filteredHtml = comment.getBody();
+				for (HtmlFilter htmlFilter: htmlFilters) {
+					filteredHtml = htmlFilter.filter(filteredHtml);
+				}
+				comment.setFilteredBody(filteredHtml);
+				return comment;
+			})
 			.orElseThrow(new Supplier<ResourceNotFoundException>() {
 				@Override
 				public ResourceNotFoundException get() {

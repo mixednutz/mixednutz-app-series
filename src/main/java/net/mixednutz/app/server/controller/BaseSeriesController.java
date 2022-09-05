@@ -2,6 +2,7 @@ package net.mixednutz.app.server.controller;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.function.Supplier;
 
 import javax.transaction.Transactional;
@@ -25,6 +26,7 @@ import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesFactory;
 import net.mixednutz.app.server.entity.post.series.SeriesReview;
 import net.mixednutz.app.server.entity.post.series.SeriesTag;
+import net.mixednutz.app.server.format.HtmlFilter;
 import net.mixednutz.app.server.io.domain.PersistableMultipartFile;
 import net.mixednutz.app.server.io.manager.PhotoUploadManager;
 import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
@@ -70,6 +72,9 @@ public class BaseSeriesController {
 	
 	@Autowired
 	protected PhotoUploadManager photoUploadManager;
+	
+	@Autowired
+	private List<HtmlFilter> htmlFilters;
 	
 	
 	protected Series get(String username, Long id, String titleKey) {
@@ -266,6 +271,15 @@ public class BaseSeriesController {
 	
 	protected SeriesReview getComment(Long commentId) {
 		return seriesReviewRepository.findById(commentId)
+			.map(comment->{
+				//HTML Filter
+				String filteredHtml = comment.getBody();
+				for (HtmlFilter htmlFilter: htmlFilters) {
+					filteredHtml = htmlFilter.filter(filteredHtml);
+				}
+				comment.setFilteredBody(filteredHtml);
+				return comment;
+			})
 			.orElseThrow(new Supplier<ResourceNotFoundException>() {
 				@Override
 				public ResourceNotFoundException get() {

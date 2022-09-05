@@ -1,12 +1,12 @@
 package net.mixednutz.app.server.manager.post.series.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.Series;
@@ -15,7 +15,7 @@ public class SeriesManagerImplTest {
 	
 	SeriesManagerImpl manager;
 	
-	@Before
+	@BeforeEach
 	public void setup() {
 		ChapterManagerImpl chapterManager = new ChapterManagerImpl();
 		manager = new SeriesManagerImpl();

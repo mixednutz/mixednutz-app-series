@@ -231,9 +231,9 @@ public class BaseChapterController {
 			chapter.getScheduled().setExternalFeedId(externalFeedId);
 			chapter.getScheduled().setEmailFriendGroup(emailFriendGroup);
 			inReplyTo.ifPresent(c->chapter.getScheduled().setInReplyTo(c));			
-			String chapterId = request.getParameter("channelIdAsString");
-			if (chapterId!=null) {
-				chapter.getScheduled().getExternalFeedData().put("channelIdAsString", chapterId);
+			String channelId = request.getParameter("channelIdAsString");
+			if (channelId!=null) {
+				chapter.getScheduled().getExternalFeedData().put("channelIdAsString", channelId);
 			}
 			
 		} else {
@@ -351,6 +351,15 @@ public class BaseChapterController {
 	
 	protected ChapterComment getComment(Long commentId) {
 		return chapterCommentRepository.findById(commentId)
+			.map(comment->{
+				//HTML Filter
+				String filteredHtml = comment.getBody();
+				for (HtmlFilter htmlFilter: htmlFilters) {
+					filteredHtml = htmlFilter.filter(filteredHtml);
+				}
+				comment.setFilteredBody(filteredHtml);
+				return comment;
+			})
 			.orElseThrow(new Supplier<ResourceNotFoundException>() {
 				@Override
 				public ResourceNotFoundException get() {

@@ -168,7 +168,7 @@ public class SeriesController extends BaseSeriesController {
 	@RequestMapping(value="/series/new", method = RequestMethod.POST, params="submit")
 	public String saveNew(@ModelAttribute(SeriesFactory.MODEL_ATTRIBUTE) Series series, 
 //			@RequestParam("fgroup_id") Integer friendGroupId, 
-			@RequestParam("group_id") Long groupId,
+			@RequestParam(value="group_id",required=false) Long groupId,
 			@RequestParam(value="externalFeedId", required=false) Integer[] externalFeedId,
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
 			@RequestParam(value="email_fgroup", defaultValue="false") boolean emailFriendGroup,
@@ -190,7 +190,7 @@ public class SeriesController extends BaseSeriesController {
 			@RequestParam("coverImage") MultipartFile coverImage,
 			@RequestParam(name="clearCoverImage", defaultValue="false") boolean clearCoverImage,
 //			@RequestParam("fgroup_id") Integer friendGroupId, 
-			@RequestParam("group_id") Integer groupId,
+			@RequestParam(value="group_id",required=false) Integer groupId,
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
 			@AuthenticationPrincipal User user, Model model, Errors errors) {
 		

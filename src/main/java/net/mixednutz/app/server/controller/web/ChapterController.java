@@ -73,7 +73,7 @@ public class ChapterController extends BaseChapterController {
 	public String saveNew(@ModelAttribute(ChapterFactory.MODEL_ATTRIBUTE) Chapter chapter, 
 			@PathVariable Long seriesId,
 //			@RequestParam("fgroup_id") Integer friendGroupId, 
-			@RequestParam("group_id") Long groupId,
+			@RequestParam(value="group_id",required=false) Long groupId,
 			@RequestParam(value="externalFeedId", required=false) Long[] externalFeedId,
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
 			@RequestParam(value="email_fgroup", defaultValue="false") boolean emailFriendGroup,
@@ -95,7 +95,7 @@ public class ChapterController extends BaseChapterController {
 	public String updateModal(@ModelAttribute("chapter") Chapter chapter, 
 			@PathVariable Long seriesId, @PathVariable Long id, 
 //			@RequestParam("fgroup_id") Integer friendGroupId, 
-			@RequestParam("group_id") Integer groupId,
+			@RequestParam(value="group_id",required=false) Integer groupId,
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
 			@DateTimeFormat(iso=ISO.DATE_TIME) @RequestParam(value="localPublishDate", required=false) LocalDateTime localPublishDate,
 			@AuthenticationPrincipal User user, Model model, Errors errors) {

@@ -23,6 +23,9 @@ public class SeriesReview extends AbstractPostComment {
 	
 	private Series series;
 	
+	// Transient fields
+	private String filteredBody;
+
 	public SeriesReview() {
 		super(SERIES_REVIEW_TYPE);
 	}
@@ -56,4 +59,13 @@ public class SeriesReview extends AbstractPostComment {
 		return (P) series;
 	}
 	
+	@Transient
+	public String getFilteredBody() {
+		return filteredBody;
+	}
+
+	public void setFilteredBody(String filteredBody) {
+		this.filteredBody = filteredBody;
+	}
+
 }

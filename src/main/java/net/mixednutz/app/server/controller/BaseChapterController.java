@@ -12,6 +12,8 @@ import java.util.function.Supplier;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -50,6 +52,8 @@ import net.mixednutz.app.server.repository.UserProfileRepository;
 import net.mixednutz.app.server.repository.UserRepository;
 
 public class BaseChapterController {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(BaseChapterController.class);
 
 	@Autowired
 	protected ChapterRepository chapterRepository;
@@ -230,7 +234,12 @@ public class BaseChapterController {
 				.setPublishDate(ZonedDateTime.of(localPublishDate, ZoneId.systemDefault()));
 			chapter.getScheduled().setExternalFeedId(externalFeedId);
 			chapter.getScheduled().setEmailFriendGroup(emailFriendGroup);
-			inReplyTo.ifPresent(c->chapter.getScheduled().setInReplyTo(c));			
+			inReplyTo.ifPresent(c->{
+				chapter.getScheduled().setInReplyTo(c);
+				LOGGER.info("Found first chapter to reply to for {}. First Chapter: {} - {}", 
+						chapter.getTitle(),
+						c.getId(), c.getTitle());
+			});			
 			String channelId = request.getParameter("channelIdAsString");
 			if (channelId!=null) {
 				chapter.getScheduled().getExternalFeedData().put("channelIdAsString", channelId);

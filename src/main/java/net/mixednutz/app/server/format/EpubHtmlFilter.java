@@ -7,7 +7,7 @@ public class EpubHtmlFilter implements HtmlFilter {
 
 	@Override
 	public String filter(String html) {
-		Document doc = Jsoup.parse(html);
+		Document doc = Jsoup.parseBodyFragment(html);
 		
 		//XML mode for self-closing tags
 		doc.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
@@ -17,7 +17,8 @@ public class EpubHtmlFilter implements HtmlFilter {
 			.filter(span->!span.hasAttr("style"))
 			.forEach(span->span.unwrap());
 		
-		return doc.html();
+		//Return inner html fragment
+		return doc.select("body").html();
 	}
 
 }

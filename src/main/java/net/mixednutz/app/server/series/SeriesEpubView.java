@@ -4,18 +4,23 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.AbstractView;
 import org.thymeleaf.TemplateEngine;
@@ -23,8 +28,12 @@ import org.thymeleaf.context.Context;
 
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.Series;
+import net.mixednutz.app.server.format.EpubHtmlFilter;
 import net.mixednutz.app.server.format.FormattingUtils;
 import net.mixednutz.app.server.format.HtmlFilter;
+import net.mixednutz.app.server.io.domain.FileWrapper;
+import net.mixednutz.app.server.io.manager.PhotoUploadManager;
+import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Date.Event;
@@ -36,6 +45,8 @@ import nl.siegmann.epublib.epub.EpubWriter;
 @Component
 public class SeriesEpubView extends AbstractView {
 	
+	private static final Logger LOG = LoggerFactory.getLogger(SeriesEpubView.class);
+	
 	@Autowired
 	private TemplateEngine templateEngine;
 	
@@ -46,10 +57,18 @@ public class SeriesEpubView extends AbstractView {
     private MessageSource messageSource;
 	
 	private MessageSourceAccessor accessor;
+	
+	private List<HtmlFilter> epubFilters;
+	
+	@Autowired
+	protected PhotoUploadManager photoUploadManager;
 
     @PostConstruct
     private void init() {
         accessor = new MessageSourceAccessor(messageSource, Locale.ENGLISH);
+        
+        epubFilters = new ArrayList<>(htmlFilters);
+		epubFilters.add(new EpubHtmlFilter());
     }
 
 	
@@ -62,6 +81,23 @@ public class SeriesEpubView extends AbstractView {
 	
 	private Resource getResource(Chapter chapter, String href) throws IOException {
 		return new Resource(getHtml(chapter), href);
+	}
+	
+	private Optional<FileSystemResource> getCoverResource(Series series) {
+		FileWrapper file=null;
+		if (series.getCoverFilename()!=null) {
+			try {
+				file = photoUploadManager.downloadFile(series.getAuthor(), 
+						series.getCoverFilename(), Size.ORIGINAL);
+			} catch (IOException e) {
+				LOG.error("Error reading image", e);
+				Optional.empty();
+			}
+		}
+		if (file==null) {
+			Optional.empty();
+		}		
+		return Optional.of(new FileSystemResource(file.getFile()));
 	}
 	
 
@@ -90,7 +126,16 @@ public class SeriesEpubView extends AbstractView {
 				series.getAuthor().getUsername());
 				
 		// Set cover image
-//	    book.setCoverImage(getResource("/book1/test_cover.png", "cover.png") );
+		Optional<FileSystemResource> coverImage = getCoverResource(series);
+		coverImage.ifPresent(res->{
+			Resource coverResource;
+			try {
+				coverResource = new Resource(res.getInputStream(), series.getCoverFilename());
+				book.setCoverImage(coverResource);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
 
 		ZonedDateTime lastPublished = series.getDatePublished();
 		for (Chapter chapter : series.getChapters()) {
@@ -104,7 +149,7 @@ public class SeriesEpubView extends AbstractView {
 				
 				//HTML Filter
 				String filteredHtml = chapter.getBody();
-				for (HtmlFilter htmlFilter: htmlFilters) {
+				for (HtmlFilter htmlFilter: epubFilters) {
 					filteredHtml = htmlFilter.filter(filteredHtml);
 				}
 				chapter.setFilteredBody(filteredHtml);

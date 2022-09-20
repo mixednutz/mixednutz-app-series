@@ -78,7 +78,7 @@
 		<spring-social.version>1.1.6.RELEASE</spring-social.version>
 		<epublib.version>3.1</epublib.version>
 		<version.rome>1.8.0</version.rome>
-		<version.jsoup>1.10.2</version.jsoup>
+		<version.jsoup>1.15.3</version.jsoup>
 	</properties>
 	
 	<build>

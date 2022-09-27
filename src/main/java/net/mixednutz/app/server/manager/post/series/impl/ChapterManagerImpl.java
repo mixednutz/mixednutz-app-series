@@ -75,5 +75,5 @@ implements ChapterManager {
 		long wordCount = chapter.getWordCount()!=null?chapter.getWordCount():wordCount(chapter);
 		return Math.round((double)wordCount / WORDS_PER_MINUTE);
 	}
-
+	
 }

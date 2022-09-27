@@ -142,7 +142,10 @@ public class BaseChapterController {
 				!VisibilityType.WORLD.equals(chapter.getVisibility().getVisibilityType())) {
 			throw new AuthenticationCredentialsNotFoundException("This is not a public chapter.");
 		} else if (auth!=null) {
-			//TODO
+			if (!seriesManager.isVisible(chapter.getSeries(), (User) auth.getPrincipal()) || 
+					!chapterManager.isVisible(chapter, (User) auth.getPrincipal())) {
+				throw new AccessDeniedException("User does not have permission to view this chapter.");
+			}
 		}
 		
 		User user = auth!=null?(User) auth.getPrincipal():null;

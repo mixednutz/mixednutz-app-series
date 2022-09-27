@@ -115,7 +115,9 @@ public class BaseSeriesController {
 				!VisibilityType.WORLD.equals(series.getVisibility().getVisibilityType())) {
 			throw new AuthenticationCredentialsNotFoundException("This is not a public journal.");
 		} else if (auth!=null) {
-			//TODO
+			if (!seriesManager.isVisible(series, (User) auth.getPrincipal())) {
+				throw new AccessDeniedException("User does not have permission to view this series.");
+			}
 		}
 		
 		model.addAttribute("series", series);

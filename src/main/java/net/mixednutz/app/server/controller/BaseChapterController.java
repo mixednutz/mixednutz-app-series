@@ -22,14 +22,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
 
+import net.mixednutz.app.server.controller.exception.ForbiddenExceptions.ChapterForbiddenException;
 import net.mixednutz.app.server.controller.exception.ResourceMovedPermanentlyException;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
 import net.mixednutz.app.server.controller.exception.UserNotFoundException;
+import net.mixednutz.app.server.entity.ExternalFeedContent;
+import net.mixednutz.app.server.entity.ExternalFeeds.AbstractFeed;
 import net.mixednutz.app.server.entity.InternalTimelineElement;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.VisibilityType;
-import net.mixednutz.app.server.entity.ExternalFeedContent;
-import net.mixednutz.app.server.entity.ExternalFeeds.AbstractFeed;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterComment;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
@@ -144,7 +145,7 @@ public class BaseChapterController {
 		} else if (auth!=null) {
 			if (!seriesManager.isVisible(chapter.getSeries(), (User) auth.getPrincipal()) || 
 					!chapterManager.isVisible(chapter, (User) auth.getPrincipal())) {
-				throw new AccessDeniedException("User does not have permission to view this chapter.");
+				throw new ChapterForbiddenException(chapter, "User does not have permission to view this chapter.");
 			}
 		}
 		
@@ -394,6 +395,5 @@ public class BaseChapterController {
 	public String handleException(final ResourceMovedPermanentlyException e) {
 	    return "redirect:"+e.getRedirectUri();
 	}
-
 	
 }

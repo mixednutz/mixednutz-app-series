@@ -3,6 +3,8 @@ package net.mixednutz.app.server.controller.web;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +24,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,12 +33,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 
 import com.rometools.rome.feed.rss.Channel;
 
 import net.mixednutz.app.server.controller.BaseSeriesController;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
+import net.mixednutz.app.server.controller.exception.ForbiddenExceptions.SeriesForbiddenException;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.Series;
@@ -269,6 +274,13 @@ public class SeriesController extends BaseSeriesController {
 	
 	protected Channel toChannel(Series series) {	
 		return seriesEntityConverter.toRssChannel(series, getBaseUrl());
+	}
+	
+	@ExceptionHandler(SeriesForbiddenException.class)
+	public ModelAndView handleException(final SeriesForbiddenException e) {
+		Map<String, Object> model = new HashMap<>();
+		model.put("series", e.getSeries());
+		return new ModelAndView("series/forbidden",model);
 	}
 	
 	

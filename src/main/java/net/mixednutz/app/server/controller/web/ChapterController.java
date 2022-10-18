@@ -1,7 +1,9 @@
 package net.mixednutz.app.server.controller.web;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
@@ -11,14 +13,17 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.servlet.ModelAndView;
 
 import net.mixednutz.app.server.controller.BaseChapterController;
+import net.mixednutz.app.server.controller.exception.ForbiddenExceptions.ChapterForbiddenException;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterComment;
@@ -159,5 +164,12 @@ public class ChapterController extends BaseChapterController {
 		comment = saveComment(comment, chapter, user);
 				
 		return "redirect:"+comment.getUri();
+	}
+	
+	@ExceptionHandler(ChapterForbiddenException.class)
+	public ModelAndView handleException(final ChapterForbiddenException e) {
+		Map<String, Object> model = new HashMap<>();
+		model.put("chapter", e.getChapter());
+		return new ModelAndView("series/chapter/forbidden",model);
 	}
 }

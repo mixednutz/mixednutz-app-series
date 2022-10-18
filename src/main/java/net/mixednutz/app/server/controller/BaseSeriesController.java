@@ -15,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MultipartFile;
 
+import net.mixednutz.app.server.controller.exception.ForbiddenExceptions.SeriesForbiddenException;
 import net.mixednutz.app.server.controller.exception.ResourceMovedPermanentlyException;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
 import net.mixednutz.app.server.controller.exception.UserNotFoundException;
@@ -116,7 +117,7 @@ public class BaseSeriesController {
 			throw new AuthenticationCredentialsNotFoundException("This is not a public journal.");
 		} else if (auth!=null) {
 			if (!seriesManager.isVisible(series, (User) auth.getPrincipal())) {
-				throw new AccessDeniedException("User does not have permission to view this series.");
+				throw new SeriesForbiddenException(series, "User does not have permission to view this series.");
 			}
 		}
 		
@@ -316,5 +317,5 @@ public class BaseSeriesController {
 	public String handleException(final ResourceMovedPermanentlyException e) {
 	    return "redirect:"+e.getRedirectUri();
 	}
-	
+		
 }

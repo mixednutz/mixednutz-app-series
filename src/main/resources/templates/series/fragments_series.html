@@ -452,6 +452,30 @@
 		 
 	</div>
 	
+	<div th:fragment="forbidden">
+		<!-- Series Post --> 
+		
+        <!-- Title -->
+        <h1 itemprop="name" th:text="${series.title}">Series Title</h1>
+
+        <!-- Author -->
+        <p class="lead">
+            by <a th:if="${series.author!=null}" th:href='@{|/${series.author.username}|}' href="#" th:text="${series.author.username}">Author</a><span th:if="${series.author==null}">Former Member</span> 
+        </p>
+        
+        <hr/>
+        
+        <!-- Date/Time --> 
+        <p>
+        	<span class="glyphicon glyphicon-time"></span> Posted on <time th:datetime="${#temporals.formatISO(series.datePublished)}" th:text="${#temporals.format(series.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
+        </p>
+
+		<h2>Forbidden</h2>
+        
+        <p>Sorry, you do not have permission to view this series.</p>
+		 
+	</div>
+	
 	<div th:fragment="recentPosts (posts)">
 		<ul class="list-group">
 			<li th:each="recentPost : ${posts}" class="list-group-item">

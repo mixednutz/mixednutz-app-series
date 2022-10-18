@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en"
+	  xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+	<meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta http-equiv="Content-Language" content="en" />
+        
+	<title th:text="@{|${chapter.series.title} - ${chapter.title} : #{site.title}|}">MixedNutz.net</title>
+	<meta property="og:title" th:content="@{|${chapter.series.title} - ${chapter.title} : #{site.title}|}" content="MixedNutz.net"/>
+	<meta name="twitter:title" th:content="@{|${chapter.series.title} - ${chapter.title} : #{site.title}|}" content="MixedNutz.net"/>
+	
+	<meta name="author" th:if="${chapter.author!=null}" th:content="${chapter.author.username}"/>
+	<!-- link rel="author" href="https://plus.google.com/[YOUR PERSONAL G+ PROFILE HERE]"/-->
+	<meta th:if="${profile!=null and profile.twitterAccount!=null}" property="twitter:creator" th:content="@{|@${profile.twitterAccount.username}}" content="@username" />
+	
+	<meta name="description" th:content="${chapter.series.description}"/>
+    <meta property="og:description" th:content="${chapter.series.description}"/>
+    <meta name="twitter:description" th:content="${chapter.series.description}"/>
+    
+    <meta property="og:type" content="book"/>
+         
+	<!-- Bootstrap Core CSS -->
+	<link th:href="@{|/webjars/bootstrap/css/bootstrap.min.css|}" rel="stylesheet"/>
+	
+	<!-- Bootstrap Modal CSS -->
+	<link th:href="@{|/webjars/bootstrap-modal/css/bootstrap-modal-bs3patch.css|}" rel="stylesheet"/>
+	<link th:href="@{|/webjars/bootstrap-modal/css/bootstrap-modal.css|}" rel="stylesheet"/>
+	
+	<link th:href="@{|/webjars/github-com-skywalkapps-bootstrap-notifications/1.0.3/dist/stylesheets/bootstrap-notifications.min.css|}" rel="stylesheet" type="text/css" />
+	
+	<!-- Mixednutz CSS -->
+	<link th:href="@{|/css/forms.css|}" href="../css/forms.css" rel="stylesheet" type="text/css" />
+	<link th:href="@{|/css/series.css|}" href="../css/series.css" rel="stylesheet" type="text/css" />
+	<link th:href="@{|/css/default_theme.css|}" href="../css/default_theme.css" rel="stylesheet" type="text/css" />
+	
+	<!-- Custom Fonts -->
+	<link th:href="@{|/webjars/font-awesome/css/all.css|}" rel="stylesheet" type="text/css" />
+	  		
+  	<meta name="_csrf" th:content="${_csrf.token}"/>
+	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+	
+	<th:block th:if="${!chapter.hasExplictSexualContent}">
+	<script  th:replace="google_adsense :: tracking"></script>
+	</th:block>
+</head>
+<body>
+
+	<!-- Banner -->
+	<div th:replace="header :: navbar_error">navbar</div>
+	
+	<div class="container">
+	
+		
+
+        <div class="row">
+
+            <!-- Blog Post Content Column -->
+            <div class="col-lg-8" th:include="series/chapter/fragments_chapter :: forbidden">
+			chapter Template Here
+            </div>
+
+
+        </div>
+        <!-- /.row -->
+
+        <hr/>
+
+        <!-- Footer -->
+        <footer th:include="footer :: footer">
+            footer
+        </footer>
+
+    </div>
+	
+	<!-- JQuery 
+	================================================== -->
+	<script th:src="@{|/webjars/jquery/jquery.min.js|}"></script>
+	<script th:include="header :: navbar_js"></script>
+	
+	<!-- JQuery HotKeys
+	================================================== -->
+	<script th:src="@{|/webjars/jQuery.Hotkeys/jquery.hotkeys.js|}"></script>
+	
+	<!-- Bootstrap WYSIWYG
+	================================================== -->
+	<script th:src="@{|/webjars/bootstrap-wysiwyg-steveathon/js/bootstrap-wysiwyg.min.js|}"></script>
+	
+	<!-- Bootstrap core JavaScript
+    ================================================== -->
+    <script th:src="@{|/webjars/bootstrap/js/bootstrap.min.js|}"></script> 
+    
+    <!-- Bootstrap Modal JavaScript
+    ================================================== -->
+    <script th:src="@{|/webjars/bootstrap-modal/js/bootstrap-modalmanager.js|}"></script>
+    <script th:src="@{|/webjars/bootstrap-modal/js/bootstrap-modal.js|}"></script>
+    
+    <!-- My JavaScript 
+    ================================================== -->
+	<script th:replace="header :: navbar_js"></script>
+	
+	<!-- Google Analytics JavaScript 
+ 	================================================== -->
+    <script async th:src="@{|https://www.googletagmanager.com/gtag/js?id=#{google.analytics.trackingId}|}"></script>
+    <script th:replace="google_analytics :: tracking"></script>
+    
+    <!-- Twitter Web Intent Handler JavaScript 
+ 	================================================== -->
+    <script type="text/javascript" async="async" src="https://platform.twitter.com/widgets.js"></script>
+</body>
+</html>

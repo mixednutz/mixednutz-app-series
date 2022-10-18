@@ -284,6 +284,30 @@
          
 	</div>
 	
+	<div th:fragment="forbidden">
+		<!-- Chapter Post --> 
+		
+        <!-- Title -->
+        <h1 itemprop="name" th:text="${chapter.title}">Chapter Title</h1>
+        
+        <!-- Author -->
+        <p class="lead">
+            <a th:href="@{|${chapter.series.uri}|}" th:text="${chapter.series.title}">series title</a> by <a th:if="${chapter.series.author!=null}" th:href='@{|/${chapter.author.username}|}' href="#" th:text="${chapter.author.username}">Author</a><span th:if="${chapter.author==null}">Former Member</span> 
+        </p>
+        
+        <hr/>
+
+        <!-- Date/Time --> 
+        <p>
+        	<span th:if="${chapter.datePublished!=null}"><span class="glyphicon glyphicon-time"></span> Posted on <time th:datetime="${#temporals.formatISO(chapter.datePublished)}" th:text="${#temporals.format(chapter.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time></span>
+        	<span th:if="${chapter.datePublished==null && chapter.scheduled!=null}"><span class="glyphicon glyphicon-time"></span> <span class="scheduled">Scheduled for</span> <time th:datetime="${#temporals.formatISO(chapter.scheduled.publishDate)}" th:text="${#temporals.format(chapter.scheduled.publishDate, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time></span>
+        </p>
+        
+        <h2>Forbidden</h2>
+        
+        <p>Sorry, you do not have permission to view this chapter.</p>
+	</div>
+	
 	
 	
   

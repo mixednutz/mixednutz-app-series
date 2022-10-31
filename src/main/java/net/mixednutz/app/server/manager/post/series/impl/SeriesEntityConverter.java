@@ -29,7 +29,7 @@ import net.mixednutz.api.core.model.ReactionCount;
 import net.mixednutz.app.server.entity.InternalTimelineElement;
 import net.mixednutz.app.server.entity.InternalTimelineElement.Type;
 import net.mixednutz.app.server.entity.Oembeds.Oembed;
-import net.mixednutz.app.server.entity.Oembeds.OembedLink;
+import net.mixednutz.app.server.entity.Oembeds.OembedRich;
 import net.mixednutz.app.server.entity.ReactionScore;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
@@ -44,8 +44,10 @@ import net.mixednutz.app.server.repository.UserRepository;
 public class SeriesEntityConverter implements ApiElementConverter<Series> {
 
 	private static final Pattern SERIES_PATTERN_REST=Pattern.compile(
-			"^\\/(?<username>.*)\\/series\\/(?<id>[0-9]*)\\/(?<subjectKey>[^\\\\w]*)\\z", 
+			"^\\/(?<username>.*)\\/series\\/(?<id>[0-9]*)\\/(?<subjectKey>[^\\s]*)\\z", 
 			Pattern.CASE_INSENSITIVE);
+	
+	private static final String EMBED_BASE_URL = "/embed";
 	
 	private static final String TYPE_NAME = "Series";
 
@@ -151,7 +153,7 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 
 			Optional<Series> series = get(username, id);
 			if (series.isPresent()) {
-				return toOembedLink(series.get(), baseUrl);
+				return toOembedRich(series.get(), baseUrl, maxwidth, maxheight);
 			}
 		}
 		return null;
@@ -172,17 +174,37 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 		return Optional.empty();
 	}
 	
-	private OembedLink toOembedLink(Series series, String baseUrl) {
-		OembedLink link = new OembedLink();
-		link.setTitle(series.getTitle()+" : "+accessor.getMessage("site.title"));
-		link.setAuthorName(series.getAuthor().getUsername());
-		if (series.getCoverFilename()!=null) {
-			link.setThumbnailUrl(baseUrl+series.getCoverUri()+"?size="+Size.BOOK.getSize());
-			link.setThumbnailWidth(250);
-			link.setThumbnailHeight(400);
-		}
+//	private OembedLink toOembedLink(Series series, String baseUrl) {
+//		OembedLink link = new OembedLink();
+//		link.setTitle(series.getTitle()+" : "+accessor.getMessage("site.title"));
+//		link.setAuthorName(series.getAuthor().getUsername());
+//		if (series.getCoverFilename()!=null) {
+//			link.setThumbnailUrl(baseUrl+series.getCoverUri()+"?size="+Size.BOOK.getSize());
+//			link.setThumbnailWidth(250);
+//			link.setThumbnailHeight(400);
+//		}
+//		
+//		return link;
+//	}
+	
+	private OembedRich toOembedRich(Series series, String baseUrl,
+			int maxwidth, int maxheight) {
+		int height = (maxheight > 270 || maxheight <=0) ? 270 : maxheight;
+		int width = (maxwidth > 658 || maxwidth <= 0) ? 658 : maxwidth;
 		
-		return link;
+		OembedRich rich = new OembedRich();
+		rich.setTitle(series.getTitle()+" : "+accessor.getMessage("site.title"));
+		rich.setAuthorName(series.getAuthor().getUsername());
+		rich.setWidth(width);
+		rich.setHeight(height);
+		StringBuffer html = new StringBuffer();
+		html.append("<iframe");
+		html.append(" height=\""+height+"\"");
+		html.append(" src=\""+networkInfo.getBaseUrl()+EMBED_BASE_URL+series.getUri()+"\"");
+		html.append(" style=\"max-width: "+width+"px; width: calc(100% - 2px);\"");
+		html.append(" frameborder=\"0\"></iframe>");
+		rich.setHtml(html.toString());
+		return rich;
 	}
 	
 	public Channel toRssChannel(Series series, String baseUrl) {

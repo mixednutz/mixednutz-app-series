@@ -21,6 +21,7 @@ import com.rometools.rome.feed.rss.Description;
 import com.rometools.rome.feed.rss.Item;
 
 import net.mixednutz.api.core.model.Action;
+import net.mixednutz.api.core.model.Image;
 import net.mixednutz.api.core.model.Link;
 import net.mixednutz.api.core.model.NetworkInfo;
 import net.mixednutz.api.core.model.TagCount;
@@ -75,16 +76,25 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 				networkInfo.getHostName(),
 				networkInfo.getId()+"_"+TYPE_NAME));
 		api.setId(entity.getId());
-		api.setTitle(entity.getSeries().getTitle()+" - "+entity.getTitle());
 		
+		api.setTitle(entity.getSeries().getTitle());
+		api.setDescription(entity.getSeries().getDescription());
+		api.setLatestSuburi(entity.getUri());
+		api.setLatestSuburl(baseUrl+entity.getUri());
+		api.setLatestSubtitle(entity.getTitle());
+		api.setLatestSubdescription(entity.getDescription());
+		
+		if (entity.getSeries().getCoverFilename()!=null) {
+			api.getAdditionalData().put("cover", new Image(
+					baseUrl+entity.getSeries().getCoverUri()+"?size="+Size.BOOK.getSize(), entity.getTitle()+" book cover"));
+		}
 		if (entity.getSeries().getTags()!=null) {
 			setTagCounts(api, tagManager.getTagScores(
 					entity.getSeries().getTags(), entity.getAuthor(), viewer));
 		}
-		
 		return api;
 	}
-	
+		
 	protected void setTagCounts(InternalTimelineElement api, Iterable<TagScore> tagScores) {
 		List<TagCount> tags = new ArrayList<>();
 		for (TagScore tag : tagScores) {

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -19,9 +20,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import net.mixednutz.api.activitypub.ActivityPubManager;
 import net.mixednutz.app.server.controller.BaseChapterController;
 import net.mixednutz.app.server.controller.exception.ForbiddenExceptions.ChapterForbiddenException;
 import net.mixednutz.app.server.entity.User;
@@ -33,7 +36,9 @@ import net.mixednutz.app.server.entity.post.series.Series;
 @Controller
 public class ChapterController extends BaseChapterController {
 
-
+	@Autowired
+	private ActivityPubManager activityPubManager;
+	
 	//------------
 	// View Mappings
 	//------------
@@ -68,6 +73,17 @@ public class ChapterController extends BaseChapterController {
 		}
 		
 		return "series/chapter/view";
+	}
+	
+	@RequestMapping(
+			value="/activitypub/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}", 
+			method = {RequestMethod.GET,RequestMethod.HEAD})
+	public @ResponseBody org.w3c.activitystreams.Object getChapterActivity(@PathVariable String username, 
+			@PathVariable Long seriesId, @PathVariable String seriesTitleKey, 
+			@PathVariable Long id, @PathVariable String titleKey, 
+			@AuthenticationPrincipal final User user) {
+		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
+		return activityPubManager.toNote(apiManager.toTimelineElement(chapter, user), chapter.getVisibility(), true);
 	}
 
 	//------------

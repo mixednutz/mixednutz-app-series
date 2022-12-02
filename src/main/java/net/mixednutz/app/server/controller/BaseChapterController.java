@@ -102,7 +102,7 @@ public class BaseChapterController {
 	private ExternalFeedManager externalFeedManager;
 	
 	@Autowired
-	private ApiManager apiManager;
+	protected ApiManager apiManager;
 	
 	protected Chapter get(String username, 
 			Long seriesId, String seriesTitleKey, 

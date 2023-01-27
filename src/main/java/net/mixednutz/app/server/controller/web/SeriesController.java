@@ -38,9 +38,10 @@ import org.springframework.web.servlet.View;
 
 import com.rometools.rome.feed.rss.Channel;
 
+import net.mixednutz.api.activitypub.ActivityPubManager;
 import net.mixednutz.app.server.controller.BaseSeriesController;
-import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
 import net.mixednutz.app.server.controller.exception.ForbiddenExceptions.SeriesForbiddenException;
+import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.Series;
@@ -66,6 +67,9 @@ public class SeriesController extends BaseSeriesController {
 	
 	@Autowired
 	private SeriesEntityConverter seriesEntityConverter;
+	
+	@Autowired
+	private ActivityPubManager activityPubManager;
 	
 	@Autowired
 	private HttpServletRequest request;
@@ -123,6 +127,18 @@ public class SeriesController extends BaseSeriesController {
 		Series series = get(username, id, titleKey);
 		
 		return toChannel(series);
+	}
+	
+	@RequestMapping(value="/activitypub/{username}/series/{id}/{titleKey}/review/{commentId}", method = RequestMethod.GET)
+	public @ResponseBody org.w3c.activitystreams.Object getSeriesReviewActivity(
+			@PathVariable String username, 
+			@PathVariable Long id, @PathVariable String titleKey, 
+			@PathVariable long commentId,
+			@AuthenticationPrincipal final User user) {
+		final Series series = get(username, id, titleKey);
+		final SeriesReview comment = get(series, commentId);
+		
+		return activityPubManager.toNote(apiManager.toTimelineElement(comment, user), series.getVisibility(), true);
 	}
 	
 	@RequestMapping(value="/series"+COVERS_STORAGE_MAPPING, method = RequestMethod.GET)

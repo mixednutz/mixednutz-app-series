@@ -85,6 +85,17 @@ public class ChapterController extends BaseChapterController {
 		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
 		return activityPubManager.toNote(apiManager.toTimelineElement(chapter, user), chapter.getVisibility(), true);
 	}
+	
+	@RequestMapping(value="/activitypub/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}/comment/{commentId}", method = RequestMethod.GET)
+	public @ResponseBody org.w3c.activitystreams.Object getChapterCommentActivity(@PathVariable String username, 
+			@PathVariable Long seriesId, @PathVariable String seriesTitleKey, 
+			@PathVariable Long id, @PathVariable String titleKey, 
+			@PathVariable long commentId,
+			@AuthenticationPrincipal final User user) {
+		final Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
+		final ChapterComment comment = get(chapter, commentId);
+		return activityPubManager.toNote(apiManager.toTimelineElement(comment, user), chapter.getVisibility(), true);
+	}
 
 	//------------
 	// Insert Mappings

@@ -384,6 +384,7 @@ public class BaseChapterController {
 	protected ChapterComment saveComment(ChapterComment form, Chapter chapter, User user) {
 		form.setChapter(chapter);
 		form.setAuthor(user);
+		form.setAuthorId(user.getUserId());
 		
 		ChapterComment comment = chapterCommentRepository.save(form);
 		notificationManager.notifyNewComment(chapter, comment);

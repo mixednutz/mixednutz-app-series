@@ -294,6 +294,7 @@ public class BaseSeriesController {
 	protected SeriesReview saveComment(SeriesReview form, Series series, User user) {
 		form.setSeries(series);
 		form.setAuthor(user);
+		form.setAuthorId(user.getUserId());
 		
 		SeriesReview review = seriesReviewRepository.save(form);
 		notificationManager.notifyNewComment(series, review);

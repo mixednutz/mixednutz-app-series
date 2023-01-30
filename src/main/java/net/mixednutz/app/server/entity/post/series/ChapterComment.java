@@ -47,6 +47,11 @@ public class ChapterComment extends AbstractPostComment {
 		return chapter.getUri()+"#"+getCommentId();
 	}
 
+	@Transient
+	public String getUriNoAnchor() {
+		return chapter.getUri()+"/comment/"+getCommentId();
+	}
+
 	@Override
 	public <P extends Post<C>, C extends PostComment> void setPost(P post) {
 		this.chapter = (Chapter) post;

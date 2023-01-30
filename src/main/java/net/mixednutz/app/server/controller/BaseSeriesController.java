@@ -31,6 +31,7 @@ import net.mixednutz.app.server.format.HtmlFilter;
 import net.mixednutz.app.server.io.domain.PersistableMultipartFile;
 import net.mixednutz.app.server.io.manager.PhotoUploadManager;
 import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
+import net.mixednutz.app.server.manager.ApiManager;
 import net.mixednutz.app.server.manager.NotificationManager;
 import net.mixednutz.app.server.manager.TagManager;
 import net.mixednutz.app.server.manager.post.series.SeriesManager;
@@ -77,6 +78,8 @@ public class BaseSeriesController {
 	@Autowired
 	private List<HtmlFilter> htmlFilters;
 	
+	@Autowired
+	protected ApiManager apiManager;
 	
 	protected Series get(String username, Long id, String titleKey) {
 		User profileUser = userRepository.findByUsername(username)
@@ -99,6 +102,14 @@ public class BaseSeriesController {
 					series.getUri());
 		}
 		return series;
+	}
+	
+	protected SeriesReview get(Series series, long commentId) {
+		return series.getComments()
+			.stream()
+			.filter(comment->comment.getCommentId().equals(commentId))
+			.findAny()
+			.orElseThrow(()->new ResourceNotFoundException("Comment not found"));
 	}
 	
 	protected Series get(Long id) {
@@ -294,6 +305,7 @@ public class BaseSeriesController {
 	protected SeriesReview saveComment(SeriesReview form, Series series, User user) {
 		form.setSeries(series);
 		form.setAuthor(user);
+		form.setAuthorId(user.getUserId());
 		
 		SeriesReview review = seriesReviewRepository.save(form);
 		notificationManager.notifyNewComment(series, review);

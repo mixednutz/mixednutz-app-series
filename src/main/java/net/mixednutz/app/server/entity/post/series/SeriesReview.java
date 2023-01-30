@@ -47,6 +47,11 @@ public class SeriesReview extends AbstractPostComment {
 		return series.getUri()+"#"+getCommentId();
 	}
 
+	@Transient
+	public String getUriNoAnchor() {
+		return series.getUri()+"/review/"+getCommentId();
+	}
+
 	@Override
 	public <P extends Post<C>, C extends PostComment> void setPost(P post) {
 		this.series = (Series) post;

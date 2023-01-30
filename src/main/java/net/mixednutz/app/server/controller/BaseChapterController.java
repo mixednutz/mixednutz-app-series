@@ -136,6 +136,14 @@ public class BaseChapterController {
 		return chapter;
 	}
 	
+	protected ChapterComment get(Chapter chapter, long commentId) {
+		return chapter.getComments()
+			.stream()
+			.filter(comment->comment.getCommentId().equals(commentId))
+			.findAny()
+			.orElseThrow(()->new ResourceNotFoundException("Comment not found"));
+	}
+	
 	protected String getChapter(final Chapter chapter, Authentication auth, Model model) {		
 		
 		//TODO Add check to see if this a Draft/Unpublished
@@ -384,6 +392,7 @@ public class BaseChapterController {
 	protected ChapterComment saveComment(ChapterComment form, Chapter chapter, User user) {
 		form.setChapter(chapter);
 		form.setAuthor(user);
+		form.setAuthorId(user.getUserId());
 		
 		ChapterComment comment = chapterCommentRepository.save(form);
 		notificationManager.notifyNewComment(chapter, comment);

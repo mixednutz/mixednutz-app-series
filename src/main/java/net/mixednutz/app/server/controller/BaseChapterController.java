@@ -400,6 +400,10 @@ public class BaseChapterController {
 		return comment;
 	}
 	
+	protected ChapterComment updateComment(ChapterComment comment) {
+		return chapterCommentRepository.save(comment);
+	}
+	
 	@ExceptionHandler(ResourceMovedPermanentlyException.class)
 	public String handleException(final ResourceMovedPermanentlyException e) {
 	    return "redirect:"+e.getRedirectUri();

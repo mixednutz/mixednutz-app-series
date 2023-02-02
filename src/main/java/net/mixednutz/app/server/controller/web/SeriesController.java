@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,7 +44,6 @@ import net.mixednutz.app.server.controller.BaseSeriesController;
 import net.mixednutz.app.server.controller.exception.ForbiddenExceptions.SeriesForbiddenException;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
 import net.mixednutz.app.server.entity.User;
-import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesFactory;
 import net.mixednutz.app.server.entity.post.series.SeriesReview;
@@ -257,7 +257,7 @@ public class SeriesController extends BaseSeriesController {
 	}
 	
 	@RequestMapping(value="/{username}/series/{seriesId}/{titleKey}/comment/{inReplyToId}/reply", method = RequestMethod.POST, params="submit")
-	public String commentReply(@ModelAttribute(ChapterFactory.MODEL_ATTRIBUTE_COMMENT) SeriesReview review, 
+	public String commentReply(@ModelAttribute(SeriesFactory.MODEL_ATTRIBUTE_COMMENT) SeriesReview review, 
 			@PathVariable String username, 
 			@PathVariable Long seriesId, @PathVariable String titleKey,
 			@PathVariable Long inReplyToId,
@@ -274,6 +274,29 @@ public class SeriesController extends BaseSeriesController {
 				
 		return "redirect:"+review.getUri();
 	}
+	
+	@RequestMapping(value="/{username}/series/{seriesId}/{titleKey}/comment/{commentId}", method = RequestMethod.POST, params="submit")
+	public String commentEdit(@ModelAttribute(SeriesFactory.MODEL_ATTRIBUTE_COMMENT) SeriesReview review, 
+			@PathVariable String username, 
+			@PathVariable Long seriesId, @PathVariable String titleKey,
+			@PathVariable Long commentId,
+			@AuthenticationPrincipal User user, Model model, Errors errors) {
+		if (user==null) {
+			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
+		}
+		
+		Series series = get(username, seriesId, titleKey);
+		SeriesReview existingReview = get(series, commentId);
+		if (!existingReview.getAuthor().equals(user)) {
+			throw new AccessDeniedException("Review #"+commentId+" - That's not yours to edit!");
+		}
+		
+		existingReview.setBody(review.getBody());
+		review = updateComment(existingReview);
+				
+		return "redirect:"+review.getUri();
+	}
+	
 	
 	private String getBaseUrl() {
 		try {

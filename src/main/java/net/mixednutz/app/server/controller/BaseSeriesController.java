@@ -313,6 +313,10 @@ public class BaseSeriesController {
 		return review;
 	}
 	
+	protected SeriesReview updateComment(SeriesReview review) {
+		return seriesReviewRepository.save(review);
+	}
+	
 	private String uploadPhoto(User user, MultipartFile file) {
 		PersistableMultipartFile pFile = new PersistableMultipartFile();
 		pFile.setFile(file);

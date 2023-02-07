@@ -40,6 +40,7 @@ public class ChapterController extends BaseChapterController {
 	@Autowired
 	private ActivityPubManager activityPubManager;
 	
+	
 	//------------
 	// View Mappings
 	//------------
@@ -84,7 +85,10 @@ public class ChapterController extends BaseChapterController {
 			@PathVariable Long id, @PathVariable String titleKey, 
 			@AuthenticationPrincipal final User user) {
 		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
-		return activityPubManager.toNote(apiManager.toTimelineElement(chapter, user), chapter.getVisibility(), true);
+		
+		return activityPubManager.toNote(apiManager.toTimelineElement(chapter, user), 
+				chapter.getAuthor().getUsername(),
+				chapter.getVisibility(), true);
 	}
 	
 	@RequestMapping(value="/activitypub/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}/comment/{commentId}", method = RequestMethod.GET)
@@ -95,7 +99,9 @@ public class ChapterController extends BaseChapterController {
 			@AuthenticationPrincipal final User user) {
 		final Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
 		final ChapterComment comment = get(chapter, commentId);
-		return activityPubManager.toNote(apiManager.toTimelineElement(comment, user), chapter.getVisibility(), true);
+		return activityPubManager.toNote(apiManager.toTimelineElement(comment, user), 
+				comment.getAuthor().getUsername(),
+				chapter.getVisibility(), true);
 	}
 
 	//------------

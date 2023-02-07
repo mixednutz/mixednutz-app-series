@@ -138,7 +138,9 @@ public class SeriesController extends BaseSeriesController {
 		final Series series = get(username, id, titleKey);
 		final SeriesReview comment = get(series, commentId);
 		
-		return activityPubManager.toNote(apiManager.toTimelineElement(comment, user), series.getVisibility(), true);
+		return activityPubManager.toNote(apiManager.toTimelineElement(comment, user), 
+				comment.getAuthor().getUsername(),
+				series.getVisibility(), true);
 	}
 	
 	@RequestMapping(value="/series"+COVERS_STORAGE_MAPPING, method = RequestMethod.GET)

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.servlet.ModelAndView;
+import org.w3c.activitystreams.model.ActivityImpl;
 
 import net.mixednutz.api.activitypub.ActivityPubManager;
 import net.mixednutz.app.server.controller.BaseChapterController;
@@ -79,29 +80,31 @@ public class ChapterController extends BaseChapterController {
 	
 	@RequestMapping(
 			value="/activitypub/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}", 
-			method = {RequestMethod.GET,RequestMethod.HEAD})
+			method = {RequestMethod.GET,RequestMethod.HEAD},
+			produces=ActivityImpl.APPLICATION_ACTIVITY_VALUE)
 	public @ResponseBody org.w3c.activitystreams.Object getChapterActivity(@PathVariable String username, 
 			@PathVariable Long seriesId, @PathVariable String seriesTitleKey, 
-			@PathVariable Long id, @PathVariable String titleKey, 
-			@AuthenticationPrincipal final User user) {
-		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
+			@PathVariable Long id, @PathVariable String titleKey,
+			Authentication auth) {
 		
-		return activityPubManager.toNote(apiManager.toTimelineElement(chapter, user), 
-				chapter.getAuthor().getUsername(),
-				chapter.getVisibility(), true);
+		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
+		assertVisibility(chapter, auth);
+		
+		return activityPubManager.toNote(apiManager.toTimelineElement(chapter, null), 
+				chapter.getAuthor().getUsername(),true);
 	}
 	
-	@RequestMapping(value="/activitypub/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}/comment/{commentId}", method = RequestMethod.GET)
+	@RequestMapping(value="/activitypub/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}/comment/{commentId}", 
+			method = RequestMethod.GET,
+			produces=ActivityImpl.APPLICATION_ACTIVITY_VALUE)
 	public @ResponseBody org.w3c.activitystreams.Object getChapterCommentActivity(@PathVariable String username, 
 			@PathVariable Long seriesId, @PathVariable String seriesTitleKey, 
 			@PathVariable Long id, @PathVariable String titleKey, 
-			@PathVariable long commentId,
-			@AuthenticationPrincipal final User user) {
+			@PathVariable long commentId) {
 		final Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
 		final ChapterComment comment = get(chapter, commentId);
-		return activityPubManager.toNote(apiManager.toTimelineElement(comment, user), 
-				comment.getAuthor().getUsername(),
-				chapter.getVisibility(), true);
+		return activityPubManager.toNote(apiManager.toTimelineElement(comment, null), 
+				comment.getAuthor().getUsername(), true);
 	}
 
 	//------------

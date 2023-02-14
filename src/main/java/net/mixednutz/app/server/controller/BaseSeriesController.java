@@ -122,7 +122,7 @@ public class BaseSeriesController {
 			});
 	}
 	
-	protected String getSeries(final Series series, Authentication auth, Model model) {		
+	protected void assertVisibility(final Series series, Authentication auth) {
 		if (auth==null &&
 				!VisibilityType.WORLD.equals(series.getVisibility().getVisibilityType())) {
 			throw new AuthenticationCredentialsNotFoundException("This is not a public journal.");
@@ -131,6 +131,10 @@ public class BaseSeriesController {
 				throw new SeriesForbiddenException(series, "User does not have permission to view this series.");
 			}
 		}
+	}
+	
+	protected String getSeries(final Series series, Authentication auth, Model model) {		
+		assertVisibility(series, auth);
 		
 		model.addAttribute("series", series);
 		User user = auth!=null?(User) auth.getPrincipal():null;

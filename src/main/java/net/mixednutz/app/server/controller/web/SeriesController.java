@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
+import org.w3c.activitystreams.model.ActivityImpl;
 
 import com.rometools.rome.feed.rss.Channel;
 
@@ -129,18 +130,18 @@ public class SeriesController extends BaseSeriesController {
 		return toChannel(series);
 	}
 	
-	@RequestMapping(value="/activitypub/{username}/series/{id}/{titleKey}/review/{commentId}", method = RequestMethod.GET)
+	@RequestMapping(value="/activitypub/{username}/series/{id}/{titleKey}/review/{commentId}", 
+			method = RequestMethod.GET,
+			produces=ActivityImpl.APPLICATION_ACTIVITY_VALUE)
 	public @ResponseBody org.w3c.activitystreams.Object getSeriesReviewActivity(
 			@PathVariable String username, 
 			@PathVariable Long id, @PathVariable String titleKey, 
-			@PathVariable long commentId,
-			@AuthenticationPrincipal final User user) {
+			@PathVariable long commentId) {
 		final Series series = get(username, id, titleKey);
 		final SeriesReview comment = get(series, commentId);
 		
-		return activityPubManager.toNote(apiManager.toTimelineElement(comment, user), 
-				comment.getAuthor().getUsername(),
-				series.getVisibility(), true);
+		return activityPubManager.toNote(apiManager.toTimelineElement(comment, null), 
+				comment.getAuthor().getUsername(), true);
 	}
 	
 	@RequestMapping(value="/series"+COVERS_STORAGE_MAPPING, method = RequestMethod.GET)

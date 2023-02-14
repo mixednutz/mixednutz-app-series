@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import net.mixednutz.app.server.controller.exception.ForbiddenExceptions.ChapterForbiddenException;
+import net.mixednutz.api.activitypub.ActivityPubManager;
+import net.mixednutz.api.activitypub.client.ActivityPubClientManager;
 import net.mixednutz.app.server.controller.exception.ResourceMovedPermanentlyException;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
 import net.mixednutz.app.server.controller.exception.UserNotFoundException;
@@ -104,6 +106,11 @@ public class BaseChapterController {
 	@Autowired
 	protected ApiManager apiManager;
 	
+	@Autowired
+	protected ActivityPubManager activityPubManager;
+	@Autowired
+	protected ActivityPubClientManager activityPubClient;
+	
 	protected Chapter get(String username, 
 			Long seriesId, String seriesTitleKey, 
 			Long id, String titleKey) {
@@ -144,9 +151,7 @@ public class BaseChapterController {
 			.orElseThrow(()->new ResourceNotFoundException("Comment not found"));
 	}
 	
-	protected String getChapter(final Chapter chapter, Authentication auth, Model model) {		
-		
-		//TODO Add check to see if this a Draft/Unpublished
+	protected void assertVisibility(final Chapter chapter, Authentication auth) {
 		if (auth==null &&
 				!VisibilityType.WORLD.equals(chapter.getVisibility().getVisibilityType())) {
 			throw new AuthenticationCredentialsNotFoundException("This is not a public chapter.");
@@ -156,6 +161,12 @@ public class BaseChapterController {
 				throw new ChapterForbiddenException(chapter, "User does not have permission to view this chapter.");
 			}
 		}
+	}
+	
+	protected String getChapter(final Chapter chapter, Authentication auth, Model model) {		
+		
+		//TODO Add check to see if this a Draft/Unpublished
+		assertVisibility(chapter, auth);
 		
 		User user = auth!=null?(User) auth.getPrincipal():null;
 		
@@ -280,6 +291,12 @@ public class BaseChapterController {
 		//Feed Actions
 		if (chapter.getScheduled()==null) {
 			InternalTimelineElement exportableEntity = apiManager.toTimelineElement(chapter, null);
+			
+			activityPubClient.sendActivity(user, activityPubManager.toCreate(
+					exportableEntity,
+					activityPubManager.toNote(exportableEntity, chapter.getAuthor().getUsername(), false),
+					chapter.getAuthor().getUsername()));
+			
 			if (externalFeedId!=null) {
 				for (Long feedId: externalFeedId) {
 					AbstractFeed feed= externalFeedRepository.findById(feedId).get();

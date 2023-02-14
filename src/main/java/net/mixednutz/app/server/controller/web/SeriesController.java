@@ -130,10 +130,10 @@ public class SeriesController extends BaseSeriesController {
 		return toChannel(series);
 	}
 	
-	@RequestMapping(value="/activitypub/{username}/series/{id}/{titleKey}/review/{commentId}", 
+	@RequestMapping(value=ActivityPubManager.NOTE_URI_PREFIX+"/{username}/series/{id}/{titleKey}/review/{commentId}", 
 			method = RequestMethod.GET,
 			produces=ActivityImpl.APPLICATION_ACTIVITY_VALUE)
-	public @ResponseBody org.w3c.activitystreams.Object getSeriesReviewActivity(
+	public @ResponseBody org.w3c.activitystreams.Object getSeriesReviewActivityNote(
 			@PathVariable String username, 
 			@PathVariable Long id, @PathVariable String titleKey, 
 			@PathVariable long commentId) {
@@ -142,6 +142,19 @@ public class SeriesController extends BaseSeriesController {
 		
 		return activityPubManager.toNote(apiManager.toTimelineElement(comment, null), 
 				comment.getAuthor().getUsername(), true);
+	}
+	@RequestMapping(value=ActivityPubManager.CREATE_URI_PREFIX+"/{username}/series/{id}/{titleKey}/review/{commentId}", 
+			method = RequestMethod.GET,
+			produces=ActivityImpl.APPLICATION_ACTIVITY_VALUE)
+	public @ResponseBody org.w3c.activitystreams.Object getSeriesReviewActivityCreate(
+			@PathVariable String username, 
+			@PathVariable Long id, @PathVariable String titleKey, 
+			@PathVariable long commentId) {
+		final Series series = get(username, id, titleKey);
+		final SeriesReview comment = get(series, commentId);
+		
+		return activityPubManager.toCreateNote(apiManager.toTimelineElement(comment, null), 
+				comment.getAuthor().getUsername());
 	}
 	
 	@RequestMapping(value="/series"+COVERS_STORAGE_MAPPING, method = RequestMethod.GET)

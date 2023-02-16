@@ -79,10 +79,10 @@ public class ChapterController extends BaseChapterController {
 	}
 	
 	@RequestMapping(
-			value="/activitypub/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}", 
+			value=ActivityPubManager.NOTE_URI_PREFIX+"/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}", 
 			method = {RequestMethod.GET,RequestMethod.HEAD},
 			produces=ActivityImpl.APPLICATION_ACTIVITY_VALUE)
-	public @ResponseBody org.w3c.activitystreams.Object getChapterActivity(@PathVariable String username, 
+	public @ResponseBody org.w3c.activitystreams.Object getChapterActivityNote(@PathVariable String username, 
 			@PathVariable Long seriesId, @PathVariable String seriesTitleKey, 
 			@PathVariable Long id, @PathVariable String titleKey,
 			Authentication auth) {
@@ -93,11 +93,26 @@ public class ChapterController extends BaseChapterController {
 		return activityPubManager.toNote(apiManager.toTimelineElement(chapter, null), 
 				chapter.getAuthor().getUsername(),true);
 	}
+	@RequestMapping(
+			value=ActivityPubManager.CREATE_URI_PREFIX+"/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}", 
+			method = {RequestMethod.GET,RequestMethod.HEAD},
+			produces=ActivityImpl.APPLICATION_ACTIVITY_VALUE)
+	public @ResponseBody org.w3c.activitystreams.Object getChapterActivityCreate(@PathVariable String username, 
+			@PathVariable Long seriesId, @PathVariable String seriesTitleKey, 
+			@PathVariable Long id, @PathVariable String titleKey,
+			Authentication auth) {
+		
+		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
+		assertVisibility(chapter, auth);
+		
+		return activityPubManager.toCreateNote(apiManager.toTimelineElement(chapter, null), 
+				chapter.getAuthor().getUsername());
+	}
 	
-	@RequestMapping(value="/activitypub/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}/comment/{commentId}", 
+	@RequestMapping(value=ActivityPubManager.NOTE_URI_PREFIX+"/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}/comment/{commentId}", 
 			method = RequestMethod.GET,
 			produces=ActivityImpl.APPLICATION_ACTIVITY_VALUE)
-	public @ResponseBody org.w3c.activitystreams.Object getChapterCommentActivity(@PathVariable String username, 
+	public @ResponseBody org.w3c.activitystreams.Object getChapterCommentActivityNote(@PathVariable String username, 
 			@PathVariable Long seriesId, @PathVariable String seriesTitleKey, 
 			@PathVariable Long id, @PathVariable String titleKey, 
 			@PathVariable long commentId) {
@@ -105,6 +120,18 @@ public class ChapterController extends BaseChapterController {
 		final ChapterComment comment = get(chapter, commentId);
 		return activityPubManager.toNote(apiManager.toTimelineElement(comment, null), 
 				comment.getAuthor().getUsername(), true);
+	}
+	@RequestMapping(value=ActivityPubManager.CREATE_URI_PREFIX+"/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}/comment/{commentId}", 
+			method = RequestMethod.GET,
+			produces=ActivityImpl.APPLICATION_ACTIVITY_VALUE)
+	public @ResponseBody org.w3c.activitystreams.Object getChapterCommentActivityCreate(@PathVariable String username, 
+			@PathVariable Long seriesId, @PathVariable String seriesTitleKey, 
+			@PathVariable Long id, @PathVariable String titleKey, 
+			@PathVariable long commentId) {
+		final Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
+		final ChapterComment comment = get(chapter, commentId);
+		return activityPubManager.toCreateNote(apiManager.toTimelineElement(comment, null), 
+				comment.getAuthor().getUsername());
 	}
 
 	//------------

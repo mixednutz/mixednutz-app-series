@@ -292,10 +292,8 @@ public class BaseChapterController {
 		if (chapter.getScheduled()==null) {
 			InternalTimelineElement exportableEntity = apiManager.toTimelineElement(chapter, null);
 			
-			activityPubClient.sendActivity(user, activityPubManager.toCreate(
-					exportableEntity,
-					activityPubManager.toNote(exportableEntity, chapter.getAuthor().getUsername(), false),
-					chapter.getAuthor().getUsername()));
+			activityPubClient.sendActivity(chapter.getAuthor(), activityPubManager.toCreateNote(
+					exportableEntity, chapter.getAuthor().getUsername()));
 			
 			if (externalFeedId!=null) {
 				for (Long feedId: externalFeedId) {

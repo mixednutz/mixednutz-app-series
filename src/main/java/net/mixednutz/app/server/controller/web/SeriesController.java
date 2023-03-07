@@ -169,9 +169,7 @@ public class SeriesController extends BaseSeriesController {
 		int idx = uri.indexOf(COVERS_STORAGE_DIR);
 		int beginIdx = idx+COVERS_STORAGE_DIR.length()+1;
 		String filename = uri.substring(beginIdx);
-		
-		System.out.println(filename);
-		
+				
 		Optional<Series> seriesAccount = seriesRepository.findByCoverFilename(filename);
 		if (!seriesAccount.isPresent()) {
 			throw new ResourceNotFoundException("Cover "+filename+" not found");

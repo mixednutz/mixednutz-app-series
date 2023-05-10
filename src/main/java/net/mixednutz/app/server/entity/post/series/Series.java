@@ -48,6 +48,7 @@ public class Series extends AbstractSeries<SeriesReview>
 	// Transient fields
 	private Long wordCount;
 	private Long readingTime;
+	private String filteredDescription;
 	
 	@Override
 	public void onPersist() {
@@ -192,6 +193,15 @@ public class Series extends AbstractSeries<SeriesReview>
 
 	public void setReadingTime(Long readingTime) {
 		this.readingTime = readingTime;
+	}
+	
+	@Transient
+	public String getFilteredDescription() {
+		return filteredDescription;
+	}
+
+	public void setFilteredDescription(String filteredDescription) {
+		this.filteredDescription = filteredDescription;
 	}
 	
 }

@@ -140,8 +140,12 @@ public class BaseSeriesController {
 		User user = auth!=null?(User) auth.getPrincipal():null;
 		
 		//HTML Filter
-		//TODO htmlfilter not implemented here yet
-			
+		String filteredHtml = series.getDescription();
+		for (HtmlFilter htmlFilter: htmlFilters) {
+			filteredHtml = htmlFilter.filter(filteredHtml);
+		}
+		series.setFilteredDescription(filteredHtml);
+					
 		if (user!=null) {
 			seriesManager.incrementViewCount(series, user);
 			notificationManager.markAsRead(user, series);

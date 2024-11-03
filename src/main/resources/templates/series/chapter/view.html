@@ -51,7 +51,7 @@
 	<link rel="alternate" type="application/json+oembed" 
 		th:with="seriesUrl=@{|${formatter.formatAbsoluteUrl(chapter.uri)}|}"
 		th:href="|${formatter.formatAbsoluteUrl('/oembed?url=' + seriesUrl)}|"
-  		th:title="@{|{chapter.series.title} - ${chapter.title} : #{site.title}|}"/>
+  		th:title="@{|${chapter.series.title} - ${chapter.title} : #{site.title}|}"/>
   		
   	<meta name="_csrf" th:content="${_csrf.token}"/>
 	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>

@@ -18,6 +18,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.w3c.activitystreams.model.ActivityImpl;
+import org.w3c.activitystreams.model.Note;
+import org.w3c.activitystreams.model.activity.Create;
 
 import net.mixednutz.api.activitypub.ActivityPubManager;
 import net.mixednutz.app.server.controller.BaseChapterController;
@@ -252,6 +255,27 @@ public class ChapterController extends BaseChapterController {
 				
 		return "redirect:"+comment.getUri();
 	}
+	
+//	@RequestMapping(
+//			value=ActivityPubManager.NOTE_URI_PREFIX+"/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}/reply", 
+//			method = {RequestMethod.GET,RequestMethod.HEAD},
+//			produces=ActivityImpl.APPLICATION_ACTIVITY_VALUE)
+//	public void commentActivityCreate(@RequestBody Create create,
+//			@PathVariable String username, 
+//			@PathVariable Long seriesId, @PathVariable String seriesTitleKey, 
+//			@PathVariable Long id, @PathVariable String titleKey, 
+//			@RequestParam(value="emojiId") String emojiId,
+//			@AuthenticationPrincipal final User user) {
+//		
+//		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
+//		
+//		ChapterComment comment = new ChapterComment();
+//		Note note = (Note)create.getObject();
+////		note.getInReplyTo() //this needs to be a number
+//		comment.setInReplyTo(getComment(inReplyToId));
+//		comment = saveComment(comment, chapter, user);
+//		
+//	}
 	
 	@ExceptionHandler(ChapterForbiddenException.class)
 	public ModelAndView handleException(final ChapterForbiddenException e) {

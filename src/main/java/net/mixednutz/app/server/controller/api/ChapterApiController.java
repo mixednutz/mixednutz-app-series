@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.mixednutz.app.server.controller.BaseChapterController;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
+import net.mixednutz.app.server.entity.post.series.ChapterComment;
 import net.mixednutz.app.server.entity.post.series.ChapterReaction;
 
 @Controller
@@ -68,6 +70,18 @@ public class ChapterApiController extends BaseChapterController {
 		}
 		chapterRepository.save(chapter);
 		return addedReactions;
+	}
+	
+	@RequestMapping(value="/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}/comment", method = RequestMethod.POST)
+	public void apiNewComment(@RequestBody ChapterComment comment,
+			@PathVariable String username, 
+			@PathVariable Long seriesId, @PathVariable String seriesTitleKey, 
+			@PathVariable Long id, @PathVariable String titleKey, 
+			@RequestParam(value="emojiId") String emojiId,
+			@AuthenticationPrincipal final User user) {
+		
+		
+		
 	}
 	
 }

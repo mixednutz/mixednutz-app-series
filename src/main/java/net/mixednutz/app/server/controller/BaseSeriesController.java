@@ -3,7 +3,9 @@ package net.mixednutz.app.server.controller;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -19,8 +21,9 @@ import net.mixednutz.app.server.controller.exception.ForbiddenExceptions.SeriesF
 import net.mixednutz.app.server.controller.exception.ResourceMovedPermanentlyException;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
 import net.mixednutz.app.server.controller.exception.UserNotFoundException;
+import net.mixednutz.app.server.entity.ExternalVisibility;
 import net.mixednutz.app.server.entity.User;
-import net.mixednutz.app.server.entity.VisibilityType;
+import net.mixednutz.app.server.entity.Visibility;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.Series;
@@ -34,6 +37,8 @@ import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
 import net.mixednutz.app.server.manager.ApiManager;
 import net.mixednutz.app.server.manager.NotificationManager;
 import net.mixednutz.app.server.manager.TagManager;
+import net.mixednutz.app.server.manager.post.VisibilityManager;
+import net.mixednutz.app.server.manager.post.PostManager.NotVisibleType;
 import net.mixednutz.app.server.manager.post.series.SeriesManager;
 import net.mixednutz.app.server.repository.SeriesRepository;
 import net.mixednutz.app.server.repository.SeriesReviewRepository;
@@ -77,6 +82,9 @@ public class BaseSeriesController {
 	
 	@Autowired
 	private List<HtmlFilter> htmlFilters;
+	
+	@Autowired
+	protected VisibilityManager visibilityManager;
 	
 	@Autowired
 	protected ApiManager apiManager;
@@ -123,12 +131,22 @@ public class BaseSeriesController {
 	}
 	
 	protected void assertVisibility(final Series series, Authentication auth) {
-		if (auth==null &&
-				!VisibilityType.WORLD.equals(series.getVisibility().getVisibilityType())) {
-			throw new AuthenticationCredentialsNotFoundException("This is not a public journal.");
-		} else if (auth!=null) {
-			if (!seriesManager.isVisible(series, (User) auth.getPrincipal())) {
-				throw new SeriesForbiddenException(series, "User does not have permission to view this series.");
+		Optional<NotVisibleType> assertion = auth==null 
+				? this.seriesManager.assertVisible(series) 
+						: this.seriesManager.assertVisible(series, (User) auth.getPrincipal());
+				
+		if (assertion.isPresent()) {
+			switch (assertion.get()) {
+			case NOT_PUBLISHED_YET:
+				throw new SeriesForbiddenException(series, assertion.get(), "This series hasn't been published yet.");
+			case NOT_IN_EXTERNAL_LIST:
+			case NOT_IN_SELECT_FOLLOWERS:
+			case PRIVATE:
+				throw new SeriesForbiddenException(series, assertion.get(), "User does not have permission to view this series.");
+			case NOT_PUBLIC:
+				throw new AuthenticationCredentialsNotFoundException("This is not a public series.");
+			default:
+				break;
 			}
 		}
 	}
@@ -138,6 +156,10 @@ public class BaseSeriesController {
 		
 		model.addAttribute("series", series);
 		User user = auth!=null?(User) auth.getPrincipal():null;
+		
+		//externalLists
+		model.addAttribute("externalListId", series.getVisibility().getExternalList().stream()
+				.map(ExternalVisibility::getProviderListId).collect(Collectors.toList()));
 		
 		//HTML Filter
 		String filteredHtml = series.getDescription();
@@ -180,8 +202,9 @@ public class BaseSeriesController {
 
 	protected Series save(Series series, 
 //			Integer friendGroupId, 
+			String[] externalListId,
 			Long groupId, 
-			Integer[] externalFeedId, String tagsString, boolean emailFriendGroup, User user) {
+			Long[] externalFeedId, String tagsString, boolean emailFriendGroup, User user) {
 		if (user==null) {
 			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
 		}
@@ -210,7 +233,11 @@ public class BaseSeriesController {
 			series.setOwnerId(user.getUserId());
 		}
 		
-//		journal.parseVisibility(user, friendGroupId, groupId);
+		Visibility v = visibilityManager.parseVisibility(series.getVisibility().getVisibilityType(), 
+				user, externalListId, groupId, externalFeedId);
+		if (v!=null) {
+			series.setVisibility(v);
+		}
 		
 		series = seriesRepository.save(series);
 		
@@ -221,7 +248,9 @@ public class BaseSeriesController {
 	protected Series update(Series form, Long id, 
 			MultipartFile coverImage, boolean clearCoverImage,
 //			Integer friendGroupId, 
-			Integer groupId, String tagsString, 
+			String[] externalListId,
+			Long groupId, 
+			Long[] externalFeedId, String tagsString, 
 			User user) {
 		if (user==null) {
 			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
@@ -244,7 +273,6 @@ public class BaseSeriesController {
 		}
 		entity.setTitleKey(form.getTitleKey());
 		entity.setDescription(form.getDescription());
-		entity.setVisibility(form.getVisibility());
 		entity.setGenre(form.getGenre());
 		entity.getAdditionalGenres().clear();
 		entity.getAdditionalGenres().addAll(form.getAdditionalGenres());
@@ -256,7 +284,8 @@ public class BaseSeriesController {
 			entity.setCoverFilename(null);
 		}
 		
-//		journal.parseVisibility(user, friendGroupId, groupId);
+		visibilityManager.updateVisibility(entity.getVisibility(), form.getVisibility().getVisibilityType(),
+				user, externalListId, groupId, externalFeedId);
 		
 		String[] tagArray = tagManager.splitTags(tagsString);
 		mergeTags(tagArray, entity);
@@ -277,7 +306,7 @@ public class BaseSeriesController {
 			throw new AccessDeniedException("Series #"+id+" - That's not yours to edit!");
 		}
 		
-		seriesRepository.delete(entity);
+		seriesManager.delete(entity);
 	}
 	
 	/**

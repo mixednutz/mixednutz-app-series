@@ -306,6 +306,19 @@
         <h2>Forbidden</h2>
         
         <p>Sorry, you do not have permission to view this chapter.</p>
+        
+        <div th:text="${notVisibleType}">test</div>
+        
+        <div></div>
+        
+        <div></div>
+        <h3 th:if="${notVisibleType.toString() == 'NOT_IN_EXTERNAL_LIST'}"><i class="fa-solid fa-lock"></i> Exclusive post!</h3>
+        
+        <div>This post is exclusive to the following subscriptions:</div>
+        <div th:each="externalList : ${chapter.visibility.externalList}">
+        	<a th:href="@{|${#messages.msg('patreonUrlPrefix')+externalList.providerUri}|}"
+        	href="#" th:text="${externalList.name}">Subscription</a>
+        </div>
 	</div>
 	
 	

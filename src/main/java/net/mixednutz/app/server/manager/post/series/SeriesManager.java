@@ -41,6 +41,4 @@ public interface SeriesManager extends PostManager<Series, SeriesReview>,
 	
 	long readingTime(Series series);
 	
-	boolean isVisible(Series series, User viewer);
-
 }

@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
@@ -22,17 +23,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import net.mixednutz.app.server.controller.exception.ForbiddenExceptions.ChapterForbiddenException;
 import net.mixednutz.api.activitypub.ActivityPubManager;
 import net.mixednutz.api.activitypub.client.ActivityPubClientManager;
+import net.mixednutz.app.server.controller.exception.ForbiddenExceptions.ChapterForbiddenException;
 import net.mixednutz.app.server.controller.exception.ResourceMovedPermanentlyException;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
 import net.mixednutz.app.server.controller.exception.UserNotFoundException;
 import net.mixednutz.app.server.entity.ExternalFeedContent;
 import net.mixednutz.app.server.entity.ExternalFeeds.AbstractFeed;
+import net.mixednutz.app.server.entity.ExternalVisibility;
 import net.mixednutz.app.server.entity.InternalTimelineElement;
 import net.mixednutz.app.server.entity.User;
-import net.mixednutz.app.server.entity.VisibilityType;
+import net.mixednutz.app.server.entity.Visibility;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterComment;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
@@ -43,6 +45,8 @@ import net.mixednutz.app.server.manager.ApiManager;
 import net.mixednutz.app.server.manager.ExternalFeedManager;
 import net.mixednutz.app.server.manager.NotificationManager;
 import net.mixednutz.app.server.manager.ReactionManager;
+import net.mixednutz.app.server.manager.post.PostManager.NotVisibleType;
+import net.mixednutz.app.server.manager.post.VisibilityManager;
 import net.mixednutz.app.server.manager.post.series.ChapterManager;
 import net.mixednutz.app.server.manager.post.series.SeriesManager;
 import net.mixednutz.app.server.repository.ChapterCommentRepository;
@@ -81,6 +85,9 @@ public class BaseChapterController {
 	
 	@Autowired
 	private List<HtmlFilter> htmlFilters;
+	
+	@Autowired
+	protected VisibilityManager visibilityManager;
 	
 	@Autowired
 	protected ReactionManager reactionManager;
@@ -152,20 +159,29 @@ public class BaseChapterController {
 	}
 	
 	protected void assertVisibility(final Chapter chapter, Authentication auth) {
-		if (auth==null &&
-				!VisibilityType.WORLD.equals(chapter.getVisibility().getVisibilityType())) {
-			throw new AuthenticationCredentialsNotFoundException("This is not a public chapter.");
-		} else if (auth!=null) {
-			if (!seriesManager.isVisible(chapter.getSeries(), (User) auth.getPrincipal()) || 
-					!chapterManager.isVisible(chapter, (User) auth.getPrincipal())) {
-				throw new ChapterForbiddenException(chapter, "User does not have permission to view this chapter.");
+		Optional<NotVisibleType> assertion = auth==null 
+				? this.chapterManager.assertVisible(chapter) 
+						: this.seriesManager.assertVisible(chapter.getSeries(), (User) auth.getPrincipal())
+						.or(()->this.chapterManager.assertVisible(chapter, (User) auth.getPrincipal()));
+				
+		if (assertion.isPresent()) {
+			switch (assertion.get()) {
+			case NOT_PUBLISHED_YET:
+				throw new ChapterForbiddenException(chapter, assertion.get(), "This chapter hasn't been published yet.");
+			case NOT_IN_EXTERNAL_LIST:
+			case NOT_IN_SELECT_FOLLOWERS:
+			case PRIVATE:
+				throw new ChapterForbiddenException(chapter, assertion.get(), "User does not have permission to view this chapter.");
+			case NOT_PUBLIC:
+				throw new AuthenticationCredentialsNotFoundException("This is not a public chapter.");
+			default:
+				break;
 			}
 		}
 	}
 	
 	protected String getChapter(final Chapter chapter, Authentication auth, Model model) {		
 		
-		//TODO Add check to see if this a Draft/Unpublished
 		assertVisibility(chapter, auth);
 		
 		User user = auth!=null?(User) auth.getPrincipal():null;
@@ -175,6 +191,11 @@ public class BaseChapterController {
 		}
 		
 		model.addAttribute("chapter", chapter);
+		
+		//externalLists
+		model.addAttribute("externalListId", chapter.getVisibility().getExternalList().stream()
+				.map(ExternalVisibility::getProviderListId).collect(Collectors.toList()));
+				
 		
 		//HTML Filter
 		String filteredHtml = chapter.getBody();
@@ -232,6 +253,7 @@ public class BaseChapterController {
 	protected Chapter save(Chapter chapter, 
 			Series series,
 //			Integer friendGroupId, 
+			String[] externalListId,
 			Long groupId, 
 			Long[] externalFeedId, String tagsString, boolean emailFriendGroup, 
 			LocalDateTime localPublishDate,
@@ -284,7 +306,11 @@ public class BaseChapterController {
 			chapter.setOwnerId(user.getUserId());
 		}
 		
-//		journal.parseVisibility(user, friendGroupId, groupId);
+		Visibility v = visibilityManager.parseVisibility(chapter.getVisibility().getVisibilityType(), 
+				user, externalListId, groupId, externalFeedId);
+		if (v!=null) {
+			chapter.setVisibility(v);
+		}
 		
 		Chapter savedchapter = chapterRepository.save(chapter);
 		
@@ -332,7 +358,9 @@ public class BaseChapterController {
 	@Transactional
 	protected Chapter update(Chapter form, Long seriesId, Long id, 
 //			Integer friendGroupId, 
-			Integer groupId, String tagsString, 
+			String[] externalListId,
+			Long groupId, 
+			Long[] externalFeedId, String tagsString, 
 			LocalDateTime localPublishDate,
 			User user) {
 		if (user==null) {
@@ -359,10 +387,10 @@ public class BaseChapterController {
 		entity.setTitleKey(form.getTitleKey());
 		entity.setDescription(form.getDescription());
 		entity.setBody(form.getBody());
-		entity.setVisibility(form.getVisibility());
 		entity.setHasExplictSexualContent(form.getHasExplictSexualContent());
 		
-//		journal.parseVisibility(user, friendGroupId, groupId);
+		visibilityManager.updateVisibility(entity.getVisibility(), form.getVisibility().getVisibilityType(),
+				user, externalListId, groupId, externalFeedId);
 				
 		return chapterRepository.save(entity);
 	}
@@ -380,8 +408,8 @@ public class BaseChapterController {
 			throw new AccessDeniedException("Series #"+id+" - That's not yours to edit!");
 		}
 		
-		chapterRepository.delete(entity);
-		
+		chapterManager.delete(entity);
+				
 		return entity.getSeries().getUri();
 	}
 	

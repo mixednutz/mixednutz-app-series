@@ -203,12 +203,13 @@ public class SeriesController extends BaseSeriesController {
 	@RequestMapping(value="/series/new", method = RequestMethod.POST, params="submit")
 	public String saveNew(@ModelAttribute(SeriesFactory.MODEL_ATTRIBUTE) Series series, 
 //			@RequestParam("fgroup_id") Integer friendGroupId, 
+			@RequestParam(value="externalListId", required=false) String[] externalListId,
 			@RequestParam(value="group_id",required=false) Long groupId,
-			@RequestParam(value="externalFeedId", required=false) Integer[] externalFeedId,
+			@RequestParam(value="externalFeedId", required=false) Long[] externalFeedId,
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
 			@RequestParam(value="email_fgroup", defaultValue="false") boolean emailFriendGroup,
 			@AuthenticationPrincipal User user, Model model, Errors errors) {
-		series = save(series, groupId, externalFeedId, 
+		series = save(series, externalListId, groupId, externalFeedId, 
 				tagsString, emailFriendGroup, user);
 
 		return "redirect:"+series.getUri();
@@ -225,12 +226,14 @@ public class SeriesController extends BaseSeriesController {
 			@RequestParam("coverImage") MultipartFile coverImage,
 			@RequestParam(name="clearCoverImage", defaultValue="false") boolean clearCoverImage,
 //			@RequestParam("fgroup_id") Integer friendGroupId, 
-			@RequestParam(value="group_id",required=false) Integer groupId,
+			@RequestParam(value="externalListId", required=false) String[] externalListId,
+			@RequestParam(value="group_id",required=false) Long groupId,
+			@RequestParam(value="externalFeedId", required=false) Long[] externalFeedId,
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
 			@AuthenticationPrincipal User user, Model model, Errors errors) {
 		
 		Series savedSeries = update(series, id, coverImage, clearCoverImage, 
-				groupId, tagsString, user);
+				externalListId, groupId, externalFeedId, tagsString, user);
 		
 		return "redirect:"+savedSeries.getUri();
 	}

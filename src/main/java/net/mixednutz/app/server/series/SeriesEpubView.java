@@ -95,7 +95,7 @@ public class SeriesEpubView extends AbstractView {
 			}
 		}
 		if (file==null) {
-			Optional.empty();
+			return Optional.empty();
 		}		
 		return Optional.of(new FileSystemResource(file.getFile()));
 	}

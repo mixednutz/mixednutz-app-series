@@ -27,6 +27,4 @@ public interface ChapterManager extends PostManager<Chapter, ChapterComment> {
 	
 	long readingTime(Chapter chapter);
 	
-	boolean isVisible(Chapter chapter, User viewer);
-
 }

@@ -4,7 +4,7 @@
 
 	<groupId>net.mixednutz.app.series</groupId>
 	<artifactId>mixednutz-app-series</artifactId>
-	<version>2.1.21.1</version>
+	<version>2.1.22</version>
 	<packaging>jar</packaging>
 
 	<name>mixednutz-app-series</name>
@@ -29,7 +29,7 @@
 		<connection>scm:git:ssh://git@github.com/mixednutz/mixednutz-app-series.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/mixednutz/mixednutz-app-series.git</developerConnection>
 		<url>https://github.com/mixednutz/mixednutz-app-series</url>
-		<tag>mixednutz-app-series-2.1.21.1</tag>
+		<tag>mixednutz-app-series-2.1.22</tag>
     </scm>
 	
 	<!-- 
@@ -74,7 +74,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>11</java.version>
 		
-		<mixednutz-app.version>2.1.19.1</mixednutz-app.version> 
+		<mixednutz-app.version>2.1.20</mixednutz-app.version> 
 		<spring-social.version>1.1.6.RELEASE</spring-social.version>
 		<epublib.version>3.1</epublib.version>
 		<version.rome>1.8.0</version.rome>

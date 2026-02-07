@@ -18,7 +18,6 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,8 +25,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.w3c.activitystreams.model.ActivityImpl;
-import org.w3c.activitystreams.model.Note;
-import org.w3c.activitystreams.model.activity.Create;
 
 import net.mixednutz.api.activitypub.ActivityPubManager;
 import net.mixednutz.app.server.controller.BaseChapterController;
@@ -145,6 +142,7 @@ public class ChapterController extends BaseChapterController {
 	public String saveNew(@ModelAttribute(ChapterFactory.MODEL_ATTRIBUTE) Chapter chapter, 
 			@PathVariable Long seriesId,
 //			@RequestParam("fgroup_id") Integer friendGroupId, 
+			@RequestParam(value="externalListId", required=false) String[] externalListId,
 			@RequestParam(value="group_id",required=false) Long groupId,
 			@RequestParam(value="externalFeedId", required=false) Long[] externalFeedId,
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
@@ -153,7 +151,7 @@ public class ChapterController extends BaseChapterController {
 			@AuthenticationPrincipal User user, Model model, Errors errors,
 			NativeWebRequest request) {
 		Series series = loadSeries(seriesId);
-		chapter = save(chapter, series, groupId, externalFeedId, 
+		chapter = save(chapter, series, externalListId, groupId, externalFeedId, 
 				tagsString, emailFriendGroup, localPublishDate, user, request);
 
 		return "redirect:"+chapter.getUri();
@@ -167,12 +165,14 @@ public class ChapterController extends BaseChapterController {
 	public String updateModal(@ModelAttribute("chapter") Chapter chapter, 
 			@PathVariable Long seriesId, @PathVariable Long id, 
 //			@RequestParam("fgroup_id") Integer friendGroupId, 
-			@RequestParam(value="group_id",required=false) Integer groupId,
+			@RequestParam(value="externalListId", required=false) String[] externalListId,
+			@RequestParam(value="group_id",required=false) Long groupId,
+			@RequestParam(value="externalFeedId", required=false) Long[] externalFeedId,
 			@RequestParam(value="tagsString", defaultValue="") String tagsString,
 			@DateTimeFormat(iso=ISO.DATE_TIME) @RequestParam(value="localPublishDate", required=false) LocalDateTime localPublishDate,
 			@AuthenticationPrincipal User user, Model model, Errors errors) {
 		
-		Chapter savedChapter = update(chapter, seriesId, id, groupId, tagsString, localPublishDate, user);
+		Chapter savedChapter = update(chapter, seriesId, id, externalListId, groupId, externalFeedId, tagsString, localPublishDate, user);
 		
 		return "redirect:"+savedChapter.getUri();
 	}
@@ -281,6 +281,7 @@ public class ChapterController extends BaseChapterController {
 	public ModelAndView handleException(final ChapterForbiddenException e) {
 		Map<String, Object> model = new HashMap<>();
 		model.put("chapter", e.getChapter());
+		model.put("notVisibleType", e.getType());
 		return new ModelAndView("series/chapter/forbidden",model);
 	}
 }

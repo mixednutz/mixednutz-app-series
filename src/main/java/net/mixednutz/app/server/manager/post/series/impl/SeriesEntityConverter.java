@@ -36,7 +36,9 @@ import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
 import net.mixednutz.app.server.manager.ApiElementConverter;
+import net.mixednutz.app.server.manager.ApiManager;
 import net.mixednutz.app.server.manager.ReactionManager;
+import net.mixednutz.app.server.manager.post.series.ChapterManager;
 import net.mixednutz.app.server.repository.SeriesRepository;
 import net.mixednutz.app.server.repository.UserRepository;
 
@@ -55,6 +57,9 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 	private ChapterEntityConverter chapterEntityConverter;
 	
 	@Autowired
+	private ChapterManager chapterManager;
+	
+	@Autowired
 	private NetworkInfo networkInfo;
 	
 	@Autowired
@@ -68,6 +73,9 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 	
 	@Autowired
     private MessageSource messageSource;
+	
+	@Autowired
+	private ApiManager apiManager;
 	
 	private MessageSourceAccessor accessor;
 	
@@ -98,6 +106,9 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 			//set publish date to latest chapter and get latest chapter title
 			entity.getChapters().stream()
 				.filter((c)-> c.getDatePublished()!=null)
+				.filter(c->viewer==null 
+							? this.chapterManager.assertVisible(c).isEmpty() 
+							: this.chapterManager.assertVisible(c, viewer).isEmpty())
 				.max(Comparator.comparing(Chapter::getDatePublished))
 				.ifPresent((c)->{
 					api.setPostedOnDate(c.getDatePublished());
@@ -105,6 +116,7 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 					api.setLatestSuburl(baseUrl+c.getUri());
 					api.setLatestSubtitle(c.getTitle());
 					api.setLatestSubdescription(c.getDescription());
+					api.setVisibility(apiManager.toVisibility(c.getVisibility()));
 				});
 			
 			//Roll up Reactions:

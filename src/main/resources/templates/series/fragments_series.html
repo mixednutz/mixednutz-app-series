@@ -30,6 +30,7 @@
 								<a href="#"></a>
 							</span>
 						</div>
+						<div class="visibility"><span class="visibility-list"></span></div>
 					</div>
 					<div class="stats col-sm-5">
 						<div class="createdAt">
@@ -110,7 +111,6 @@
 		
 	}
 	page.registerElementCallback(buildSeriesTimelineElement);
-	console.log(page.elementCallbacks);
 	</script>
   
   	<div th:fragment="newSeriesForm_model">
@@ -342,6 +342,9 @@
         
         <hr/>
         
+        <!-- Visibility -->
+  		<div th:include="common/fragments_visibility :: visibility (${series.visibility})">visibility</div>
+        
         <img class="cover cover-left" th:if="${series.coverFilename!=null}" th:src="@{|${series.coverUri}|}" src="../../img/nophoto.gif" width="120"/>
 
         <!-- Date/Time --> 
@@ -423,6 +426,9 @@
         		<!-- Publish Date -->
         		<span class="pull-right" th:if="${chapter.datePublished!=null}"><span class="published">Published</span> - <time th:datetime="${#temporals.formatISO(chapter.datePublished)}" th:text="${#temporals.format(chapter.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time></span>
         		<span class="pull-right" th:if="${chapter.datePublished==null and chapter.scheduled!=null}"><span class="scheduled">Scheduled</span> - <time th:datetime="${#temporals.formatISO(chapter.scheduled.publishDate)}" th:text="${#temporals.format(chapter.scheduled.publishDate, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time></span>
+        		<!-- Visibility -->
+        		<span class="pull-right visibility" th:if="${chapter.visibility.visibilityType.toString()=='PRIVATE'}"><span class="private"><span class="glyphicon glyphicon-eye-close"></span> Private</span></span>
+        		<span class="pull-right visibility" th:if="${chapter.visibility.visibilityType.toString()=='EXTERNAL_LIST'}"><span th:each="externalList : ${chapter.visibility.externalList}"><span class="externalList"><span th:class="'fab fa-' + ${externalList.providerId}"></span> <span th:text="${externalList.name}">name</span></span></span></span>
         		</div>
         	</div>
         </div>

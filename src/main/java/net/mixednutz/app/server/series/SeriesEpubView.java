@@ -106,6 +106,8 @@ public class SeriesEpubView extends AbstractView {
 			HttpServletResponse response) throws Exception {
 
 		Series series = (Series) model.get("series");
+		@SuppressWarnings("unchecked")
+		List<Chapter> filteredChapters = (List<Chapter>) model.get("filteredChapters");
 		FormattingUtils formatter = (FormattingUtils) model.get("formatter");
 
 		response.setHeader("Content-Disposition", "attachment; filename=" + series.getTitleKey() + ".epub");
@@ -138,7 +140,7 @@ public class SeriesEpubView extends AbstractView {
 		});
 
 		ZonedDateTime lastPublished = series.getDatePublished();
-		for (Chapter chapter : series.getChapters()) {
+		for (Chapter chapter : filteredChapters) {
 			// Add Chapter
 			
 			if (chapter.getDatePublished()!=null) {

@@ -434,7 +434,7 @@
         </div>
         <div class="toc list-group" sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}!=${series.author.userId}">
         	<!-- Authenticated User's TOC -->
-        	<div th:each="chapter : ${series.chapters}" th:if="${chapter.datePublished!=null}" class="list-group-item">
+        	<div th:each="chapter : ${filteredChapters}" th:if="${chapter.datePublished!=null}" class="list-group-item">
         		<div>
         		<!-- Chapter Title -->
         		<a th:href="@{|${chapter.uri}|}" th:text="${chapter.title}">chapter.title</a>, 
@@ -444,6 +444,9 @@
         		<small>(<span th:text="${chapter.wordCount}">wordCount</span> words)</small>
         		<!-- Publish Date -->
         		<time class="pull-right" th:if="${chapter.datePublished!=null}" th:datetime="${#temporals.formatISO(chapter.datePublished)}" th:text="${#temporals.format(chapter.datePublished, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time>
+        		<!-- Visibility -->
+        		<span class="pull-right visibility" th:if="${chapter.visibility.visibilityType.toString()=='PRIVATE'}"><span class="private"><span class="glyphicon glyphicon-eye-close"></span> Private</span></span>
+        		<span class="pull-right visibility" th:if="${chapter.visibility.visibilityType.toString()=='EXTERNAL_LIST'}"><span th:each="externalList : ${chapter.visibility.externalList}"><span class="externalList"><span th:class="'fab fa-' + ${externalList.providerId}"></span> <span th:text="${externalList.name}">name</span></span></span></span>
         		</div>
         	</div>
         </div>

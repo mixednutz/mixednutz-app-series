@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -45,11 +47,13 @@ import net.mixednutz.app.server.controller.BaseSeriesController;
 import net.mixednutz.app.server.controller.exception.ForbiddenExceptions.SeriesForbiddenException;
 import net.mixednutz.app.server.controller.exception.ResourceNotFoundException;
 import net.mixednutz.app.server.entity.User;
+import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.entity.post.series.SeriesFactory;
 import net.mixednutz.app.server.entity.post.series.SeriesReview;
 import net.mixednutz.app.server.io.domain.FileWrapper;
 import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
+import net.mixednutz.app.server.manager.post.series.ChapterManager;
 import net.mixednutz.app.server.manager.post.series.impl.SeriesEntityConverter;
 import net.mixednutz.app.server.series.SeriesEpubView;
 
@@ -62,6 +66,8 @@ public class SeriesController extends BaseSeriesController {
 	public static final String COVERS_STORAGE_DIR = "/covers-storage";
 	private static final String COVERS_STORAGE_MAPPING = COVERS_STORAGE_DIR+"/**";
 
+	@Autowired
+	private ChapterManager chapterManager;
 	
 	@Autowired
 	private SeriesEpubView seriesEpubsView;
@@ -96,6 +102,15 @@ public class SeriesController extends BaseSeriesController {
 		//Reading Time:
 		series.setReadingTime(seriesManager.readingTime(series));
 		model.addAttribute("readingTime", series.getReadingTime());
+		
+		//Filtered Chapters
+		User viewer = auth!=null ? (User) auth.getPrincipal() : null;
+		List<Chapter> filteredChapters = series.getChapters().stream()
+			.filter(c->viewer==null 
+					? this.chapterManager.assertVisible(c).isEmpty() 
+					: this.chapterManager.assertVisible(c, viewer).isEmpty())
+			.collect(Collectors.toList());
+		model.addAttribute("filteredChapters", filteredChapters);
 				
 		return "series/view";
 	}
@@ -117,6 +132,16 @@ public class SeriesController extends BaseSeriesController {
 			Authentication auth, Model model) {
 		Series series = get(username, id, titleKey);
 		model.addAttribute("series", series);
+		
+		//Filtered Chapters
+		User viewer = auth!=null ? (User) auth.getPrincipal() : null;
+		List<Chapter> filteredChapters = series.getChapters().stream()
+			.filter(c->viewer==null 
+					? this.chapterManager.assertVisible(c).isEmpty() 
+					: this.chapterManager.assertVisible(c, viewer).isEmpty())
+			.collect(Collectors.toList());
+		model.addAttribute("filteredChapters", filteredChapters);
+				
 		return seriesEpubsView;
 	}
 	

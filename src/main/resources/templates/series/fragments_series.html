@@ -404,13 +404,13 @@
                 
         <hr/>      
         
-        <div sec:authorize="isAuthenticated()">
+        
         <h2>Download</h2>  
         
-        <a class="btn btn-default" th:href="${series.uri+'.epub'}"><i class="fas fa-book" aria-hidden="true"></i> Download as EPUB</a>
+        <a class="btn btn-default" th:href="${series.uri+'.epub'}"><i class="fas fa-book" aria-hidden="true"></i> Download all chapters as EPUB</a>
                 
         <hr/>
-        </div>
+
         
         <h2>Table of Contents</h2>
         <div class="toc list-group" sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${series.author.userId}">

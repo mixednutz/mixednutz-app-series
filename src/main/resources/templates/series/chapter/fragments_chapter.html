@@ -210,6 +210,12 @@
         	<span class="glyphicon glyphicon-book"></span> Synopsis: <span th:text="${chapter.description}">chapter.description</span>
         </p>
         
+        <h2>Download</h2>  
+        
+        <a class="btn btn-default" th:href="${chapter.series.uri+'.epub'}"><i class="fas fa-book" aria-hidden="true"></i> Download all chapters as EPUB</a>
+                
+        <hr/>
+        
         <!-- Reactions -->
 		<div th:include="common/fragments_reactions :: reactions (${chapter.reactions}, ${reactionScores}, ${chapter.uri}, null)">reactions</div>      
         

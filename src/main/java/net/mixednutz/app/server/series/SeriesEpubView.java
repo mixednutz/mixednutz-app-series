@@ -4,12 +4,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -21,11 +24,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.AbstractView;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import net.mixednutz.app.server.entity.ExternalVisibility;
+import net.mixednutz.app.server.entity.User;
+import net.mixednutz.app.server.entity.VisibilityType;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.format.EpubHtmlFilter;
@@ -34,6 +42,7 @@ import net.mixednutz.app.server.format.HtmlFilter;
 import net.mixednutz.app.server.io.domain.FileWrapper;
 import net.mixednutz.app.server.io.manager.PhotoUploadManager;
 import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
+import net.mixednutz.app.server.manager.post.VisibilityManager;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Date.Event;
@@ -62,6 +71,9 @@ public class SeriesEpubView extends AbstractView {
 	
 	@Autowired
 	protected PhotoUploadManager photoUploadManager;
+	
+	@Autowired
+	private VisibilityManager visibilityManager;
 
     @PostConstruct
     private void init() {
@@ -100,6 +112,49 @@ public class SeriesEpubView extends AbstractView {
 		return Optional.of(new FileSystemResource(file.getFile()));
 	}
 	
+	private String getFilename(Series series, List<Chapter> filteredChapters) {
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				
+		//Get filename
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(series.getTitleKey());
+		
+		
+		//append external role name (if applicable)
+		if (auth!=null && auth.getPrincipal() instanceof User) {
+			User viewer = (User) auth.getPrincipal();
+			
+			//Only append the role name if this is a non-owner.
+			if (!viewer.equals(series.getAuthor())) {
+				List<String> roles = visibilityManager.getExternalListIds(viewer);
+				if (!roles.isEmpty()) {
+					String roleName = filteredChapters.stream()
+						.map(Chapter::getVisibility)
+						.filter(v->v.getVisibilityType().equals(VisibilityType.EXTERNAL_LIST))
+						.flatMap(v->v.getExternalList().stream())
+						.distinct()
+						.filter(ev->roles.contains(ev.getProviderListId()))
+						.map(ExternalVisibility::getName)
+						.map(name->name.replace(' ', '-').toUpperCase())
+						.collect(Collectors.joining("_"));
+					buffer.append("_"+roleName);
+				}		
+			} 
+		}
+		
+		//append latest chapter publish date
+		filteredChapters.stream()
+				.filter((c)-> c.getDatePublished()!=null)
+				.max(Comparator.comparing(Chapter::getDatePublished))
+				.map(Chapter::getDatePublished)
+				.ifPresent(lastUpdateDate->buffer.append("_"+lastUpdateDate.format(DateTimeFormatter.ISO_LOCAL_DATE)));
+		
+		buffer.append(".epub");
+		
+		return buffer.toString();
+	}
+	
 
 	@Override
 	protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
@@ -110,7 +165,7 @@ public class SeriesEpubView extends AbstractView {
 		List<Chapter> filteredChapters = (List<Chapter>) model.get("filteredChapters");
 		FormattingUtils formatter = (FormattingUtils) model.get("formatter");
 
-		response.setHeader("Content-Disposition", "attachment; filename=" + series.getTitleKey() + ".epub");
+		response.setHeader("Content-Disposition", "attachment; filename=" +getFilename(series, filteredChapters));
 
 		// Create Book
 		Book book = new Book();

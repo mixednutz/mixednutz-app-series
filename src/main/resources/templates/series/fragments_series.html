@@ -177,7 +177,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newseries}, ${ {'Series':seriesCrosspostFeeds} }, true, false, true, false, false)">
+				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newseries}, ${ {'Series':seriesCrosspostFeeds} }, true, false, false, true, false, false)">
 					series-options
 				</div>
 			</div>
@@ -268,7 +268,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${series}, ${ {:} }, true, false, true, false, true)">
+				<div class="series-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${series}, ${ {:} }, true, false, false, true, false, true)">
 					journal-options
 				</div>
 			</div>
@@ -452,7 +452,7 @@
         </div>
          <div class="toc list-group" sec:authorize="!isAuthenticated()">
         	<!-- Non-Authenticated User's TOC -->
-        	<div th:each="chapter : ${series.chapters}" th:if="${chapter.datePublished!=null}" class="list-group-item">
+        	<div th:each="chapter : ${series.chapters}" th:if="${chapter.datePublished!=null && chapter.visibility.visibilityType.toString()=='WORLD'}" class="list-group-item">
         		<div>
         		<!-- Chapter Title -->
         		<a th:href="@{|${chapter.uri}|}" th:text="${chapter.title}">chapter.title</a>, 

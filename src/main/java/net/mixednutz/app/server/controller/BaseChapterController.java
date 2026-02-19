@@ -3,6 +3,7 @@ package net.mixednutz.app.server.controller;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +40,7 @@ import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.entity.post.series.ChapterComment;
 import net.mixednutz.app.server.entity.post.series.ChapterFactory;
 import net.mixednutz.app.server.entity.post.series.ScheduledChapter;
+import net.mixednutz.app.server.entity.post.series.ScheduledChapterUpdate;
 import net.mixednutz.app.server.entity.post.series.Series;
 import net.mixednutz.app.server.format.HtmlFilter;
 import net.mixednutz.app.server.manager.ApiManager;
@@ -391,6 +393,59 @@ public class BaseChapterController {
 		
 		visibilityManager.updateVisibility(entity.getVisibility(), form.getVisibility().getVisibilityType(),
 				user, externalListId, groupId, externalFeedId);
+				
+		return chapterRepository.save(entity);
+	}
+	
+	@Transactional
+	protected Chapter scheduleUpdate(Chapter form, Long seriesId, Long id, 
+			String[] externalListId,
+			Long groupId, 
+			Long[] externalFeedId,
+			LocalDateTime localEffectiveDate,
+			User user, NativeWebRequest request) {
+		if (user==null) {
+			throw new AuthenticationCredentialsNotFoundException("You have to be logged in to do that");
+		}
+		Chapter entity = chapterRepository.findByIdAndSeriesId(id, seriesId).orElseThrow(()->{
+			return new ResourceNotFoundException("");
+		});
+		if (!entity.getAuthor().equals(user)) {
+			throw new AccessDeniedException("Series #"+id+" - That's not yours to edit!");
+		}
+		
+		//Get First Chapter
+		Optional<Chapter> inReplyTo = entity.getSeries().getChapters().stream()
+			.filter(c->!c.getCrossposts().isEmpty())
+			.min(Comparator.comparing(Chapter::getDatePublished));
+		
+		ZonedDateTime zonedEffectiveDate = ZonedDateTime.of(localEffectiveDate, ZoneId.systemDefault());
+		ScheduledChapterUpdate scheduledUpdate = null;
+		//If this update (per the effectiveDate), use that.  if not create a new one
+		if (entity.getScheduledUpdates()==null) {
+			entity.setScheduledUpdates(new ArrayList<>());
+		} 
+		scheduledUpdate = entity.getScheduledUpdates().stream()
+			.filter(su->su.getEffectiveDate().equals(zonedEffectiveDate))
+			.findFirst()
+			.orElseGet(()->{
+				ScheduledChapterUpdate newObj = ScheduledChapterUpdate.with(zonedEffectiveDate, entity, inReplyTo.orElse(null));
+				entity.getScheduledUpdates().add(newObj);
+				return newObj;
+			});
+		
+		scheduledUpdate.setExternalFeedId(externalFeedId);
+		String channelId = request.getParameter("channelIdAsString");
+		if (channelId!=null) {
+			scheduledUpdate.getExternalFeedData().put("channelIdAsString", channelId);
+		}
+
+		// Which Chapter elements do we want to update?
+		Visibility v = visibilityManager.parseVisibility(form.getVisibility().getVisibilityType(), 
+				user, externalListId, groupId, externalFeedId);
+		if (v!=null) {
+			scheduledUpdate.setVisibility(v);
+		}
 				
 		return chapterRepository.save(entity);
 	}

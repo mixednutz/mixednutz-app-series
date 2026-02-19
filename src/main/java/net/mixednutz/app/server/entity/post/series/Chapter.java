@@ -38,6 +38,7 @@ public class Chapter extends AbstractChapter<ChapterComment> implements
 	// Foreign table mappings
 	private Series series;
 	private ScheduledChapter scheduled;
+	private List<ScheduledChapterUpdate> scheduledUpdates;
 	private List<ChapterComment> comments;
 	private Set<ChapterReaction> reactions;
 	private Set<ExternalFeedContent> crossposts;
@@ -67,6 +68,16 @@ public class Chapter extends AbstractChapter<ChapterComment> implements
 		this.scheduled = scheduled;
 	}
 	
+	@Fetch(FetchMode.SELECT)
+	@OneToMany(mappedBy="chapter", cascade=CascadeType.ALL, orphanRemoval=true)
+	public List<ScheduledChapterUpdate> getScheduledUpdates() {
+		return scheduledUpdates;
+	}
+
+	public void setScheduledUpdates(List<ScheduledChapterUpdate> scheduledUpdates) {
+		this.scheduledUpdates = scheduledUpdates;
+	}
+
 	@OneToMany(mappedBy="chapter", cascade={CascadeType.REMOVE})
 	@OrderBy("dateCreated asc")
 	public List<ChapterComment> getComments() {

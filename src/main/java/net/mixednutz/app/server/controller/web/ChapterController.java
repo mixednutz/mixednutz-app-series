@@ -176,7 +176,23 @@ public class ChapterController extends BaseChapterController {
 		
 		return "redirect:"+savedChapter.getUri();
 	}
-	
+
+	@RequestMapping(value="/series/{seriesId}/chapter/{id}/schedule_edit", method = RequestMethod.POST, params="submit")
+	public String scheduleUpdateModal(@ModelAttribute("chapter") Chapter chapter, 
+			@PathVariable Long seriesId, @PathVariable Long id, 
+//			@RequestParam("fgroup_id") Integer friendGroupId, 
+			@RequestParam(value="externalListId", required=false) String[] externalListId,
+			@RequestParam(value="group_id",required=false) Long groupId,
+			@RequestParam(value="externalFeedId", required=false) Long[] externalFeedId,
+			@DateTimeFormat(iso=ISO.DATE_TIME) @RequestParam(value="localEffectiveDate") LocalDateTime localEffectiveDate,
+			@AuthenticationPrincipal User user, Model model, Errors errors,
+			NativeWebRequest request) {
+		
+		Chapter savedChapter = scheduleUpdate(chapter, seriesId, id, externalListId, groupId, 
+				externalFeedId, localEffectiveDate, user, request);
+		
+		return "redirect:"+savedChapter.getUri();
+	}
 
 	//------------
 	// Delete Mappings

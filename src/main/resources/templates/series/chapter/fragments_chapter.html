@@ -61,7 +61,7 @@
 						<input id="newjournal_summary" class="form-control" th:field="*{description}" size="50" type="text" placeholder="Short summary of this chapter..."/>
 					</div>
 				</div>
-				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newchapter}, ${ {'Chapter':chapterCrosspostFeeds} }, true, true, false, true, false)">
+				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${newchapter}, ${ {'Chapter':chapterCrosspostFeeds} }, true, false, true, false, true, false)">
 					chapter-options
 				</div>
 			</div>
@@ -95,7 +95,7 @@
 						<input id="editchapter_title" class="form-control generatesTitleKey" type='text' th:field="*{title}" size='50' required="required"/>
 					</div>
 					<div class="form-group">
-						<label for="editchapter_titleey">Uri</label>
+						<label for="editchapter_titleKey">Uri</label>
 						<div class="input-group input-group-sm">
 							<span class="input-group-addon">
 								<span>/<span class="owner" 
@@ -136,7 +136,7 @@
 						<input class="form-control" th:field="*{description}" size="50" type="text" placeholder="Short summary of this chapter..."/>
 					</div>
 				</div>
-				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${chapter}, ${ {:} }, true, true, false, false, true)">
+				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${chapter}, ${ {:} }, true, false, true, false, false, true)">
 					chapter-options
 				</div>
 			</div>
@@ -159,6 +159,48 @@
 	$('#chapter-update-btn').hide();
 	/*]]>*/
 	</script>
+	
+	<div th:fragment="scheduleEditChapterForm_model">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+			<h4>Schedule Chapter Edit</h4>
+		</div>
+		<form id="editchapter_form" th:action="@{|/series/${chapter.series.id}/chapter/${chapter.id}/schedule_edit|}" th:object="${chapter}" method="post">
+		<div class="modal-body">
+			<div class="row">
+				<div class="chapter-form col-xs-12 col-md-8">
+					<div class="form-group">
+						<label for="editchapter_title">Title</label>
+						<input disabled="disabled" class="form-control" type='text' th:field="*{title}"/>
+					</div>
+					<div class="form-group">
+						<label for="editchapter_titleKey">Uri</label>
+						<input disabled="disabled" id="editchapter_titleKey" class="form-control" type='text' th:field="*{titleKey}"/>
+					</div>
+					<p>The only fields that can be scheduled are to the right.</p>
+					
+				</div>
+				<div class="chapter-options col-xs-12 col-md-4" th:include="common/fragments_forms :: post_options (${chapter}, ${ {:} }, true, true, false, false, true, true)">
+					chapter-options
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button id="chapter-schedule-update-btn" type="submit" name="submit" value="Schedule">Schedule</button>
+  			
+			<button class="btn btn-success" type="button" name="submit" value="Schedule"
+				onclick="$('#chapter-schedule-update-btn').click();">Schedule</button>
+			<button class="btn" type="button" data-dismiss="modal">Cancel</button>
+		</div>
+		</form>
+		
+	</div>
+	<script th:fragment="scheduleEditChapterForm_JS" th:inline="javascript">
+	/*<![CDATA[*/
+	$('#chapter-schedule-update-btn').hide();
+	/*]]>*/
+	</script>
+	
 	
 	<div th:fragment="deleteChapterForm_model">
 		<div class="modal-header">
@@ -205,6 +247,14 @@
         	<span class="glyphicon glyphicon-stats"></span> Word Count: <span th:text="${chapter.wordCount}">0</span> 
         	 (<span th:if="${chapter.readingTime > 60}"><span th:text="${chapter.readingTime / 60}">0</span> <span th:if="${(chapter.readingTime / 60)==1}">hour </span><span th:if="${(chapter.readingTime / 60)!=1}">hours </span></span><span th:text="${chapter.readingTime % 60}">0</span> minutes)
         </p>
+        <div sec:authorize="isAuthenticated()" th:if="${#authentication.principal.userId}==${chapter.author.userId}">
+       		<div th:if="${chapter.scheduledUpdates!=null}">
+        		<div th:each="scheduledUpdate : ${chapter.scheduledUpdates}">
+        			Update on <time th:datetime="${#temporals.formatISO(scheduledUpdate.effectiveDate)}" th:text="${#temporals.format(scheduledUpdate.effectiveDate, #messages.msg('datetime.format.full'))}">August 24, 2013 at 9:00 PM</time> <span th:if="${scheduledUpdate.executed}">- Updated</span>
+        		</div>
+       		</div>
+       	</div>
+        	
         <!-- Synopsis -->
         <p th:if="${!#strings.isEmpty(chapter.description)}">
         	<span class="glyphicon glyphicon-book"></span> Synopsis: <span th:text="${chapter.description}">chapter.description</span>
@@ -225,6 +275,8 @@
 			
 			<!-- Edit -->
 			<button data-toggle="modal" data-target="#editchapterModal" class="btn btn-default" type="button"><i class="glyphicon glyphicon-pencil"></i>&nbsp;Edit Chapter</button>
+			<!-- Schedule Edit -->
+			<button data-toggle="modal" data-target="#scheduleEditchapterModal" class="btn btn-default" type="button" ><i class="glyphicon glyphicon-calendar"></i>&nbsp;Schedule Edit</button>
 			<!-- Delete -->
 			<button data-toggle="modal" data-target="#deletechapterModal" class="btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i>&nbsp;Delete Chapter</button>
 		</div>

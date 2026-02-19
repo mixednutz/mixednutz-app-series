@@ -76,6 +76,14 @@
 			</div>
 		</div>
 		
+		<!-- Schedule Edit chapter Form -->
+		<div id="scheduleEditchapterModal" class="modal container fade" tabindex="-1" role="dialog">
+			<div>
+				<div class="modal-content" th:include="series/chapter/fragments_chapter :: scheduleEditChapterForm_model">
+				</div>
+			</div>
+		</div>
+		
 		<!-- Delete chapter Form -->
 		<div id="deletechapterModal" class="modal fade" tabindex="-1" role="dialog" data-focus-on="input:first">
 			<div>
@@ -170,6 +178,7 @@
 	<script th:replace="header :: navbar_js"></script>
 	<script th:replace="common/fragments_forms :: post_options_JS" th:inline="javascript"></script>
     <script th:include="series/chapter/fragments_chapter :: editChapterForm_JS" th:inline="javascript"></script>
+    <script th:include="series/chapter/fragments_chapter :: scheduleEditChapterForm_JS" th:inline="javascript"></script>
     <script th:replace="common/fragments_comments :: post_comment_form_JS" th:inline="javascript"></script>
     <script include="common/modules_common :: tags_JS" th:inline="javascript"></script>
     <script th:include="common/fragments_reactions :: reactions_JS" th:inline="javascript"></script>

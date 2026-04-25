@@ -203,19 +203,23 @@ public class SeriesEpubView extends AbstractView {
 				if (chapter.getDatePublished().isAfter(lastPublished)) {
 					lastPublished = chapter.getDatePublished();
 				}
-				
-				//HTML Filter
-				String filteredHtml = chapter.getBody();
-				for (HtmlFilter htmlFilter: epubFilters) {
-					filteredHtml = htmlFilter.filter(filteredHtml);
+			} else if (chapter.getScheduled()!=null && chapter.getScheduled().getPublishDate()!=null) {
+				// could be in the future if the viewer can see it.
+				if (chapter.getScheduled().getPublishDate().isAfter(lastPublished)) {
+					lastPublished = chapter.getScheduled().getPublishDate();
 				}
-				chapter.setFilteredBody(filteredHtml);
-				
-				//Read in HTML
-				book.addSection(chapter.getTitle(), 
-						getResource(chapter, chapter.getTitleKey()+".html"));
 			}
 			
+			//HTML Filter
+			String filteredHtml = chapter.getBody();
+			for (HtmlFilter htmlFilter: epubFilters) {
+				filteredHtml = htmlFilter.filter(filteredHtml);
+			}
+			chapter.setFilteredBody(filteredHtml);
+			
+			//Read in HTML
+			book.addSection(chapter.getTitle(), 
+					getResource(chapter, chapter.getTitleKey()+".html"));
 			
 		}
 		metadata.addDate(new nl.siegmann.epublib.domain.Date(

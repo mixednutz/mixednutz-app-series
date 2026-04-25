@@ -100,6 +100,9 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 			//set chapters count
 			long sizeOfChapters = entity.getChapters().stream()
 				.filter((c)-> c.getDatePublished()!=null)
+				.filter(c->viewer==null 
+							? this.chapterManager.assertVisible(c).isEmpty() 
+							: this.chapterManager.assertVisible(c, viewer).isEmpty())
 				.count();
 			api.getAdditionalData().put("sizeOfChapters", sizeOfChapters);
 			

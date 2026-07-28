@@ -2,6 +2,7 @@ package net.mixednutz.app.server.repository;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +13,8 @@ import net.mixednutz.app.server.entity.post.series.ChapterComment;
 
 @Repository
 public interface ChapterCommentRepository extends CommentRepository<ChapterComment> {
+	
+	Optional<ChapterComment> findByCommentIdAndChapterId(Long id, Long chapterId);
 
 	@Query("select c from #{#entityName} c"
 			+" left join c.chapter p"

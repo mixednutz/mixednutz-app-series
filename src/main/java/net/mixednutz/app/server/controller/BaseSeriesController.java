@@ -37,8 +37,8 @@ import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
 import net.mixednutz.app.server.manager.ApiManager;
 import net.mixednutz.app.server.manager.NotificationManager;
 import net.mixednutz.app.server.manager.TagManager;
-import net.mixednutz.app.server.manager.post.VisibilityManager;
 import net.mixednutz.app.server.manager.post.PostManager.NotVisibleType;
+import net.mixednutz.app.server.manager.post.VisibilityManager;
 import net.mixednutz.app.server.manager.post.series.SeriesManager;
 import net.mixednutz.app.server.repository.SeriesRepository;
 import net.mixednutz.app.server.repository.SeriesReviewRepository;
@@ -352,6 +352,27 @@ public class BaseSeriesController {
 	
 	protected SeriesReview updateComment(SeriesReview review) {
 		return seriesReviewRepository.save(review);
+	}
+	
+	protected String deleteComment(Long seriesId, Long commentId, Authentication auth) {
+		SeriesReview entity = seriesReviewRepository.findByCommentIdAndSeriesId(commentId, seriesId).orElseThrow(()->{
+			return new ResourceNotFoundException("Review Not Found");
+		});
+		
+		User user = (User) auth.getPrincipal();
+		boolean isAdmin = (auth.getAuthorities().stream()
+				.anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN")));
+		
+		if (!entity.getAuthor().equals(user) && !isAdmin) {
+			throw new AccessDeniedException("Comment #"+commentId+" - That's not yours to edit!");
+		}
+		
+		//We have to delete the notifications first
+		notificationManager.deleteCommentNotification(entity);
+		
+		seriesReviewRepository.delete(entity);
+				
+		return entity.getSeries().getUri();
 	}
 	
 	private String uploadPhoto(User user, MultipartFile file) {

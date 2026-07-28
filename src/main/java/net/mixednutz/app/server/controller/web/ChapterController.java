@@ -272,6 +272,20 @@ public class ChapterController extends BaseChapterController {
 		return "redirect:"+comment.getUri();
 	}
 	
+	@RequestMapping(value="/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{chapterId}/{titleKey}/comment/{commentId}/delete", 
+			method = RequestMethod.POST, params="confirm")
+	public String commentDeleteModal(@PathVariable Long seriesId, @PathVariable Long chapterId, 
+			@PathVariable Long commentId,
+			Authentication auth) {
+		if (!auth.isAuthenticated()) {
+			throw new AccessDeniedException("Not logged in");
+		}
+		
+		String chapterUri = deleteComment(seriesId, chapterId, commentId, auth);
+		
+		return "redirect:"+chapterUri;
+	}
+	
 //	@RequestMapping(
 //			value=ActivityPubManager.NOTE_URI_PREFIX+"/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}/reply", 
 //			method = {RequestMethod.GET,RequestMethod.HEAD},

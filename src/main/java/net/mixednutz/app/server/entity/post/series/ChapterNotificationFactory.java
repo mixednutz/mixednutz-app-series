@@ -61,6 +61,20 @@ public class ChapterNotificationFactory extends BaseNotificationFactory implemen
 					criteriaBuilder.equal(itemRoot.get("userId"), user.getUserId()));
 		}, ChapterReactionNotification.class);
 	}
+	
+	@Override
+	public void deleteCommentNotifications(ChapterComment comment) {
+		
+		//Delete Comments to Comments
+		this.deleteCommentReplyNotifications(comment);
+		
+		//Delete Comments to Chapters
+		Iterable<ChapterCommentNotification> notificationsToDelete = notificationRepository.loadNotifications((criteriaBuilder, itemRoot) ->{
+			return criteriaBuilder.equal(itemRoot.get("commentId"), comment.getCommentId());
+		}, ChapterCommentNotification.class);
+		
+		notificationRepository.deleteAll(notificationsToDelete);
+	}
 
 	@Entity
 	@DiscriminatorValue(ChapterCommentNotification.TYPE)

@@ -60,6 +60,20 @@ public class SeriesNotificationFactory extends BaseNotificationFactory implement
 			User user, Series reactedTo) {
 		return Collections.emptyList();
 	}
+	
+	@Override
+	public void deleteCommentNotifications(SeriesReview comment) {
+		
+		//Delete Comments to Comments
+		this.deleteCommentReplyNotifications(comment);
+		
+		//Delete Comments to Series
+		Iterable<SeriesCommentNotification> notificationsToDelete = notificationRepository.loadNotifications((criteriaBuilder, itemRoot) ->{
+			return criteriaBuilder.equal(itemRoot.get("commentId"), comment.getCommentId());
+		}, SeriesCommentNotification.class);
+		
+		notificationRepository.deleteAll(notificationsToDelete);
+	}
 
 	@Entity
 	@DiscriminatorValue(SeriesCommentNotification.TYPE)

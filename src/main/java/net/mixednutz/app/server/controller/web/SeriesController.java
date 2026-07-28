@@ -339,6 +339,19 @@ public class SeriesController extends BaseSeriesController {
 		return "redirect:"+review.getUri();
 	}
 	
+	@RequestMapping(value="/{username}/series/{seriesId}/{titleKey}/comment/{commentId}/delete", 
+			method = RequestMethod.POST, params="confirm")
+	public String commentDeleteModal(@PathVariable Long seriesId, @PathVariable Long commentId,
+			Authentication auth) {
+		if (!auth.isAuthenticated()) {
+			throw new AccessDeniedException("Not logged in");
+		}
+		
+		String seriesUri = deleteComment(seriesId, commentId, auth);
+		
+		return "redirect:"+seriesUri;
+	}
+	
 	
 	private String getBaseUrl() {
 		try {

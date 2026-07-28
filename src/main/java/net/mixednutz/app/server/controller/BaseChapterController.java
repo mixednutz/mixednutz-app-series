@@ -502,6 +502,27 @@ public class BaseChapterController {
 		return chapterCommentRepository.save(comment);
 	}
 	
+	protected String deleteComment(Long seriesId, Long chapterId, Long commentId, Authentication auth) {
+		ChapterComment entity = chapterCommentRepository.findByCommentIdAndChapterId(commentId, chapterId).orElseThrow(()->{
+			return new ResourceNotFoundException("Comment not found");
+		});
+		
+		User user = (User) auth.getPrincipal();
+		boolean isAdmin = (auth.getAuthorities().stream()
+				.anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN")));
+		
+		if (!entity.getAuthor().equals(user) && !isAdmin) {
+			throw new AccessDeniedException("Comment #"+commentId+" - That's not yours to edit!");
+		}
+
+		//We have to delete the notifications first
+		notificationManager.deleteCommentNotification(entity);
+		
+		chapterCommentRepository.delete(entity);
+				
+		return entity.getChapter().getUri();
+	}
+	
 	@ExceptionHandler(ResourceMovedPermanentlyException.class)
 	public String handleException(final ResourceMovedPermanentlyException e) {
 	    return "redirect:"+e.getRedirectUri();

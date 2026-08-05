@@ -1,6 +1,8 @@
 package net.mixednutz.app.server.entity.post.series;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,18 +39,17 @@ public class SeriesFactory implements NewPostFactory<Series>, NewCommentFactory<
 	public void addNewPostReferenceData(Model model) {
 		model.addAttribute("genres",seriesSettingsManager.genres());
 		model.addAttribute("ratings",seriesSettingsManager.ratings());
-		//possible co-authors list
 		
-		List<User> users = StreamSupport.stream(seriesSettingsManager.users().spliterator(), false)
-			.filter(u->{
-				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-				if (auth.isAuthenticated()) {
-					User user = (User) auth.getPrincipal();
-					return !u.equals(user);
-				}
-				return true;
-			}).toList();
-		model.addAttribute("users", users);
+		//possible co-authors list
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth.isAuthenticated() && auth.getPrincipal() instanceof User) {
+			User user = (User)auth.getPrincipal();
+			List<User> users = StreamSupport.stream(seriesSettingsManager.users().spliterator(), false)
+					.filter(Predicate.not(user::equals)).toList();
+			model.addAttribute("users", users);
+		} else {
+			model.addAttribute("users", new ArrayList<>());
+		}
 	}
 	
 	public SeriesReview newCommentForm(Model model) {

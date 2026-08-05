@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import net.mixednutz.app.server.entity.ComponentSettings;
@@ -42,6 +43,7 @@ public class SeriesSettingsManager implements ComponentSettings {
 	 * this is used to build a list of possible co-authors
 	 * @return
 	 */
+	@Cacheable("possibleCoAuthors")
 	public Iterable<User> users() {
 		return userRepository.findAllWhereLastonlineExistsOrderByUsername();
 	}

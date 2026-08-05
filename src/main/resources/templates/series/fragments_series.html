@@ -141,6 +141,15 @@
 						<textarea id="newseries_description" class="form-control" th:field="*{description}" rows="6" required="required"/>
 					</div>
 					<div class="form-group">
+						<label>Co Authors:</label>
+						<select th:field="*{coAuthors}" size="5" class="form-control" multiple="multiple">
+							<option th:each="option : ${users}"
+					            	th:value="${option.userId}"
+					            	th:text="${option.username}">
+					    	</option>
+						</select>
+					</div>
+					<div class="form-group">
 						<label>Maturity Rating:</label>
 						<select th:field="*{rating}" class="form-control" required="required">
 							<option th:each="option : ${ratings}"
@@ -229,6 +238,16 @@
 						<input class="form-check-input" type="checkbox" id="clearCoverImage" name="clearAvatarImage" />
 						<label class="form-check-label" for="clearCoverImage" th:text="#{form.clearCoverImage.label}">form.clearCoverImage.label</label>
 						<small id="clearCoverImage_help" class="form-text text-muted" th:text="#{form.clearCoverImage.help}">form.clearCoverImage.help</small>
+					</div>
+					
+					<div class="form-group">
+						<label>Co Authors:</label>
+						<select th:field="*{coAuthors}" size="5" class="form-control" multiple="multiple">
+							<option th:each="option : ${users}"
+					            	th:value="${option.userId}"
+					            	th:text="${option.username}">
+					    	</option>
+						</select>
 					</div>
 					
 					<div class="form-group">
@@ -337,7 +356,12 @@
 
         <!-- Author -->
         <p class="lead">
-            by <a th:if="${series.author!=null}" th:href='@{|/${series.author.username}|}' href="#" th:text="${series.author.username}">Author</a><span th:if="${series.author==null}">Former Member</span> 
+            by <a th:if="${series.author!=null}" th:href='@{|/${series.author.username}|}' href="#" th:text="${series.author.username}">Author</a><span th:if="${series.author==null}">Former Member</span><span th:if="${series.coAuthors!=null and !series.coAuthors.isEmpty()}">,</span> 
+            <span th:if="${series.coAuthors!=null and !series.coAuthors.isEmpty()}">
+            	<span th:each="coAuthor, iterStat : ${series.coAuthors}">
+            		<a th:if="${coAuthor!=null}" th:href='@{|/${coAuthor.username}|}' href="#" th:text="${coAuthor.username}">Co-Author</a><span th:if="${coAuthor==null}">Former Member</span><span th:if="${!iterStat.last}">,</span> 
+            	</span>
+            </span>
         </p>
         
         <hr/>

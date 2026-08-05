@@ -1,6 +1,11 @@
 package net.mixednutz.app.server.entity.post.series;
 
+import java.util.List;
+import java.util.stream.StreamSupport;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 
@@ -32,6 +37,18 @@ public class SeriesFactory implements NewPostFactory<Series>, NewCommentFactory<
 	public void addNewPostReferenceData(Model model) {
 		model.addAttribute("genres",seriesSettingsManager.genres());
 		model.addAttribute("ratings",seriesSettingsManager.ratings());
+		//possible co-authors list
+		
+		List<User> users = StreamSupport.stream(seriesSettingsManager.users().spliterator(), false)
+			.filter(u->{
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				if (auth.isAuthenticated()) {
+					User user = (User) auth.getPrincipal();
+					return !u.equals(user);
+				}
+				return true;
+			}).toList();
+		model.addAttribute("users", users);
 	}
 	
 	public SeriesReview newCommentForm(Model model) {

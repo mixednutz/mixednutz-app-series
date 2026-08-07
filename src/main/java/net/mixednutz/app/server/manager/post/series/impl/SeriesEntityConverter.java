@@ -92,6 +92,10 @@ public class SeriesEntityConverter implements ApiElementConverter<Series> {
 				networkInfo.getId()+"_"+TYPE_NAME));
 		api.setId(entity.getId());
 		api.setTitle(entity.getTitle());
+		if (entity.getCoAuthors()!=null && !entity.getCoAuthors().isEmpty()) {
+			api.setContributedByUser(entity.getCoAuthors().stream()
+					.map(coauthor->apiManager.toUser(coauthor)).toList());
+		}
 		if (entity.getCoverFilename()!=null) {
 			api.getAdditionalData().put("cover", new Image(
 					baseUrl+entity.getCoverUri()+"?size="+Size.BOOK.getSize(), entity.getTitle()+" book cover"));

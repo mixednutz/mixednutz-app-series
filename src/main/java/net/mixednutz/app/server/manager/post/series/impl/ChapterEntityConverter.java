@@ -34,6 +34,7 @@ import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
 import net.mixednutz.app.server.io.manager.PhotoUploadManager.Size;
 import net.mixednutz.app.server.manager.ApiElementConverter;
+import net.mixednutz.app.server.manager.ApiManager;
 import net.mixednutz.app.server.manager.TagManager;
 import net.mixednutz.app.server.repository.ChapterRepository;
 import net.mixednutz.app.server.repository.UserRepository;
@@ -62,6 +63,9 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 	@Autowired
     private MessageSource messageSource;
 	
+	@Autowired
+	private ApiManager apiManager;
+	
 	private MessageSourceAccessor accessor;
 	
 	@PostConstruct
@@ -79,6 +83,10 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 		
 		api.setTitle(entity.getSeries().getTitle());
 		api.setDescription(entity.getSeries().getDescription());
+		if (entity.getSeries().getCoAuthors()!=null) {
+			api.setContributedByUser(entity.getSeries().getCoAuthors().stream()
+					.map(coauthor->apiManager.toUser(viewer)).toList());
+		}
 		api.setLatestSuburi(entity.getUri());
 		api.setLatestSuburl(baseUrl+entity.getUri());
 		api.setLatestSubtitle(entity.getTitle());

@@ -29,6 +29,8 @@
 								class="screenname">screenname</small></a> <span class="owner">in
 								<a href="#"></a>
 							</span>
+							<span class="contributedBy-list">
+							</span>
 						</div>
 						<div class="visibility"><span class="visibility-list"></span></div>
 					</div>
@@ -88,6 +90,10 @@
 		console.log('buildSeriesTimelineElement');
 		if (element.type.name=='Series') {
 			console.log(element);
+			if (element.contributedByUser!=null) {
+				template.find('.username a').after(", ");
+				populateContributors(template.find(".contributedBy-list"), element.contributedByUser);	
+			}
 			var additionalData = element.additionalData;
 			template.find(".sizeOfChapters .value").text(additionalData.sizeOfChapters);
 			var status = 'In Progress';
@@ -110,6 +116,23 @@
 		}
 		
 	}
+	
+	function populateContributors(appendTo, contributedByUsers) {
+
+		console.log("populateContributors");
+		console.log(appendTo);
+		console.log(contributedByUsers);
+		if (contributedByUsers.length==0) {
+			appendTo.parent().remove();
+		} 
+		$.each(contributedByUsers, function(index, user) {
+			var comma = index+1<contributedByUsers.length ? ', ' : '';
+			var name = (user.displayName!=null) ? user.displayName : user.username;
+			$("<a href='"+user.url+"'><span class='name'>"+name+"</span></a>").appendTo(appendTo);
+			appendTo.append(comma);
+		});	
+	}
+	
 	page.registerElementCallback(buildSeriesTimelineElement);
 	</script>
   

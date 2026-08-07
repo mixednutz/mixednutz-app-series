@@ -3,6 +3,7 @@ package net.mixednutz.app.server.entity.post.series;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class SeriesFactory implements NewPostFactory<Series>, NewCommentFactory<
 		if (auth.isAuthenticated() && auth.getPrincipal() instanceof User) {
 			User user = (User)auth.getPrincipal();
 			List<User> users = StreamSupport.stream(seriesSettingsManager.users().spliterator(), false)
-					.filter(Predicate.not(user::equals)).toList();
+					.filter(Predicate.not(user::equals)).collect(Collectors.toList());
 			model.addAttribute("users", users);
 		} else {
 			model.addAttribute("users", new ArrayList<>());

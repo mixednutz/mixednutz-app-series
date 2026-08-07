@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -85,7 +86,7 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 		api.setDescription(entity.getSeries().getDescription());
 		if (entity.getSeries().getCoAuthors()!=null) {
 			api.setContributedByUser(entity.getSeries().getCoAuthors().stream()
-					.map(coauthor->apiManager.toUser(viewer)).toList());
+					.map(coauthor->apiManager.toUser(viewer)).collect(Collectors.toList()));
 		}
 		api.setLatestSuburi(entity.getUri());
 		api.setLatestSuburl(baseUrl+entity.getUri());

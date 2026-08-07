@@ -4,13 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import net.mixednutz.app.server.entity.ComponentSettings;
+import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Genre;
 import net.mixednutz.app.server.entity.post.series.Rating;
 import net.mixednutz.app.server.repository.GenreRepository;
 import net.mixednutz.app.server.repository.RatingRepository;
+import net.mixednutz.app.server.repository.UserRepository;
 
 @Component
 public class SeriesSettingsManager implements ComponentSettings {
@@ -20,6 +23,9 @@ public class SeriesSettingsManager implements ComponentSettings {
 	
 	@Autowired
 	private RatingRepository ratingRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
 	
 	//TODO tag groups (ie character age
 	//TODO permanant tags
@@ -31,6 +37,15 @@ public class SeriesSettingsManager implements ComponentSettings {
 	
 	public Iterable<Rating> ratings() {
 		return ratingRepository.findByOrderBySortOrderAsc();
+	}
+	
+	/**
+	 * this is used to build a list of possible co-authors
+	 * @return
+	 */
+	@Cacheable("possibleCoAuthors")
+	public Iterable<User> users() {
+		return userRepository.findAllWhereLastonlineExistsOrderByUsername();
 	}
 
 	@Override
@@ -48,6 +63,7 @@ public class SeriesSettingsManager implements ComponentSettings {
 		Map<String, Object> settings = new HashMap<String, Object>();
 		settings.put("genres", genres());
 		settings.put("ratings", ratings());
+		settings.put("users", users());
 		return settings;
 	}
 	

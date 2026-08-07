@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.mixednutz.app.server.controller.web.SeriesController;
 import net.mixednutz.app.server.entity.CommentsAware;
 import net.mixednutz.app.server.entity.TagsAware;
+import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.GroupedPosts;
 
 @Entity
@@ -49,6 +50,8 @@ public class Series extends AbstractSeries<SeriesReview>
 	private Long wordCount;
 	private Long readingTime;
 	private String filteredDescription;
+	
+	private Set<User> coAuthors;
 	
 	@Override
 	public void onPersist() {
@@ -202,6 +205,16 @@ public class Series extends AbstractSeries<SeriesReview>
 
 	public void setFilteredDescription(String filteredDescription) {
 		this.filteredDescription = filteredDescription;
+	}
+
+	@ManyToMany(targetEntity=User.class, fetch=FetchType.EAGER)
+	@JoinTable(name="Series_CoAuthor")
+	public Set<User> getCoAuthors() {
+		return coAuthors;
+	}
+
+	public void setCoAuthors(Set<User> coAuthors) {
+		this.coAuthors = coAuthors;
 	}
 	
 }

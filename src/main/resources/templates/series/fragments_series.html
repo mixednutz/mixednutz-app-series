@@ -124,8 +124,9 @@
 		} 
 		$.each(contributedByUsers, function(index, user) {
 			var comma = index+1<contributedByUsers.length ? ', ' : '';
-			var name = (user.displayName!=null) ? user.displayName : user.username;
-			$("<a href='"+user.url+"'><span class='name'>"+name+"</span></a>").appendTo(appendTo);
+			var name = (user.displayName!=null && user.displayName.trim() !== "") ? user.displayName : user.username;
+			var screenname = (user.displayName!=null && user.displayName.trim() !== "") ? " <small class='screenname'>"+user.username+"</small>" : "";
+			$("<a href='"+user.url+"'><span class='name'>"+name+"</span></a>"+screenname).appendTo(appendTo);
 			appendTo.append(comma);
 		});	
 	}

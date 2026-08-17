@@ -231,7 +231,13 @@
         
         <!-- Author -->
         <p class="lead">
-            <a th:href="@{|${chapter.series.uri}|}" th:text="${chapter.series.title}">series title</a> by <a th:if="${chapter.series.author!=null}" th:href='@{|/${chapter.author.username}|}' href="#" th:text="${chapter.author.username}">Author</a><span th:if="${chapter.author==null}">Former Member</span> 
+            <a th:href="@{|${chapter.series.uri}|}" th:text="${chapter.series.title}">series title</a>
+             by <a th:if="${chapter.series.author!=null}" th:href='@{|/${chapter.author.username}|}' href="#" th:text="${chapter.author.username}">Author</a><span th:if="${chapter.author==null}">Former Member</span><span th:if="${chapter.series.coAuthors!=null and !chapter.series.coAuthors.isEmpty()}">,</span> 
+            <span th:if="${chapter.series.coAuthors!=null and !chapter.series.coAuthors.isEmpty()}">
+            	<span th:each="coAuthor, iterStat : ${chapter.series.coAuthors}">
+            		<a th:if="${coAuthor!=null}" th:href='@{|/${coAuthor.username}|}' href="#" th:text="${coAuthor.username}">Co-Author</a><span th:if="${coAuthor==null}">Former Member</span><span th:if="${!iterStat.last}">,</span> 
+            	</span>
+            </span>
         </p>
         
         <hr/>

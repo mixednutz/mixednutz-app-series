@@ -2,6 +2,7 @@ package net.mixednutz.app.server.controller.api;
 
 import java.util.Collection;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.mixednutz.api.model.ITimelineElement;
 import net.mixednutz.app.server.controller.BaseChapterController;
 import net.mixednutz.app.server.entity.User;
 import net.mixednutz.app.server.entity.post.series.Chapter;
@@ -20,6 +22,20 @@ import net.mixednutz.app.server.entity.post.series.ChapterReaction;
 @Controller
 @RequestMapping({"/api","/internal"})
 public class ChapterApiController extends BaseChapterController {
+	
+	@RequestMapping(
+			value="/mixednutz-timeline-element"+"/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}", 
+			method = {RequestMethod.GET,RequestMethod.HEAD})
+	public @ResponseBody ITimelineElement getTimelineElement(@PathVariable String username, 
+			@PathVariable Long seriesId, @PathVariable String seriesTitleKey, 
+			@PathVariable Long id, @PathVariable String titleKey,
+			Authentication auth) {
+		
+		Chapter chapter = get(username, seriesId, seriesTitleKey, id, titleKey);
+		assertVisibility(chapter, auth);
+		
+		return apiManager.toTimelineElement(chapter, null);
+	}
 	
 	@RequestMapping(value="/{username}/series/{seriesId}/{seriesTitleKey}/chapter/{id}/{titleKey}/reaction/toggle", method = RequestMethod.POST)
 	public @ResponseBody ChapterReaction apiToggleReaction(

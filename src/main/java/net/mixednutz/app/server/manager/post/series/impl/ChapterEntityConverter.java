@@ -86,7 +86,7 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 		api.setDescription(entity.getSeries().getDescription());
 		if (entity.getSeries().getCoAuthors()!=null) {
 			api.setContributedByUser(entity.getSeries().getCoAuthors().stream()
-					.map(coauthor->apiManager.toUser(viewer)).collect(Collectors.toList()));
+					.map(coauthor->apiManager.toUser(coauthor, baseUrl)).collect(Collectors.toList()));
 		}
 		api.setLatestSuburi(entity.getUri());
 		api.setLatestSuburl(baseUrl+entity.getUri());
@@ -191,6 +191,14 @@ public class ChapterEntityConverter implements ApiElementConverter<Chapter>{
 		}
 		
 		return link;
+	}
+
+	public void setNetworkInfo(NetworkInfo networkInfo) {
+		this.networkInfo = networkInfo;
+	}
+
+	public void setApiManager(ApiManager apiManager) {
+		this.apiManager = apiManager;
 	}
 
 }
